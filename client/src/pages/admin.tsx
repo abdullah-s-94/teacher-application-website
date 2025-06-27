@@ -27,6 +27,7 @@ export default function Admin() {
     specialization: "",
     hasProfessionalLicense: "",
   });
+  const [searchInput, setSearchInput] = useState("");
   const [selectedApplications, setSelectedApplications] = useState<number[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -35,6 +36,15 @@ export default function Admin() {
     const loggedIn = localStorage.getItem("adminLoggedIn") === "true";
     setIsLoggedIn(loggedIn);
   }, []);
+
+  // Debounce search input
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setFilters(prev => ({ ...prev, search: searchInput }));
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timeoutId);
+  }, [searchInput]);
 
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ['/api/applications', filters],
@@ -519,8 +529,8 @@ export default function Admin() {
               <label className="block text-sm font-semibold mb-2">البحث</label>
               <Input
                 placeholder="ابحث بالاسم أو الهوية الوطنية"
-                value={filters.search}
-                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
               />
             </div>
             <div>
