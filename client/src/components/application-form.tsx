@@ -534,8 +534,8 @@ export function ApplicationForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="نعم">نعم</SelectItem>
-                      <SelectItem value="لا">لا</SelectItem>
+                      <SelectItem value="yes">نعم</SelectItem>
+                      <SelectItem value="no">لا</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
