@@ -8,6 +8,7 @@ interface HeaderProps {
 }
 
 export function Header({ currentView, onViewChange }: HeaderProps) {
+  const isAdminLoggedIn = localStorage.getItem("adminLoggedIn") === "true";
   return (
     <header className="bg-white shadow-sm border-b border-slate-200">
       <div className="container mx-auto px-4 py-6">
@@ -32,14 +33,16 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
               <FileText className="h-5 w-5" />
               تقديم طلب
             </Button>
-            <Button
-              onClick={() => onViewChange("admin")}
-              variant={currentView === "admin" ? "default" : "secondary"}
-              className="gap-2"
-            >
-              <BarChart3 className="h-5 w-5" />
-              لوحة التحكم
-            </Button>
+            {(isAdminLoggedIn || currentView === "admin") && (
+              <Button
+                onClick={() => onViewChange("admin")}
+                variant={currentView === "admin" ? "default" : "secondary"}
+                className="gap-2"
+              >
+                <BarChart3 className="h-5 w-5" />
+                لوحة التحكم
+              </Button>
+            )}
           </div>
         </div>
       </div>

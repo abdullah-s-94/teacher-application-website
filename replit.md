@@ -30,6 +30,7 @@ The application uses a monorepo structure with shared code:
 - **Tailwind CSS** for styling with Arabic RTL support
 - **React Hook Form** with Zod validation for form handling
 - **TanStack Query** for API state management
+- **Simple authentication** system for admin access with localStorage
 
 ### Backend Architecture
 - **Express.js** server with TypeScript
@@ -122,8 +123,18 @@ Key application fields:
 
 Preferred communication style: Simple, everyday language.
 
+## Authentication
+
+### Admin Access
+- Username: `Admin`
+- Password: `Abu0555700769@@`
+- Simple localStorage-based authentication
+- Admin panel access protected by login form
+- Logout functionality available in admin dashboard
+
 ## Changelog
 
 Changelog:
 - June 27, 2025. Initial setup
 - June 27, 2025. Added PostgreSQL database integration with Drizzle ORM, migrated from memory storage to persistent database storage
+- June 27, 2025. Implemented admin authentication system with login/logout functionality

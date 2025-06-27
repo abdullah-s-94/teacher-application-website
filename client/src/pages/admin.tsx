@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,11 +7,27 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Download, Eye, FileDown, User } from "lucide-react";
+import { Download, Eye, FileDown, User, LogOut } from "lucide-react";
 import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel } from "@/lib/utils";
+import { LoginForm } from "@/components/login-form";
 import type { Application } from "@shared/schema";
 
 export default function Admin() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const loggedIn = localStorage.getItem("adminLoggedIn") === "true";
+    setIsLoggedIn(loggedIn);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminLoggedIn");
+    setIsLoggedIn(false);
+  };
+
+  if (!isLoggedIn) {
+    return <LoginForm onLoginSuccess={() => setIsLoggedIn(true)} />;
+  }
   const [filters, setFilters] = useState({
     search: "",
     position: "",
@@ -116,10 +132,16 @@ export default function Admin() {
         <CardHeader>
           <div className="flex items-center justify-between mb-6">
             <CardTitle className="text-2xl">لوحة تحكم المتقدمين</CardTitle>
-            <Button onClick={exportData} className="gap-2">
-              <FileDown className="h-5 w-5" />
-              تصدير البيانات
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={exportData} className="gap-2">
+                <FileDown className="h-5 w-5" />
+                تصدير البيانات
+              </Button>
+              <Button onClick={handleLogout} variant="outline" className="gap-2">
+                <LogOut className="h-5 w-5" />
+                تسجيل الخروج
+              </Button>
+            </div>
           </div>
 
           {/* Statistics Cards */}
@@ -156,12 +178,12 @@ export default function Admin() {
             </div>
             <div>
               <label className="block text-sm font-semibold mb-2">الوظيفة</label>
-              <Select value={filters.position} onValueChange={(value) => setFilters(prev => ({ ...prev, position: value }))}>
+              <Select value={filters.position} onValueChange={(value) => setFilters(prev => ({ ...prev, position: value === "all" ? "" : value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="جميع الوظائف" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">جميع الوظائف</SelectItem>
+                  <SelectItem value="all">جميع الوظائف</SelectItem>
                   <SelectItem value="teacher">معلم</SelectItem>
                   <SelectItem value="admin">إداري</SelectItem>
                   <SelectItem value="vice_principal">وكيل</SelectItem>
@@ -171,12 +193,12 @@ export default function Admin() {
             </div>
             <div>
               <label className="block text-sm font-semibold mb-2">المؤهل</label>
-              <Select value={filters.qualification} onValueChange={(value) => setFilters(prev => ({ ...prev, qualification: value }))}>
+              <Select value={filters.qualification} onValueChange={(value) => setFilters(prev => ({ ...prev, qualification: value === "all" ? "" : value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="جميع المؤهلات" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">جميع المؤهلات</SelectItem>
+                  <SelectItem value="all">جميع المؤهلات</SelectItem>
                   <SelectItem value="bachelor">بكالوريوس</SelectItem>
                   <SelectItem value="master">ماجستير</SelectItem>
                   <SelectItem value="phd">دكتوراة</SelectItem>
@@ -185,12 +207,12 @@ export default function Admin() {
             </div>
             <div>
               <label className="block text-sm font-semibold mb-2">سنوات الخبرة</label>
-              <Select value={filters.experienceRange} onValueChange={(value) => setFilters(prev => ({ ...prev, experienceRange: value }))}>
+              <Select value={filters.experienceRange} onValueChange={(value) => setFilters(prev => ({ ...prev, experienceRange: value === "all" ? "" : value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="جميع المستويات" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">جميع المستويات</SelectItem>
+                  <SelectItem value="all">جميع المستويات</SelectItem>
                   <SelectItem value="0-2">0-2 سنوات</SelectItem>
                   <SelectItem value="3-5">3-5 سنوات</SelectItem>
                   <SelectItem value="6-10">6-10 سنوات</SelectItem>
