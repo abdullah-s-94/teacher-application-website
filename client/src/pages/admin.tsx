@@ -9,8 +9,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText } from "lucide-react";
-import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel, formatAgeLabel } from "@/lib/utils";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star } from "lucide-react";
+import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel, formatAgeLabel, getStatusLabel, getStatusBadgeColor, getSpecializationLabel } from "@/lib/utils";
 import { LoginForm } from "@/components/login-form";
 import type { Application } from "@shared/schema";
 
@@ -22,6 +25,7 @@ export default function Admin() {
     qualification: "",
     experienceRange: "",
   });
+  const { toast } = useToast();
 
   useEffect(() => {
     const loggedIn = localStorage.getItem("adminLoggedIn") === "true";
@@ -94,8 +98,93 @@ export default function Admin() {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Error downloading CV:', error);
-      // Show user-friendly error message
-      alert('فشل في تحميل الملف. يرجى المحاولة مرة أخرى.');
+      toast({
+        title: "خطأ",
+        description: "فشل في تحميل الملف. يرجى المحاولة مرة أخرى.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleStatusUpdate = async (id: number, status: string) => {
+    try {
+      const response = await fetch(`/api/applications/${id}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+      
+      if (!response.ok) throw new Error('Failed to update status');
+      
+      toast({
+        title: "تم التحديث",
+        description: `تم تحديث حالة الطلب إلى ${getStatusLabel(status)}`,
+        variant: "default",
+      });
+      
+      // Refetch data
+      window.location.reload();
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في تحديث الحالة. يرجى المحاولة مرة أخرى.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteApplication = async (id: number) => {
+    try {
+      const response = await fetch(`/api/applications/${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) throw new Error('Failed to delete application');
+      
+      toast({
+        title: "تم الحذف",
+        description: "تم حذف الطلب بنجاح",
+        variant: "default",
+      });
+      
+      // Refetch data
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting application:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في حذف الطلب. يرجى المحاولة مرة أخرى.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteAllApplications = async () => {
+    try {
+      const response = await fetch(`/api/applications`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) throw new Error('Failed to delete all applications');
+      
+      toast({
+        title: "تم الحذف",
+        description: "تم حذف جميع الطلبات بنجاح",
+        variant: "default",
+      });
+      
+      // Refetch data
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting all applications:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في حذف جميع الطلبات. يرجى المحاولة مرة أخرى.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -203,6 +292,31 @@ export default function Admin() {
                 <FileDown className="h-5 w-5" />
                 تصدير البيانات
               </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" className="gap-2">
+                    <Trash2 className="h-5 w-5" />
+                    حذف جميع الطلبات
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent dir="rtl">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>تحذير: حذف جميع الطلبات</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      هذا الإجراء خطير ولا يمكن التراجع عنه. سيتم حذف جميع طلبات التوظيف نهائياً. هل أنت متأكد؟
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteAllApplications}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      حذف الكل
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <Button onClick={handleLogout} variant="outline" className="gap-2">
                 <LogOut className="h-5 w-5" />
                 تسجيل الخروج
@@ -212,44 +326,97 @@ export default function Admin() {
 
           {/* Statistics Cards */}
           {stats && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-4 rounded-lg border border-primary/20 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold text-primary mb-1">إجمالي المتقدمين</h3>
-                    <p className="text-2xl font-bold text-primary">{stats.total}</p>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-4 rounded-lg border border-primary/20 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-semibold text-primary mb-1">إجمالي المتقدمين</h3>
+                      <p className="text-2xl font-bold text-primary">{stats.total}</p>
+                    </div>
+                    <User className="h-8 w-8 text-primary/50" />
                   </div>
-                  <User className="h-8 w-8 text-primary/50" />
+                </div>
+                <div className="bg-gradient-to-br from-blue-100 to-blue-50 p-4 rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-semibold text-blue-600 mb-1">معلمين</h3>
+                      <p className="text-2xl font-bold text-blue-600">{stats.teachers}</p>
+                    </div>
+                    <GraduationCap className="h-8 w-8 text-blue-400" />
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-orange-100 to-orange-50 p-4 rounded-lg border border-orange-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-semibold text-orange-600 mb-1">إداريين</h3>
+                      <p className="text-2xl font-bold text-orange-600">{stats.admin}</p>
+                    </div>
+                    <FileText className="h-8 w-8 text-orange-400" />
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-emerald-100 to-emerald-50 p-4 rounded-lg border border-emerald-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-semibold text-emerald-600 mb-1">مدراء ووكلاء</h3>
+                      <p className="text-2xl font-bold text-emerald-600">{stats.management}</p>
+                    </div>
+                    <Award className="h-8 w-8 text-emerald-400" />
+                  </div>
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-blue-100 to-blue-50 p-4 rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold text-blue-600 mb-1">معلمين</h3>
-                    <p className="text-2xl font-bold text-blue-600">{stats.teachers}</p>
+
+              {/* Status Statistics */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-gradient-to-br from-yellow-100 to-yellow-50 p-4 rounded-lg border border-yellow-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-semibold text-yellow-600 mb-1">تحت الإجراء</h3>
+                      <p className="text-2xl font-bold text-yellow-600">{stats.status?.under_review || 0}</p>
+                    </div>
+                    <Clock className="h-8 w-8 text-yellow-400" />
                   </div>
-                  <GraduationCap className="h-8 w-8 text-blue-400" />
+                </div>
+                <div className="bg-gradient-to-br from-green-100 to-green-50 p-4 rounded-lg border border-green-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-semibold text-green-600 mb-1">مقبولين</h3>
+                      <p className="text-2xl font-bold text-green-600">{stats.status?.accepted || 0}</p>
+                    </div>
+                    <CheckCircle className="h-8 w-8 text-green-400" />
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-red-100 to-red-50 p-4 rounded-lg border border-red-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-semibold text-red-600 mb-1">مرفوضين</h3>
+                      <p className="text-2xl font-bold text-red-600">{stats.status?.rejected || 0}</p>
+                    </div>
+                    <XCircle className="h-8 w-8 text-red-400" />
+                  </div>
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-orange-100 to-orange-50 p-4 rounded-lg border border-orange-200 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold text-orange-600 mb-1">إداريين</h3>
-                    <p className="text-2xl font-bold text-orange-600">{stats.admin}</p>
+
+              {/* Specialization Statistics */}
+              {stats.specializations && Object.keys(stats.specializations).length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                    <BookOpen className="h-5 w-5" />
+                    إحصائيات التخصصات
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                    {Object.entries(stats.specializations).map(([specialization, count]) => (
+                      <div key={specialization} className="bg-slate-50 p-3 rounded-lg border hover:shadow-sm transition-shadow">
+                        <div className="text-center">
+                          <p className="text-sm font-medium text-slate-600 mb-1">{getSpecializationLabel(specialization)}</p>
+                          <p className="text-xl font-bold text-primary">{count as number}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <FileText className="h-8 w-8 text-orange-400" />
                 </div>
-              </div>
-              <div className="bg-gradient-to-br from-emerald-100 to-emerald-50 p-4 rounded-lg border border-emerald-200 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold text-emerald-600 mb-1">مدراء ووكلاء</h3>
-                    <p className="text-2xl font-bold text-emerald-600">{stats.management}</p>
-                  </div>
-                  <Award className="h-8 w-8 text-emerald-400" />
-                </div>
-              </div>
-            </div>
+              )}
+            </>
           )}
 
           {/* Filters */}
@@ -323,6 +490,7 @@ export default function Admin() {
                   <TableHead className="text-right">الخبرة</TableHead>
                   <TableHead className="text-right">العمر</TableHead>
                   <TableHead className="text-right">المعدل</TableHead>
+                  <TableHead className="text-right">الحالة</TableHead>
                   <TableHead className="text-right">تاريخ التقديم</TableHead>
                   <TableHead className="text-right">الإجراءات</TableHead>
                 </TableRow>
@@ -330,7 +498,7 @@ export default function Admin() {
               <TableBody>
                 {applications.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-slate-500">
+                    <TableCell colSpan={10} className="text-center py-8 text-slate-500">
                       لا توجد طلبات تقديم متاحة
                     </TableCell>
                   </TableRow>
@@ -380,6 +548,11 @@ export default function Admin() {
                       </TableCell>
                       <TableCell className="text-sm">
                         {application.grade}/{application.gradeType}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        <Badge className={getStatusBadgeColor(application.status || 'under_review')}>
+                          {getStatusLabel(application.status || 'under_review')}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-sm text-slate-500">
                         {formatDate(application.submittedAt)}
@@ -530,6 +703,74 @@ export default function Admin() {
                               <Download className="h-4 w-4" />
                             </Button>
                           )}
+                          
+                          {/* Status Update Dropdown */}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0"
+                                title="تحديث الحالة"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => handleStatusUpdate(application.id, 'accepted')}
+                                className="gap-2 text-green-600"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                                قبول
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleStatusUpdate(application.id, 'rejected')}
+                                className="gap-2 text-red-600"
+                              >
+                                <XCircle className="h-4 w-4" />
+                                رفض
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleStatusUpdate(application.id, 'under_review')}
+                                className="gap-2 text-yellow-600"
+                              >
+                                <AlertCircle className="h-4 w-4" />
+                                تحت الإجراء
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+
+                          {/* Delete Button */}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                                title="حذف الطلب"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent dir="rtl">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  هذا الإجراء لا يمكن التراجع عنه. سيتم حذف طلب {application.fullName} نهائياً.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteApplication(application.id)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  حذف
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>

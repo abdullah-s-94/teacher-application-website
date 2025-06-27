@@ -134,18 +134,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/applications/stats", async (req, res) => {
     try {
       const applications = await storage.getAllApplications();
+      const specializationStats = await storage.getSpecializationStats();
       
       const stats = {
         total: applications.length,
         teachers: applications.filter(app => app.position === 'teacher').length,
         admin: applications.filter(app => app.position === 'admin').length,
         management: applications.filter(app => ['vice_principal', 'principal'].includes(app.position)).length,
+        specializations: specializationStats,
+        status: {
+          under_review: applications.filter(app => app.status === 'under_review').length,
+          accepted: applications.filter(app => app.status === 'accepted').length,
+          rejected: applications.filter(app => app.status === 'rejected').length,
+        }
       };
       
       res.json(stats);
     } catch (error) {
       console.error('Error fetching stats:', error);
       res.status(500).json({ message: "فشل في جلب الإحصائيات" });
+    }
+  });
+
+  // Update application status
+  app.patch("/api/applications/:id/status", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+
+      if (!['under_review', 'accepted', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: "حالة غير صحيحة" });
+      }
+
+      await storage.updateApplicationStatus(id, status);
+      res.json({ message: "تم تحديث الحالة بنجاح" });
+    } catch (error) {
+      console.error('Error updating status:', error);
+      res.status(500).json({ message: "فشل في تحديث الحالة" });
+    }
+  });
+
+  // Delete single application
+  app.delete("/api/applications/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteApplication(id);
+      res.json({ message: "تم حذف الطلب بنجاح" });
+    } catch (error) {
+      console.error('Error deleting application:', error);
+      res.status(500).json({ message: "فشل في حذف الطلب" });
+    }
+  });
+
+  // Delete all applications
+  app.delete("/api/applications", async (req, res) => {
+    try {
+      await storage.deleteAllApplications();
+      res.json({ message: "تم حذف جميع الطلبات بنجاح" });
+    } catch (error) {
+      console.error('Error deleting all applications:', error);
+      res.status(500).json({ message: "فشل في حذف الطلبات" });
     }
   });
 

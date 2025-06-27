@@ -76,3 +76,40 @@ export function formatAgeLabel(birthDate: string | Date | null): string {
   if (age === null) return "غير محدد";
   return `${age} سنة`;
 }
+
+export function getStatusLabel(status: string): string {
+  const statusLabels: Record<string, string> = {
+    'under_review': 'تحت الإجراء',
+    'accepted': 'مقبول',
+    'rejected': 'مرفوض'
+  };
+  return statusLabels[status] || status;
+}
+
+export function getStatusBadgeColor(status: string): string {
+  const statusColors: Record<string, string> = {
+    'under_review': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    'accepted': 'bg-green-100 text-green-800 border-green-200',
+    'rejected': 'bg-red-100 text-red-800 border-red-200'
+  };
+  return statusColors[status] || 'bg-gray-100 text-gray-800 border-gray-200';
+}
+
+export function getSpecializationLabel(specialization: string): string {
+  const specializationLabels: Record<string, string> = {
+    'early_childhood': 'رياض الأطفال',
+    'arabic': 'اللغة العربية',
+    'english': 'اللغة الإنجليزية',
+    'computer_science': 'علوم الحاسب',
+    'mathematics': 'الرياضيات',
+    'chemistry': 'الكيمياء',
+    'physics': 'الفيزياء',
+    'history': 'التاريخ',
+    'geography': 'الجغرافيا',
+    'business_administration': 'إدارة الأعمال',
+    'biology': 'الأحياء',
+    'home_economics': 'الاقتصاد المنزلي',
+    'religion': 'التربية الإسلامية'
+  };
+  return specializationLabels[specialization] || specialization;
+}

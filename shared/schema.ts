@@ -17,11 +17,13 @@ export const applications = pgTable("applications", {
   grade: text("grade").notNull(),
   cvFilename: text("cv_filename"),
   cvOriginalName: text("cv_original_name"),
+  status: text("status").default("under_review").notNull(),
   submittedAt: timestamp("submitted_at").defaultNow().notNull(),
 });
 
 export const insertApplicationSchema = createInsertSchema(applications).omit({
   id: true,
+  status: true,
   submittedAt: true,
 });
 

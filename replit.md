@@ -157,3 +157,4 @@ Changelog:
 - June 27, 2025. Removed all images containing people and replaced with appropriate SVG icons for girls' school environment
 - June 27, 2025. Fixed CV download functionality and Arabic filename encoding issues
 - June 27, 2025. Added birth date field with automatic age calculation in admin panel, converted specialization to dropdown with predefined options (early childhood, Arabic, English, computer science, mathematics, chemistry, physics, history, geography, business administration, biology, home economics, religion)
+- June 27, 2025. Implemented comprehensive application management system: application status workflow (under review/accepted/rejected), individual and bulk delete functionality, specialization statistics in admin dashboard, status-based sorting (under review items appear first)

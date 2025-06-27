@@ -17,6 +17,10 @@ export interface IStorage {
     experienceRange?: string;
     search?: string;
   }): Promise<Application[]>;
+  updateApplicationStatus(id: number, status: string): Promise<void>;
+  deleteApplication(id: number): Promise<void>;
+  deleteAllApplications(): Promise<void>;
+  getSpecializationStats(): Promise<Record<string, number>>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -50,7 +54,15 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(applications)
-      .orderBy(desc(applications.submittedAt));
+      .orderBy(
+        sql`CASE 
+          WHEN ${applications.status} = 'under_review' THEN 1 
+          WHEN ${applications.status} = 'accepted' THEN 2 
+          WHEN ${applications.status} = 'rejected' THEN 3 
+          ELSE 4 
+        END`,
+        desc(applications.submittedAt)
+      );
   }
 
   async getApplicationById(id: number): Promise<Application | undefined> {
@@ -110,6 +122,38 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(applications)
       .orderBy(desc(applications.submittedAt));
+  }
+
+  async updateApplicationStatus(id: number, status: string): Promise<void> {
+    await db
+      .update(applications)
+      .set({ status })
+      .where(eq(applications.id, id));
+  }
+
+  async deleteApplication(id: number): Promise<void> {
+    await db
+      .delete(applications)
+      .where(eq(applications.id, id));
+  }
+
+  async deleteAllApplications(): Promise<void> {
+    await db.delete(applications);
+  }
+
+  async getSpecializationStats(): Promise<Record<string, number>> {
+    const results = await db
+      .select({
+        specialization: applications.specialization,
+        count: sql<number>`count(*)`.as('count')
+      })
+      .from(applications)
+      .groupBy(applications.specialization);
+
+    return results.reduce((acc, row) => {
+      acc[row.specialization] = Number(row.count);
+      return acc;
+    }, {} as Record<string, number>);
   }
 }
 
