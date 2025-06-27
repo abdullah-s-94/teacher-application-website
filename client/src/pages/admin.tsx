@@ -30,7 +30,7 @@ export default function Admin() {
 
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ['/api/applications', filters],
-    queryFn: async () => {
+    queryFn: async (): Promise<Application[]> => {
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
         if (value) params.append(key, value);
@@ -38,7 +38,7 @@ export default function Admin() {
       
       const response = await fetch(`/api/applications?${params}`);
       if (!response.ok) throw new Error('Failed to fetch applications');
-      return response.json() as Application[];
+      return await response.json();
     },
     enabled: isLoggedIn, // Only fetch when logged in
   });
@@ -62,10 +62,26 @@ export default function Admin() {
     return <LoginForm onLoginSuccess={() => setIsLoggedIn(true)} />;
   }
 
+  // Helper function to clean and display file names properly
+  const getDisplayFileName = (originalName?: string, applicantName?: string, id?: number) => {
+    if (!originalName) return 'السيرة الذاتية.pdf';
+    
+    // Check if the original name contains corrupted characters (encoding issues)
+    const hasCorruptedChars = /Ã|Ø|Ù|â|©|¨/.test(originalName);
+    
+    if (hasCorruptedChars || originalName.length > 100) {
+      return applicantName ? `سيرة_ذاتية_${applicantName}.pdf` : `سيرة_ذاتية_${id}.pdf`;
+    }
+    
+    return originalName;
+  };
+
   const downloadCV = async (id: number, originalName?: string) => {
     try {
       const response = await fetch(`/api/applications/${id}/cv`);
-      if (!response.ok) throw new Error('Failed to download CV');
+      if (!response.ok) {
+        throw new Error('Failed to download CV');
+      }
       
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -78,6 +94,8 @@ export default function Admin() {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Error downloading CV:', error);
+      // Show user-friendly error message
+      alert('فشل في تحميل الملف. يرجى المحاولة مرة أخرى.');
     }
   };
 
@@ -466,7 +484,7 @@ export default function Admin() {
                                         <div className="flex items-center justify-between">
                                           <div className="flex items-center gap-2">
                                             <FileText className="h-4 w-4 text-slate-600" />
-                                            <span>{application.cvOriginalName || 'CV.pdf'}</span>
+                                            <span>{getDisplayFileName(application.cvOriginalName || undefined, application.fullName, application.id)}</span>
                                           </div>
                                           <Button
                                             onClick={() => downloadCV(application.id, application.cvOriginalName || undefined)}

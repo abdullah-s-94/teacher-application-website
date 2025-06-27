@@ -132,6 +132,19 @@ Preferred communication style: Simple, everyday language.
 - Admin panel access protected by login form
 - Logout functionality available in admin dashboard
 
+## Known Issues & Solutions
+
+### CV File Download Issues (Resolved)
+- **Problem**: Arabic filenames were showing corrupted characters due to encoding issues
+- **Solution**: Implemented proper UTF-8 encoding for file downloads and smart filename detection
+- **Problem**: CV download links were not working properly
+- **Solution**: Enhanced error handling and improved file serving with proper headers
+
+### File Storage Considerations
+- Current implementation uses local file storage
+- Uploaded files may be lost during environment restarts
+- Production deployment should consider cloud storage solutions
+
 ## Changelog
 
 Changelog:
@@ -140,3 +153,5 @@ Changelog:
 - June 27, 2025. Implemented admin authentication system with login/logout functionality
 - June 27, 2025. Fixed React hooks error in admin panel and enhanced UI with detailed applicant view modals, improved statistics cards, and better loading states
 - June 27, 2025. Added navigation between application form and admin panel with dedicated buttons, updated copyright year to 2025
+- June 27, 2025. Removed all images containing people and replaced with appropriate SVG icons for girls' school environment
+- June 27, 2025. Fixed CV download functionality and Arabic filename encoding issues

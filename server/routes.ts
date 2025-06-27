@@ -18,7 +18,9 @@ const storage_multer = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    // Keep original extension
+    const ext = path.extname(file.originalname) || '.pdf';
+    cb(null, uniqueSuffix + ext);
   }
 });
 
@@ -101,10 +103,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const filePath = path.join(uploadsDir, application.cvFilename);
       
       if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ message: "الملف غير موجود" });
+        console.log(`CV file not found: ${filePath} for application ID: ${id}`);
+        return res.status(404).json({ message: "الملف غير موجود في النظام" });
       }
 
-      res.download(filePath, application.cvOriginalName || application.cvFilename);
+      // Improve file naming for Arabic files
+      let downloadName = application.cvOriginalName || application.cvFilename;
+      
+      // If original name is corrupted or contains strange characters, use a safe default
+      if (downloadName && /[^\x20-\x7E\u0600-\u06FF\u0750-\u077F]/.test(downloadName) && !downloadName.includes('.pdf')) {
+        downloadName = `سيرة_ذاتية_${application.fullName || id}.pdf`;
+      } else if (!downloadName.endsWith('.pdf')) {
+        downloadName = downloadName + '.pdf';
+      }
+
+      // Set proper headers for Arabic filenames
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
+      
+      // Send the file
+      res.sendFile(filePath);
     } catch (error) {
       console.error('Error downloading CV:', error);
       res.status(500).json({ message: "فشل في تحميل الملف" });
