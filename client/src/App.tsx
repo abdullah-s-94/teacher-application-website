@@ -17,7 +17,7 @@ function App() {
         <div className="min-h-screen bg-slate-50">
           <Header currentView={currentView} onViewChange={setCurrentView} />
           
-          {currentView === "application" ? <Home /> : <Admin />}
+          {currentView === "admin" ? <Admin /> : <Home />}
           
           {/* Footer */}
           <footer className="bg-slate-800 text-white py-8 mt-16">
