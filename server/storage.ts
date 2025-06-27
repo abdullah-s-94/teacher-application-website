@@ -1,4 +1,4 @@
-import { applications, type Application, type InsertApplication } from "@shared/schema";
+import { applications, type Application, type InsertApplication, type User, type InsertUser } from "@shared/schema";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -53,6 +53,8 @@ export class MemStorage implements IStorage {
       ...insertApplication,
       id,
       submittedAt: new Date(),
+      cvFilename: insertApplication.cvFilename || null,
+      cvOriginalName: insertApplication.cvOriginalName || null,
     };
     this.applications.set(id, application);
     return application;

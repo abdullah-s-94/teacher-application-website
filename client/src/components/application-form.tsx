@@ -184,6 +184,7 @@ export function ApplicationForm() {
                         <SelectItem value="dammam">الدمام</SelectItem>
                         <SelectItem value="mecca">مكة المكرمة</SelectItem>
                         <SelectItem value="medina">المدينة المنورة</SelectItem>
+                        <SelectItem value="taif">الطائف</SelectItem>
                         <SelectItem value="other">أخرى</SelectItem>
                       </SelectContent>
                     </Select>

@@ -40,6 +40,7 @@ export function getCityLabel(city: string): string {
     dammam: "الدمام",
     mecca: "مكة المكرمة",
     medina: "المدينة المنورة",
+    taif: "الطائف",
     other: "أخرى"
   };
   return labels[city as keyof typeof labels] || city;
