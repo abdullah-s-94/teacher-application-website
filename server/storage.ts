@@ -1,4 +1,6 @@
-import { applications, type Application, type InsertApplication, type User, type InsertUser } from "@shared/schema";
+import { users, applications, type User, type InsertUser, type Application, type InsertApplication } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and, or, like, sql } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -17,57 +19,46 @@ export interface IStorage {
   }): Promise<Application[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private applications: Map<number, Application>;
-  private currentUserId: number;
-  private currentApplicationId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.applications = new Map();
-    this.currentUserId = 1;
-    this.currentApplicationId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async createApplication(insertApplication: InsertApplication): Promise<Application> {
-    const id = this.currentApplicationId++;
-    const application: Application = {
-      ...insertApplication,
-      id,
-      submittedAt: new Date(),
-      cvFilename: insertApplication.cvFilename || null,
-      cvOriginalName: insertApplication.cvOriginalName || null,
-    };
-    this.applications.set(id, application);
+    const [application] = await db
+      .insert(applications)
+      .values(insertApplication)
+      .returning();
     return application;
   }
 
   async getAllApplications(): Promise<Application[]> {
-    return Array.from(this.applications.values()).sort(
-      (a, b) => b.submittedAt.getTime() - a.submittedAt.getTime()
-    );
+    return await db
+      .select()
+      .from(applications)
+      .orderBy(desc(applications.submittedAt));
   }
 
   async getApplicationById(id: number): Promise<Application | undefined> {
-    return this.applications.get(id);
+    const [application] = await db
+      .select()
+      .from(applications)
+      .where(eq(applications.id, id));
+    return application || undefined;
   }
 
   async getApplicationsByFilter(filter: {
@@ -76,43 +67,50 @@ export class MemStorage implements IStorage {
     experienceRange?: string;
     search?: string;
   }): Promise<Application[]> {
-    let apps = Array.from(this.applications.values());
+    const conditions = [];
 
     if (filter.position) {
-      apps = apps.filter(app => app.position === filter.position);
+      conditions.push(eq(applications.position, filter.position));
     }
 
     if (filter.qualification) {
-      apps = apps.filter(app => app.qualification === filter.qualification);
+      conditions.push(eq(applications.qualification, filter.qualification));
     }
 
     if (filter.experienceRange) {
-      apps = apps.filter(app => {
-        const exp = parseInt(app.experience);
-        switch (filter.experienceRange) {
-          case '0-2':
-            return exp >= 0 && exp <= 2;
-          case '3-5':
-            return exp >= 3 && exp <= 5;
-          case '6-10':
-            return exp >= 6 && exp <= 10;
-          default:
-            return true;
-        }
-      });
-    }
-
-    if (filter.search) {
-      const searchLower = filter.search.toLowerCase();
-      apps = apps.filter(app => 
-        app.fullName.toLowerCase().includes(searchLower) ||
-        app.email.toLowerCase().includes(searchLower) ||
-        app.specialization.toLowerCase().includes(searchLower)
+      const [min, max] = filter.experienceRange.split('-').map(Number);
+      conditions.push(
+        and(
+          sql`CAST(${applications.experience} AS INTEGER) >= ${min}`,
+          sql`CAST(${applications.experience} AS INTEGER) <= ${max}`
+        )
       );
     }
 
-    return apps.sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
+    if (filter.search) {
+      const searchTerm = `%${filter.search}%`;
+      conditions.push(
+        or(
+          like(applications.fullName, searchTerm),
+          like(applications.email, searchTerm),
+          like(applications.specialization, searchTerm)
+        )
+      );
+    }
+
+    if (conditions.length > 0) {
+      return await db
+        .select()
+        .from(applications)
+        .where(and(...conditions))
+        .orderBy(desc(applications.submittedAt));
+    }
+    
+    return await db
+      .select()
+      .from(applications)
+      .orderBy(desc(applications.submittedAt));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

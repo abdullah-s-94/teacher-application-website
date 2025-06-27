@@ -35,7 +35,8 @@ The application uses a monorepo structure with shared code:
 - **Express.js** server with TypeScript
 - **Multer** for handling file uploads (PDF CVs only)
 - **Drizzle ORM** for database operations
-- **Custom storage interface** with memory storage fallback
+- **PostgreSQL** database with Neon serverless adapter
+- **Custom storage interface** with database implementation
 - **RESTful API** design with proper error handling
 
 ### Database Schema
@@ -125,3 +126,4 @@ Preferred communication style: Simple, everyday language.
 
 Changelog:
 - June 27, 2025. Initial setup
+- June 27, 2025. Added PostgreSQL database integration with Drizzle ORM, migrated from memory storage to persistent database storage
