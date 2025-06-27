@@ -92,7 +92,26 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (filter.specialization) {
-      conditions.push(eq(applications.specialization, filter.specialization));
+      // Handle both new standardized values and legacy values
+      const specializationMapping: Record<string, string[]> = {
+        'early_childhood': ['early_childhood', 'طفولة مبكرة', 'طفولة مبكره', 'معلم', 'معلم '],
+        'arabic': ['arabic', 'لغة عربية'],
+        'english': ['english', 'لغة انجليزية', 'بكالوريوس انجليش', 'بكالوريوس انجليش '],
+        'computer_science': ['computer_science', 'حاسب الي'],
+        'mathematics': ['mathematics', 'رياضيات'],
+        'chemistry': ['chemistry', 'كيمياء'],
+        'physics': ['physics', 'فيزياء'],
+        'history': ['history', 'تاريخ'],
+        'geography': ['geography', 'جغرافيا'],
+        'business_administration': ['business_administration', 'ادارة اعمال', 'ادارة اعمال '],
+        'biology': ['biology', 'احياء'],
+        'home_economics': ['home_economics', 'اقتصاد منزلي'],
+        'islamic_education': ['islamic_education', 'تربية إسلامية', 'religion', 'دين', 'شريعة']
+      };
+      
+      const matchingValues = specializationMapping[filter.specialization] || [filter.specialization];
+      const specializationConditions = matchingValues.map(value => eq(applications.specialization, value));
+      conditions.push(or(...specializationConditions));
     }
 
     if (filter.experienceRange) {

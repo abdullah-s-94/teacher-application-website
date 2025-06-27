@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Send, Upload, FileText, CheckCircle } from "lucide-react";
 import { z } from "zod";
+import { STANDARD_SPECIALIZATIONS } from "@/lib/utils";
 
 const formSchema = insertApplicationSchema.extend({
   cv: z.any().refine((file) => file instanceof File, "يرجى رفع السيرة الذاتية"),
@@ -282,19 +283,11 @@ export function ApplicationForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="طفولة مبكرة">طفولة مبكرة</SelectItem>
-                      <SelectItem value="لغة عربية">لغة عربية</SelectItem>
-                      <SelectItem value="لغة انجليزية">لغة انجليزية</SelectItem>
-                      <SelectItem value="حاسب الي">حاسب الي</SelectItem>
-                      <SelectItem value="رياضيات">رياضيات</SelectItem>
-                      <SelectItem value="كيمياء">كيمياء</SelectItem>
-                      <SelectItem value="فيزياء">فيزياء</SelectItem>
-                      <SelectItem value="تاريخ">تاريخ</SelectItem>
-                      <SelectItem value="جغرافيا">جغرافيا</SelectItem>
-                      <SelectItem value="ادارة اعمال">ادارة اعمال</SelectItem>
-                      <SelectItem value="احياء">احياء</SelectItem>
-                      <SelectItem value="اقتصاد منزلي">اقتصاد منزلي</SelectItem>
-                      <SelectItem value="دين">دين</SelectItem>
+                      {STANDARD_SPECIALIZATIONS.map((spec) => (
+                        <SelectItem key={spec.value} value={spec.value}>
+                          {spec.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

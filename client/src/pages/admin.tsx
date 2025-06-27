@@ -13,7 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star } from "lucide-react";
-import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel, formatAgeLabel, getStatusLabel, getStatusBadgeColor, getSpecializationLabel, getPositionBadgeColor } from "@/lib/utils";
+import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel, formatAgeLabel, getStatusLabel, getStatusBadgeColor, getSpecializationLabel, getPositionBadgeColor, STANDARD_SPECIALIZATIONS } from "@/lib/utils";
 import { LoginForm } from "@/components/login-form";
 import type { Application } from "@shared/schema";
 
@@ -481,28 +481,11 @@ export default function Admin() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">جميع التخصصات</SelectItem>
-                  <SelectItem value="early_childhood">طفولة مبكرة</SelectItem>
-                  <SelectItem value="arabic">لغة عربية</SelectItem>
-                  <SelectItem value="english">لغة إنجليزية</SelectItem>
-                  <SelectItem value="computer_science">حاسب آلي</SelectItem>
-                  <SelectItem value="mathematics">رياضيات</SelectItem>
-                  <SelectItem value="chemistry">كيمياء</SelectItem>
-                  <SelectItem value="physics">فيزياء</SelectItem>
-                  <SelectItem value="history">تاريخ</SelectItem>
-                  <SelectItem value="geography">جغرافيا</SelectItem>
-                  <SelectItem value="business_administration">إدارة أعمال</SelectItem>
-                  <SelectItem value="biology">أحياء</SelectItem>
-                  <SelectItem value="home_economics">اقتصاد منزلي</SelectItem>
-                  <SelectItem value="religion">تربية إسلامية</SelectItem>
-                  <SelectItem value="دين">تربية إسلامية</SelectItem>
-                  <SelectItem value="شريعة">تربية إسلامية</SelectItem>
-                  <SelectItem value="ادارة اعمال">إدارة أعمال</SelectItem>
-                  <SelectItem value="ادارة اعمال ">إدارة أعمال</SelectItem>
-                  <SelectItem value="بكالوريوس انجليش">لغة إنجليزية</SelectItem>
-                  <SelectItem value="بكالوريوس انجليش ">لغة إنجليزية</SelectItem>
-                  <SelectItem value="طفولة مبكره">طفولة مبكرة</SelectItem>
-                  <SelectItem value="معلم">تعليم عام</SelectItem>
-                  <SelectItem value="معلم ">تعليم عام</SelectItem>
+                  {STANDARD_SPECIALIZATIONS.map((spec) => (
+                    <SelectItem key={spec.value} value={spec.value}>
+                      {spec.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

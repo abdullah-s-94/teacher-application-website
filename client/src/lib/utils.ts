@@ -107,30 +107,49 @@ export function getPositionBadgeColor(position: string): string {
 
 export function getSpecializationLabel(specialization: string): string {
   const specializationLabels: Record<string, string> = {
-    // التخصصات الجديدة (من النموذج المحدث)
+    // التخصصات الموحدة الجديدة
     'early_childhood': 'طفولة مبكرة',
-    'arabic': 'لغة عربية',
-    'english': 'لغة إنجليزية',
-    'computer_science': 'حاسب آلي',
+    'arabic': 'لغة عربية', 
+    'english': 'لغة انجليزية',
+    'computer_science': 'حاسب الي',
     'mathematics': 'رياضيات',
     'chemistry': 'كيمياء',
     'physics': 'فيزياء',
     'history': 'تاريخ',
     'geography': 'جغرافيا',
-    'business_administration': 'إدارة أعمال',
-    'biology': 'أحياء',
+    'business_administration': 'ادارة اعمال',
+    'biology': 'احياء',
     'home_economics': 'اقتصاد منزلي',
+    'islamic_education': 'تربية إسلامية',
+    
+    // التخصصات الموجودة في قاعدة البيانات (تحويل للتخصصات الموحدة)
     'religion': 'تربية إسلامية',
-    // التخصصات الموجودة في قاعدة البيانات (من النموذج القديم)
     'شريعة': 'تربية إسلامية',
-    'ادارة اعمال': 'إدارة أعمال',
-    'ادارة اعمال ': 'إدارة أعمال',
-    'بكالوريوس انجليش': 'لغة إنجليزية',
-    'بكالوريوس انجليش ': 'لغة إنجليزية',
+    'ادارة اعمال': 'ادارة اعمال',
+    'ادارة اعمال ': 'ادارة اعمال',
+    'بكالوريوس انجليش': 'لغة انجليزية',
+    'بكالوريوس انجليش ': 'لغة انجليزية',
     'طفولة مبكره': 'طفولة مبكرة',
-    'معلم': 'تعليم عام',
-    'معلم ': 'تعليم عام',
+    'معلم': 'طفولة مبكرة',
+    'معلم ': 'طفولة مبكرة',
     'دين': 'تربية إسلامية'
   };
   return specializationLabels[specialization] || specialization;
 }
+
+// قائمة التخصصات الموحدة للاستخدام في النماذج والفلترة
+export const STANDARD_SPECIALIZATIONS = [
+  { value: 'early_childhood', label: 'طفولة مبكرة' },
+  { value: 'arabic', label: 'لغة عربية' },
+  { value: 'english', label: 'لغة انجليزية' },
+  { value: 'computer_science', label: 'حاسب الي' },
+  { value: 'mathematics', label: 'رياضيات' },
+  { value: 'chemistry', label: 'كيمياء' },
+  { value: 'physics', label: 'فيزياء' },
+  { value: 'history', label: 'تاريخ' },
+  { value: 'geography', label: 'جغرافيا' },
+  { value: 'business_administration', label: 'ادارة اعمال' },
+  { value: 'biology', label: 'احياء' },
+  { value: 'home_economics', label: 'اقتصاد منزلي' },
+  { value: 'islamic_education', label: 'تربية إسلامية' }
+];
