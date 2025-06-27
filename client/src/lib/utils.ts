@@ -95,21 +95,42 @@ export function getStatusBadgeColor(status: string): string {
   return statusColors[status] || 'bg-gray-100 text-gray-800 border-gray-200';
 }
 
+export function getPositionBadgeColor(position: string): string {
+  const positionColors: Record<string, string> = {
+    'teacher': 'bg-blue-100 text-blue-800 border-blue-200',
+    'admin': 'bg-purple-100 text-purple-800 border-purple-200',
+    'vice_principal': 'bg-orange-100 text-orange-800 border-orange-200',
+    'principal': 'bg-red-100 text-red-800 border-red-200'
+  };
+  return positionColors[position] || 'bg-gray-100 text-gray-800 border-gray-200';
+}
+
 export function getSpecializationLabel(specialization: string): string {
   const specializationLabels: Record<string, string> = {
-    'early_childhood': 'رياض الأطفال',
-    'arabic': 'اللغة العربية',
-    'english': 'اللغة الإنجليزية',
-    'computer_science': 'علوم الحاسب',
-    'mathematics': 'الرياضيات',
-    'chemistry': 'الكيمياء',
-    'physics': 'الفيزياء',
-    'history': 'التاريخ',
-    'geography': 'الجغرافيا',
-    'business_administration': 'إدارة الأعمال',
-    'biology': 'الأحياء',
-    'home_economics': 'الاقتصاد المنزلي',
-    'religion': 'التربية الإسلامية'
+    // التخصصات الجديدة (من النموذج المحدث)
+    'early_childhood': 'طفولة مبكرة',
+    'arabic': 'لغة عربية',
+    'english': 'لغة إنجليزية',
+    'computer_science': 'حاسب آلي',
+    'mathematics': 'رياضيات',
+    'chemistry': 'كيمياء',
+    'physics': 'فيزياء',
+    'history': 'تاريخ',
+    'geography': 'جغرافيا',
+    'business_administration': 'إدارة أعمال',
+    'biology': 'أحياء',
+    'home_economics': 'اقتصاد منزلي',
+    'religion': 'تربية إسلامية',
+    // التخصصات الموجودة في قاعدة البيانات (من النموذج القديم)
+    'شريعة': 'تربية إسلامية',
+    'ادارة اعمال': 'إدارة أعمال',
+    'ادارة اعمال ': 'إدارة أعمال',
+    'بكالوريوس انجليش': 'لغة إنجليزية',
+    'بكالوريوس انجليش ': 'لغة إنجليزية',
+    'طفولة مبكره': 'طفولة مبكرة',
+    'معلم': 'تعليم عام',
+    'معلم ': 'تعليم عام',
+    'دين': 'تربية إسلامية'
   };
   return specializationLabels[specialization] || specialization;
 }

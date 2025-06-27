@@ -13,7 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star } from "lucide-react";
-import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel, formatAgeLabel, getStatusLabel, getStatusBadgeColor, getSpecializationLabel } from "@/lib/utils";
+import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel, formatAgeLabel, getStatusLabel, getStatusBadgeColor, getSpecializationLabel, getPositionBadgeColor } from "@/lib/utils";
 import { LoginForm } from "@/components/login-form";
 import type { Application } from "@shared/schema";
 
@@ -494,6 +494,15 @@ export default function Admin() {
                   <SelectItem value="biology">أحياء</SelectItem>
                   <SelectItem value="home_economics">اقتصاد منزلي</SelectItem>
                   <SelectItem value="religion">تربية إسلامية</SelectItem>
+                  <SelectItem value="دين">تربية إسلامية</SelectItem>
+                  <SelectItem value="شريعة">تربية إسلامية</SelectItem>
+                  <SelectItem value="ادارة اعمال">إدارة أعمال</SelectItem>
+                  <SelectItem value="ادارة اعمال ">إدارة أعمال</SelectItem>
+                  <SelectItem value="بكالوريوس انجليش">لغة إنجليزية</SelectItem>
+                  <SelectItem value="بكالوريوس انجليش ">لغة إنجليزية</SelectItem>
+                  <SelectItem value="طفولة مبكره">طفولة مبكرة</SelectItem>
+                  <SelectItem value="معلم">تعليم عام</SelectItem>
+                  <SelectItem value="معلم ">تعليم عام</SelectItem>
                 </SelectContent>
               </Select>
             </div>
