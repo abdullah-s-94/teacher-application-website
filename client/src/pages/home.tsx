@@ -1,7 +1,5 @@
 import { ApplicationForm } from "@/components/application-form";
 import { Card, CardContent } from "@/components/ui/card";
-import saudiSchoolChildren from "@assets/saudi_school_children.svg";
-import saudiTeachers from "@assets/saudi_teachers.svg";
 
 export default function Home() {
   return (
@@ -23,13 +21,13 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <img 
-                src={saudiSchoolChildren}
-                alt="طالبات سعوديات في البيئة التعليمية" 
+                src="https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200" 
+                alt="طالبات في البيئة التعليمية" 
                 className="rounded-lg shadow-lg object-cover h-32"
               />
               <img 
-                src={saudiTeachers}
-                alt="معلمات سعوديات محجبات في الفصل" 
+                src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200" 
+                alt="بيئة تعليمية حديثة" 
                 className="rounded-lg shadow-lg object-cover h-32"
               />
             </div>
@@ -39,23 +37,23 @@ export default function Home() {
         {/* Image Gallery */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <img 
-            src={saudiTeachers}
-            alt="معلمات سعوديات محجبات في الفصل الدراسي" 
+            src="https://images.unsplash.com/photo-1544717297-fa95b6ee9643?ixlib=rb-4.0.3&auto=format&fit=crop&w=250&h=250" 
+            alt="معلمة في الفصل الدراسي" 
             className="rounded-xl shadow-md object-cover h-48 w-full"
           />
           <img 
-            src={saudiSchoolChildren}
-            alt="طالبات سعوديات في البيئة التعليمية التفاعلية" 
+            src="https://images.unsplash.com/photo-1497486751825-1233686d5d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=250&h=250" 
+            alt="بيئة تعليمية تفاعلية" 
             className="rounded-xl shadow-md object-cover h-48 w-full"
           />
           <img 
-            src={saudiTeachers}
-            alt="معلمات سعوديات في اجتماع تعليمي" 
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=250&h=250" 
+            alt="معلمات في اجتماع تعليمي" 
             className="rounded-xl shadow-md object-cover h-48 w-full"
           />
           <img 
-            src={saudiSchoolChildren}
-            alt="طالبات سعوديات في النشاط التعليمي" 
+            src="https://images.unsplash.com/photo-1581726690015-c9861fa5057f?ixlib=rb-4.0.3&auto=format&fit=crop&w=250&h=250" 
+            alt="طالبات في النشاط التعليمي" 
             className="rounded-xl shadow-md object-cover h-48 w-full"
           />
         </div>
