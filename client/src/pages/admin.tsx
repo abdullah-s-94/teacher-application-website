@@ -192,7 +192,7 @@ export default function Admin() {
 
   const exportData = () => {
     const csvContent = [
-      ['الاسم', 'الهوية الوطنية', 'الهاتف', 'المدينة', 'الوظيفة', 'المؤهل', 'التخصص', 'الخبرة', 'المعدل', 'تاريخ التقديم'],
+      ['الاسم', 'الهوية الوطنية', 'رقم الجوال', 'المدينة', 'الوظيفة', 'المؤهل', 'التخصص', 'الخبرة', 'المعدل', 'تاريخ التقديم'],
       ...applications.map(app => [
         app.fullName,
         app.nationalId,
@@ -625,7 +625,7 @@ export default function Admin() {
                                     </div>
                                     <div className="flex items-center gap-2">
                                       <Phone className="h-4 w-4 text-slate-600" />
-                                      <span className="font-medium">الهاتف:</span>
+                                      <span className="font-medium">رقم الجوال:</span>
                                       <span>{application.phone}</span>
                                     </div>
                                     <div className="flex items-center gap-2">

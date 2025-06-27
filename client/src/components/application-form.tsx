@@ -19,9 +19,8 @@ const formSchema = insertApplicationSchema.extend({
     .max(100, "الاسم طويل جداً")
     .regex(/^[\u0600-\u06FF\s]+$/, "الاسم الكامل يجب أن يحتوي على حروف عربية فقط"),
   phone: z.string()
-    .min(10, "رقم الهاتف يجب أن يكون 10 أرقام على الأقل")
-    .max(15, "رقم الهاتف طويل جداً")
-    .regex(/^[0-9]+$/, "رقم الهاتف يجب أن يحتوي على أرقام إنجليزية فقط"),
+    .length(10, "رقم الجوال يجب أن يكون 10 أرقام بالضبط")
+    .regex(/^[0-9]{10}$/, "رقم الجوال يجب أن يحتوي على 10 أرقام إنجليزية فقط"),
   cv: z.any().refine((file) => file instanceof File, "يرجى رفع السيرة الذاتية"),
   educationCert: z.any().refine((file) => file instanceof File, "يرجى رفع شهادة آخر مؤهل دراسي"),
   workExperience: z.any().optional().refine(
@@ -239,7 +238,14 @@ export function ApplicationForm() {
                   <FormItem>
                     <FormLabel>الاسم الكامل *</FormLabel>
                     <FormControl>
-                      <Input placeholder="أدخلي اسمك الكامل" {...field} />
+                      <Input 
+                        placeholder="أدخلي اسمك الكامل" 
+                        {...field} 
+                        onInput={(e) => {
+                          const target = e.target as HTMLInputElement;
+                          target.value = target.value.replace(/[^\u0600-\u06FF\s]/g, '');
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -250,9 +256,17 @@ export function ApplicationForm() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>رقم الهاتف *</FormLabel>
+                    <FormLabel>رقم الجوال *</FormLabel>
                     <FormControl>
-                      <Input placeholder="05xxxxxxxx" {...field} />
+                      <Input 
+                        placeholder="05xxxxxxxx" 
+                        {...field} 
+                        maxLength={10}
+                        onInput={(e) => {
+                          const target = e.target as HTMLInputElement;
+                          target.value = target.value.replace(/[^0-9]/g, '');
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
