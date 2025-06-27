@@ -40,13 +40,19 @@ const upload = multer({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Submit application
-  app.post("/api/applications", upload.single('cv'), async (req, res) => {
+  // Submit application - support multiple files
+  app.post("/api/applications", upload.fields([
+    { name: 'cv', maxCount: 1 },
+    { name: 'educationCert', maxCount: 1 },
+    { name: 'workExperience', maxCount: 3 }
+  ]), async (req, res) => {
     try {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      
       const applicationData = {
         fullName: req.body.fullName,
         phone: req.body.phone,
-        email: req.body.email,
+        nationalId: req.body.nationalId,
         city: req.body.city,
         birthDate: req.body.birthDate,
         position: req.body.position,
@@ -55,8 +61,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         experience: req.body.experience,
         gradeType: req.body.gradeType,
         grade: req.body.grade,
-        cvFilename: req.file?.filename,
-        cvOriginalName: req.file?.originalname,
+        hasProfessionalLicense: req.body.hasProfessionalLicense,
+        cvFilename: files.cv?.[0]?.filename,
+        cvOriginalName: files.cv?.[0]?.originalname,
+        educationCertFilename: files.educationCert?.[0]?.filename,
+        educationCertOriginalName: files.educationCert?.[0]?.originalname,
+        workExperienceFilenames: files.workExperience?.map(f => f.filename).join(','),
+        workExperienceOriginalNames: files.workExperience?.map(f => f.originalname).join(','),
       };
 
       // Validate the data
@@ -75,13 +86,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all applications
   app.get("/api/applications", async (req, res) => {
     try {
-      const { position, qualification, experienceRange, search } = req.query;
+      const { position, qualification, experienceRange, search, specialization, hasProfessionalLicense } = req.query;
       
       const applications = await storage.getApplicationsByFilter({
         position: position as string,
         qualification: qualification as string, 
         experienceRange: experienceRange as string,
         search: search as string,
+        specialization: specialization as string,
+        hasProfessionalLicense: hasProfessionalLicense as string,
       });
       
       res.json(applications);

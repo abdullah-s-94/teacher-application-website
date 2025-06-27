@@ -87,8 +87,8 @@ export function ApplicationForm() {
       }
 
       // Add work experience files
-      selectedWorkExperience.forEach((file, index) => {
-        formData.append(`workExperience_${index}`, file);
+      selectedWorkExperience.forEach((file) => {
+        formData.append('workExperience', file);
       });
 
       const response = await fetch('/api/applications', {
