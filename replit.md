@@ -138,3 +138,5 @@ Changelog:
 - June 27, 2025. Initial setup
 - June 27, 2025. Added PostgreSQL database integration with Drizzle ORM, migrated from memory storage to persistent database storage
 - June 27, 2025. Implemented admin authentication system with login/logout functionality
+- June 27, 2025. Fixed React hooks error in admin panel and enhanced UI with detailed applicant view modals, improved statistics cards, and better loading states
+- June 27, 2025. Added navigation between application form and admin panel with dedicated buttons, updated copyright year to 2025
