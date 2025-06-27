@@ -25,6 +25,7 @@ export default function Admin() {
     qualification: "",
     experienceRange: "",
     specialization: "",
+    hasProfessionalLicense: "",
   });
   const { toast } = useToast();
 
@@ -191,10 +192,10 @@ export default function Admin() {
 
   const exportData = () => {
     const csvContent = [
-      ['الاسم', 'البريد الإلكتروني', 'الهاتف', 'المدينة', 'الوظيفة', 'المؤهل', 'التخصص', 'الخبرة', 'المعدل', 'تاريخ التقديم'],
+      ['الاسم', 'الهوية الوطنية', 'الهاتف', 'المدينة', 'الوظيفة', 'المؤهل', 'التخصص', 'الخبرة', 'المعدل', 'تاريخ التقديم'],
       ...applications.map(app => [
         app.fullName,
-        app.email,
+        app.nationalId,
         app.phone,
         getCityLabel(app.city),
         getPositionLabel(app.position),
@@ -421,11 +422,11 @@ export default function Admin() {
           )}
 
           {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
             <div>
               <label className="block text-sm font-semibold mb-2">البحث</label>
               <Input
-                placeholder="ابحث بالاسم أو البريد الإلكتروني"
+                placeholder="ابحث بالاسم أو الهوية الوطنية"
                 value={filters.search}
                 onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
               />
@@ -489,6 +490,19 @@ export default function Admin() {
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <label className="block text-sm font-semibold mb-2">الرخصة المهنية</label>
+              <Select value={filters.hasProfessionalLicense} onValueChange={(value) => setFilters(prev => ({ ...prev, hasProfessionalLicense: value === "all" ? "" : value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="الكل" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">الكل</SelectItem>
+                  <SelectItem value="true">نعم</SelectItem>
+                  <SelectItem value="false">لا</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardHeader>
       </Card>
@@ -531,7 +545,7 @@ export default function Admin() {
                           </Avatar>
                           <div className="min-w-0 flex-1">
                             <p className="font-semibold text-slate-900 truncate">{application.fullName}</p>
-                            <p className="text-sm text-slate-500 truncate">{application.email}</p>
+                            <p className="text-sm text-slate-500 truncate">{application.nationalId}</p>
                             <div className="flex items-center gap-2 mt-1 flex-wrap">
                               <div className="flex items-center gap-1">
                                 <Phone className="h-3 w-3 text-slate-400" />
@@ -606,8 +620,8 @@ export default function Admin() {
                                     </div>
                                     <div className="flex items-center gap-2">
                                       <Mail className="h-4 w-4 text-slate-600" />
-                                      <span className="font-medium">البريد الإلكتروني:</span>
-                                      <span>{application.email}</span>
+                                      <span className="font-medium">الهوية الوطنية:</span>
+                                      <span>{application.nationalId}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                       <Phone className="h-4 w-4 text-slate-600" />

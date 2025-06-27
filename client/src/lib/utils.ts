@@ -137,19 +137,20 @@ export function getSpecializationLabel(specialization: string): string {
   return specializationLabels[specialization] || specialization;
 }
 
-// قائمة التخصصات الموحدة للاستخدام في النماذج والفلترة
+// قائمة التخصصات الموحدة للاستخدام في النماذج والفلترة (بالعربية)
 export const STANDARD_SPECIALIZATIONS = [
-  { value: 'early_childhood', label: 'طفولة مبكرة' },
-  { value: 'arabic', label: 'لغة عربية' },
-  { value: 'english', label: 'لغة انجليزية' },
-  { value: 'computer_science', label: 'حاسب الي' },
-  { value: 'mathematics', label: 'رياضيات' },
-  { value: 'chemistry', label: 'كيمياء' },
-  { value: 'physics', label: 'فيزياء' },
-  { value: 'history', label: 'تاريخ' },
-  { value: 'geography', label: 'جغرافيا' },
-  { value: 'business_administration', label: 'ادارة اعمال' },
-  { value: 'biology', label: 'احياء' },
-  { value: 'home_economics', label: 'اقتصاد منزلي' },
-  { value: 'islamic_education', label: 'تربية إسلامية' }
+  { value: 'طفولة مبكرة', label: 'طفولة مبكرة' },
+  { value: 'لغة عربية', label: 'لغة عربية' },
+  { value: 'لغة انجليزية', label: 'لغة انجليزية' },
+  { value: 'حاسب الي', label: 'حاسب الي' },
+  { value: 'رياضيات', label: 'رياضيات' },
+  { value: 'كيمياء', label: 'كيمياء' },
+  { value: 'فيزياء', label: 'فيزياء' },
+  { value: 'تاريخ', label: 'تاريخ' },
+  { value: 'جغرافيا', label: 'جغرافيا' },
+  { value: 'ادارة اعمال', label: 'ادارة اعمال' },
+  { value: 'احياء', label: 'احياء' },
+  { value: 'اقتصاد منزلي', label: 'اقتصاد منزلي' },
+  { value: 'تربية إسلامية', label: 'تربية إسلامية' },
+  { value: 'تربية بدنية', label: 'تربية بدنية' }
 ];

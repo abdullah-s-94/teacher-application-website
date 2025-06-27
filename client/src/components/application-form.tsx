@@ -5,24 +5,36 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { insertApplicationSchema } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { Send, Upload, FileText, CheckCircle } from "lucide-react";
+import { Send, Upload, FileText, CheckCircle, X } from "lucide-react";
 import { z } from "zod";
 import { STANDARD_SPECIALIZATIONS } from "@/lib/utils";
 
 const formSchema = insertApplicationSchema.extend({
   cv: z.any().refine((file) => file instanceof File, "يرجى رفع السيرة الذاتية"),
+  educationCert: z.any().refine((file) => file instanceof File, "يرجى رفع شهادة آخر مؤهل دراسي"),
+  workExperience: z.any().optional().refine(
+    (files) => !files || (Array.isArray(files) && files.length <= 3 && files.every(file => file instanceof File)), 
+    "يمكن رفع حد أقصى 3 ملفات للخبرات العملية"
+  ),
+}).omit({
+  cvFilename: true,
+  cvOriginalName: true,
+  educationCertFilename: true,
+  educationCertOriginalName: true,
+  workExperienceFilenames: true,
+  workExperienceOriginalNames: true,
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 export function ApplicationForm() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedEducationCert, setSelectedEducationCert] = useState<File | null>(null);
+  const [selectedWorkExperience, setSelectedWorkExperience] = useState<File[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -31,7 +43,7 @@ export function ApplicationForm() {
     defaultValues: {
       fullName: "",
       phone: "",
-      email: "",
+      nationalId: "",
       city: "",
       birthDate: "",
       position: "",
@@ -40,18 +52,36 @@ export function ApplicationForm() {
       experience: "",
       gradeType: "",
       grade: "",
+      hasProfessionalLicense: "",
     },
   });
 
   const submitMutation = useMutation({
     mutationFn: async (data: FormData) => {
       const formData = new FormData();
+      
+      // Add text fields
       Object.entries(data).forEach(([key, value]) => {
-        if (key === 'cv' && value instanceof File) {
-          formData.append('cv', value);
-        } else {
-          formData.append(key, value as string);
+        if (key === 'cv' || key === 'educationCert' || key === 'workExperience') {
+          // Skip file fields, handle them separately
+          return;
         }
+        formData.append(key, value as string);
+      });
+
+      // Add CV file
+      if (selectedFile) {
+        formData.append('cv', selectedFile);
+      }
+
+      // Add education certificate file
+      if (selectedEducationCert) {
+        formData.append('educationCert', selectedEducationCert);
+      }
+
+      // Add work experience files
+      selectedWorkExperience.forEach((file, index) => {
+        formData.append(`workExperience_${index}`, file);
       });
 
       const response = await fetch('/api/applications', {
@@ -73,6 +103,8 @@ export function ApplicationForm() {
       });
       form.reset();
       setSelectedFile(null);
+      setSelectedEducationCert(null);
+      setSelectedWorkExperience([]);
       queryClient.invalidateQueries({ queryKey: ['/api/applications'] });
       queryClient.invalidateQueries({ queryKey: ['/api/applications/stats'] });
     },
@@ -111,6 +143,72 @@ export function ApplicationForm() {
       setSelectedFile(file);
       form.setValue('cv', file);
     }
+  };
+
+  const handleEducationCertChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        toast({
+          variant: "destructive",
+          title: "نوع ملف غير مدعوم",
+          description: "يرجى رفع ملف PDF فقط",
+        });
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          variant: "destructive",
+          title: "حجم الملف كبير",
+          description: "الحد الأقصى لحجم الملف 5 ميجابايت",
+        });
+        return;
+      }
+      setSelectedEducationCert(file);
+      form.setValue('educationCert', file);
+    }
+  };
+
+  const handleWorkExperienceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    if (files.length + selectedWorkExperience.length > 3) {
+      toast({
+        variant: "destructive",
+        title: "عدد الملفات كبير",
+        description: "يمكن رفع حد أقصى 3 ملفات للخبرات العملية",
+      });
+      return;
+    }
+
+    for (const file of files) {
+      if (file.type !== 'application/pdf') {
+        toast({
+          variant: "destructive",
+          title: "نوع ملف غير مدعوم",
+          description: "يرجى رفع ملفات PDF فقط",
+        });
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          variant: "destructive",
+          title: "حجم الملف كبير",
+          description: "الحد الأقصى لحجم الملف 5 ميجابايت",
+        });
+        return;
+      }
+    }
+
+    const newFiles = [...selectedWorkExperience, ...files];
+    setSelectedWorkExperience(newFiles);
+    form.setValue('workExperience', newFiles);
+  };
+
+  const removeWorkExperienceFile = (index: number) => {
+    const newFiles = selectedWorkExperience.filter((_, i) => i !== index);
+    setSelectedWorkExperience(newFiles);
+    form.setValue('workExperience', newFiles.length > 0 ? newFiles : undefined);
   };
 
   const gradeType = form.watch('gradeType');
@@ -157,12 +255,21 @@ export function ApplicationForm() {
             <div className="grid md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
-                name="email"
+                name="nationalId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>البريد الإلكتروني *</FormLabel>
+                    <FormLabel>الهوية الوطنية *</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="example@email.com" {...field} />
+                      <Input 
+                        placeholder="1234567890" 
+                        {...field} 
+                        maxLength={10}
+                        pattern="[0-9]{10}"
+                        onInput={(e) => {
+                          const target = e.target as HTMLInputElement;
+                          target.value = target.value.replace(/[^0-9]/g, '');
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -361,13 +468,7 @@ export function ApplicationForm() {
                       step="0.01"
                       min="0"
                       max={gradeType === "4" ? "4" : gradeType === "5" ? "5" : undefined}
-                      placeholder={
-                        gradeType === "4" 
-                          ? "أدخلي معدلك من 4" 
-                          : gradeType === "5" 
-                          ? "أدخلي معدلك من 5" 
-                          : "أدخلي معدلك"
-                      }
+                      placeholder={gradeType ? `أدخلي المعدل من ${gradeType}` : "أدخلي المعدل"}
                       {...field}
                     />
                   </FormControl>
@@ -376,71 +477,120 @@ export function ApplicationForm() {
               )}
             />
 
-            {/* File Upload */}
+            {/* Professional License Question */}
             <FormField
               control={form.control}
-              name="cv"
-              render={() => (
+              name="hasProfessionalLicense"
+              render={({ field }) => (
                 <FormItem>
-                  <FormLabel>السيرة الذاتية *</FormLabel>
-                  <FormControl>
-                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        onChange={handleFileChange}
-                        className="hidden"
-                        id="cv-upload"
-                      />
-                      <label htmlFor="cv-upload" className="cursor-pointer">
-                        {selectedFile ? (
-                          <div className="flex items-center justify-center gap-2 text-green-600">
-                            <CheckCircle className="h-8 w-8" />
-                            <div>
-                              <p className="font-semibold">{selectedFile.name}</p>
-                              <p className="text-sm text-slate-500">
-                                {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                              </p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div>
-                            <Upload className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                            <p className="text-slate-600 mb-2">اسحبي ملف السيرة الذاتية هنا أو اضغطي للاختيار</p>
-                            <p className="text-sm text-slate-500">ملف PDF فقط، الحد الأقصى 5 ميجابايت</p>
-                          </div>
-                        )}
-                      </label>
-                    </div>
-                  </FormControl>
+                  <FormLabel>هل أنت حاصل على الرخصة المهنية؟ *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختاري الإجابة" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="نعم">نعم</SelectItem>
+                      <SelectItem value="لا">لا</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Submit Button */}
-            <div className="pt-6">
-              <Button 
-                type="submit" 
-                className="w-full py-4 text-lg font-semibold gap-2"
-                disabled={submitMutation.isPending}
-              >
-                {submitMutation.isPending ? (
-                  <>
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    جاري الإرسال...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-5 w-5" />
-                    إرسال الطلب
-                  </>
-                )}
-              </Button>
-              <p className="text-center text-sm text-slate-500 mt-4">
-                بالضغط على "إرسال الطلب" فإنك توافقين على شروط وأحكام التقديم
-              </p>
+            {/* File Uploads */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold">المرفقات المطلوبة</h3>
+              
+              {/* CV Upload */}
+              <div className="space-y-2">
+                <FormLabel>رفع السيرة الذاتية * (PDF فقط)</FormLabel>
+                <div className="flex flex-col space-y-2">
+                  <Input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleFileChange}
+                    className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
+                  />
+                  {selectedFile && (
+                    <div className="flex items-center space-x-2 text-sm text-green-600">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>{selectedFile.name}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Education Certificate Upload */}
+              <div className="space-y-2">
+                <FormLabel>رفع شهادة آخر مؤهل دراسي * (PDF فقط)</FormLabel>
+                <div className="flex flex-col space-y-2">
+                  <Input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleEducationCertChange}
+                    className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
+                  />
+                  {selectedEducationCert && (
+                    <div className="flex items-center space-x-2 text-sm text-green-600">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>{selectedEducationCert.name}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Work Experience Upload */}
+              <div className="space-y-2">
+                <FormLabel>رفع الخبرات العملية السابقة (PDF فقط، حد أقصى 3 ملفات)</FormLabel>
+                <div className="flex flex-col space-y-2">
+                  <Input
+                    type="file"
+                    accept=".pdf"
+                    multiple
+                    onChange={handleWorkExperienceChange}
+                    className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-secondary file:text-secondary-foreground hover:file:bg-secondary/90"
+                  />
+                  {selectedWorkExperience.length > 0 && (
+                    <div className="space-y-2">
+                      {selectedWorkExperience.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                          <div className="flex items-center space-x-2 text-sm">
+                            <FileText className="h-4 w-4" />
+                            <span>{file.name}</span>
+                          </div>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => removeWorkExperienceFile(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
+
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={submitMutation.isPending}
+            >
+              {submitMutation.isPending ? (
+                "جاري الإرسال..."
+              ) : (
+                <>
+                  <Send className="ml-2 h-4 w-4" />
+                  إرسال الطلب
+                </>
+              )}
+            </Button>
           </form>
         </Form>
       </CardContent>

@@ -17,6 +17,7 @@ export interface IStorage {
     experienceRange?: string;
     search?: string;
     specialization?: string;
+    hasProfessionalLicense?: string;
   }): Promise<Application[]>;
   updateApplicationStatus(id: number, status: string): Promise<void>;
   deleteApplication(id: number): Promise<void>;
@@ -80,6 +81,7 @@ export class DatabaseStorage implements IStorage {
     experienceRange?: string;
     search?: string;
     specialization?: string;
+    hasProfessionalLicense?: string;
   }): Promise<Application[]> {
     const conditions = [];
 
@@ -94,24 +96,29 @@ export class DatabaseStorage implements IStorage {
     if (filter.specialization) {
       // Handle both new standardized values and legacy values
       const specializationMapping: Record<string, string[]> = {
-        'early_childhood': ['early_childhood', 'طفولة مبكرة', 'طفولة مبكره', 'معلم', 'معلم '],
-        'arabic': ['arabic', 'لغة عربية'],
-        'english': ['english', 'لغة انجليزية', 'بكالوريوس انجليش', 'بكالوريوس انجليش '],
-        'computer_science': ['computer_science', 'حاسب الي'],
-        'mathematics': ['mathematics', 'رياضيات'],
-        'chemistry': ['chemistry', 'كيمياء'],
-        'physics': ['physics', 'فيزياء'],
-        'history': ['history', 'تاريخ'],
-        'geography': ['geography', 'جغرافيا'],
-        'business_administration': ['business_administration', 'ادارة اعمال', 'ادارة اعمال '],
-        'biology': ['biology', 'احياء'],
-        'home_economics': ['home_economics', 'اقتصاد منزلي'],
-        'islamic_education': ['islamic_education', 'تربية إسلامية', 'religion', 'دين', 'شريعة']
+        'طفولة مبكرة': ['early_childhood', 'طفولة مبكرة', 'طفولة مبكره', 'معلم', 'معلم '],
+        'لغة عربية': ['arabic', 'لغة عربية'],
+        'لغة انجليزية': ['english', 'لغة انجليزية', 'بكالوريوس انجليش', 'بكالوريوس انجليش '],
+        'حاسب الي': ['computer_science', 'حاسب الي'],
+        'رياضيات': ['mathematics', 'رياضيات'],
+        'كيمياء': ['chemistry', 'كيمياء'],
+        'فيزياء': ['physics', 'فيزياء'],
+        'تاريخ': ['history', 'تاريخ'],
+        'جغرافيا': ['geography', 'جغرافيا'],
+        'ادارة اعمال': ['business_administration', 'ادارة اعمال', 'ادارة اعمال '],
+        'احياء': ['biology', 'احياء'],
+        'اقتصاد منزلي': ['home_economics', 'اقتصاد منزلي'],
+        'تربية إسلامية': ['islamic_education', 'تربية إسلامية', 'religion', 'دين', 'شريعة'],
+        'تربية بدنية': ['تربية بدنية']
       };
       
       const matchingValues = specializationMapping[filter.specialization] || [filter.specialization];
       const specializationConditions = matchingValues.map(value => eq(applications.specialization, value));
       conditions.push(or(...specializationConditions));
+    }
+
+    if (filter.hasProfessionalLicense) {
+      conditions.push(eq(applications.hasProfessionalLicense, filter.hasProfessionalLicense));
     }
 
     if (filter.experienceRange) {
@@ -129,9 +136,15 @@ export class DatabaseStorage implements IStorage {
       conditions.push(
         or(
           like(applications.fullName, searchTerm),
-          like(applications.email, searchTerm),
+          like(applications.nationalId, searchTerm),
           like(applications.specialization, searchTerm)
         )
+      );
+    }
+
+    if (filter.hasProfessionalLicense) {
+      conditions.push(
+        eq(applications.hasProfessionalLicense, filter.hasProfessionalLicense)
       );
     }
 
