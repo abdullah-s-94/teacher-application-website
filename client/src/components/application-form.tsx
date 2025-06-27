@@ -14,6 +14,14 @@ import { z } from "zod";
 import { STANDARD_SPECIALIZATIONS } from "@/lib/utils";
 
 const formSchema = insertApplicationSchema.extend({
+  fullName: z.string()
+    .min(2, "الاسم الكامل مطلوب")
+    .max(100, "الاسم طويل جداً")
+    .regex(/^[\u0600-\u06FF\s]+$/, "الاسم الكامل يجب أن يحتوي على حروف عربية فقط"),
+  phone: z.string()
+    .min(10, "رقم الهاتف يجب أن يكون 10 أرقام على الأقل")
+    .max(15, "رقم الهاتف طويل جداً")
+    .regex(/^[0-9]+$/, "رقم الهاتف يجب أن يحتوي على أرقام إنجليزية فقط"),
   cv: z.any().refine((file) => file instanceof File, "يرجى رفع السيرة الذاتية"),
   educationCert: z.any().refine((file) => file instanceof File, "يرجى رفع شهادة آخر مؤهل دراسي"),
   workExperience: z.any().optional().refine(

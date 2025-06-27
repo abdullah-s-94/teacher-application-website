@@ -158,3 +158,4 @@ Changelog:
 - June 27, 2025. Fixed CV download functionality and Arabic filename encoding issues
 - June 27, 2025. Added birth date field with automatic age calculation in admin panel, converted specialization to dropdown with predefined options (early childhood, Arabic, English, computer science, mathematics, chemistry, physics, history, geography, business administration, biology, home economics, religion)
 - June 27, 2025. Implemented comprehensive application management system: application status workflow (under review/accepted/rejected), individual and bulk delete functionality, specialization statistics in admin dashboard, status-based sorting (under review items appear first)
+- June 27, 2025. Added input validation: full name accepts Arabic characters only, phone number accepts English digits only, replaced email field with national ID field (10 digits), added professional license question with filtering capability
