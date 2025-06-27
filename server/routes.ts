@@ -133,7 +133,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Set proper headers for Arabic filenames
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
+      
+      // Check if this is a download request or preview request
+      const isDownload = req.query.download === 'true';
+      
+      if (isDownload) {
+        res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
+      } else {
+        // For preview, use inline disposition
+        res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
+      }
       
       // Send the file
       res.sendFile(filePath);
@@ -169,7 +178,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
+      
+      // Check if this is a download request or preview request
+      const isDownload = req.query.download === 'true';
+      
+      if (isDownload) {
+        res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
+      } else {
+        // For preview, use inline disposition
+        res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
+      }
       
       res.sendFile(filePath);
     } catch (error) {
@@ -213,7 +231,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
+      
+      // Check if this is a download request or preview request
+      const isDownload = req.query.download === 'true';
+      
+      if (isDownload) {
+        res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
+      } else {
+        // For preview, use inline disposition
+        res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
+      }
       
       res.sendFile(filePath);
     } catch (error) {

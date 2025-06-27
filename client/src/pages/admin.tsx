@@ -751,7 +751,12 @@ export default function Admin() {
                                                   <Button
                                                     size="sm"
                                                     variant="outline"
-                                                    onClick={() => window.open(`/api/applications/${application.id}/cv`, '_blank')}
+                                                    onClick={() => {
+                                                      const previewWindow = window.open(`/api/applications/${application.id}/cv`, '_blank');
+                                                      if (previewWindow) {
+                                                        previewWindow.focus();
+                                                      }
+                                                    }}
                                                     className="gap-1"
                                                   >
                                                     <Eye className="h-3 w-3" />
@@ -759,7 +764,10 @@ export default function Admin() {
                                                   </Button>
                                                   <Button
                                                     size="sm"
-                                                    onClick={() => downloadCV(application.id, application.cvOriginalName || undefined)}
+                                                    onClick={() => {
+                                                      const downloadUrl = `/api/applications/${application.id}/cv?download=true`;
+                                                      window.open(downloadUrl, '_blank');
+                                                    }}
                                                     className="gap-1"
                                                   >
                                                     <Download className="h-3 w-3" />
@@ -801,7 +809,12 @@ export default function Admin() {
                                                     <Button
                                                       size="sm"
                                                       variant="outline"
-                                                      onClick={() => window.open(`/api/applications/${application.id}/education-cert`, '_blank')}
+                                                      onClick={() => {
+                                                        const previewWindow = window.open(`/api/applications/${application.id}/education-cert`, '_blank');
+                                                        if (previewWindow) {
+                                                          previewWindow.focus();
+                                                        }
+                                                      }}
                                                       className="gap-1"
                                                     >
                                                       <Eye className="h-3 w-3" />
@@ -809,7 +822,10 @@ export default function Admin() {
                                                     </Button>
                                                     <Button
                                                       size="sm"
-                                                      onClick={() => downloadEducationCert(application.id, application.educationCertOriginalName || undefined)}
+                                                      onClick={() => {
+                                                        const downloadUrl = `/api/applications/${application.id}/education-cert?download=true`;
+                                                        window.open(downloadUrl, '_blank');
+                                                      }}
                                                       className="gap-1"
                                                     >
                                                       <Download className="h-3 w-3" />
@@ -832,7 +848,7 @@ export default function Admin() {
                                               <FileText className="h-4 w-4 text-slate-600" />
                                               <span className="font-medium">ملفات الخبرات العملية</span>
                                             </div>
-                                            <div className="space-y-3">
+                                            <div className="space-y-3 max-h-96 overflow-y-auto">
                                               {application.workExperienceFilenames?.split(',').filter(filename => filename.trim()).map((filename, index) => {
                                                 const originalNames = application.workExperienceOriginalNames?.split(',') || [];
                                                 const originalName = originalNames[index]?.trim() || `Work_Experience_${index + 1}.pdf`;
@@ -858,7 +874,12 @@ export default function Admin() {
                                                           <Button
                                                             size="sm"
                                                             variant="outline"
-                                                            onClick={() => window.open(`/api/applications/${application.id}/work-experience/${index}`, '_blank')}
+                                                            onClick={() => {
+                                                              const previewWindow = window.open(`/api/applications/${application.id}/work-experience/${index}`, '_blank');
+                                                              if (previewWindow) {
+                                                                previewWindow.focus();
+                                                              }
+                                                            }}
                                                             className="gap-1"
                                                           >
                                                             <Eye className="h-3 w-3" />
@@ -866,7 +887,10 @@ export default function Admin() {
                                                           </Button>
                                                           <Button
                                                             size="sm"
-                                                            onClick={() => downloadWorkExperience(application.id, index, originalName)}
+                                                            onClick={() => {
+                                                              const downloadUrl = `/api/applications/${application.id}/work-experience/${index}?download=true`;
+                                                              window.open(downloadUrl, '_blank');
+                                                            }}
                                                             className="gap-1"
                                                           >
                                                             <Download className="h-3 w-3" />
