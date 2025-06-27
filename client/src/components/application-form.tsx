@@ -21,6 +21,27 @@ const formSchema = insertApplicationSchema.extend({
   phone: z.string()
     .length(10, "رقم الجوال يجب أن يكون 10 أرقام بالضبط")
     .regex(/^[0-9]{10}$/, "رقم الجوال يجب أن يحتوي على 10 أرقام إنجليزية فقط"),
+  nationalId: z.string()
+    .length(10, "رقم الهوية الوطنية يجب أن يكون 10 أرقام بالضبط")
+    .regex(/^[0-9]{10}$/, "رقم الهوية يجب أن يحتوي على 10 أرقام إنجليزية فقط"),
+  city: z.string()
+    .min(1, "يرجى اختيار المدينة"),
+  birthDate: z.string()
+    .min(1, "تاريخ الميلاد مطلوب"),
+  position: z.string()
+    .min(1, "يرجى اختيار المنصب المطلوب"),
+  qualification: z.string()
+    .min(1, "يرجى اختيار المؤهل الدراسي"),
+  specialization: z.string()
+    .min(1, "يرجى اختيار التخصص"),
+  experience: z.string()
+    .min(1, "يرجى اختيار سنوات الخبرة"),
+  gradeType: z.string()
+    .min(1, "يرجى اختيار نوع التقدير"),
+  grade: z.string()
+    .min(1, "التقدير/المعدل مطلوب"),
+  hasProfessionalLicense: z.string()
+    .min(1, "يرجى الإجابة على سؤال الرخصة المهنية"),
   cv: z.any().refine((file) => file instanceof File, "يرجى رفع السيرة الذاتية"),
   educationCert: z.any().refine((file) => file instanceof File, "يرجى رفع شهادة آخر مؤهل دراسي"),
   workExperience: z.any().optional().refine(
@@ -524,7 +545,8 @@ export function ApplicationForm() {
 
             {/* File Uploads */}
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold">المرفقات المطلوبة</h3>
+              <h3 className="text-lg font-semibold">المرفقات</h3>
+              <p className="text-sm text-gray-600 mb-4">الحقول المطلوبة محددة بعلامة (*)</p>
               
               {/* CV Upload */}
               <div className="space-y-2">
@@ -566,7 +588,7 @@ export function ApplicationForm() {
 
               {/* Work Experience Upload */}
               <div className="space-y-2">
-                <FormLabel>رفع الخبرات العملية السابقة (PDF فقط، حد أقصى 3 ملفات)</FormLabel>
+                <FormLabel>رفع الخبرات العملية السابقة (اختياري - PDF فقط، حد أقصى 3 ملفات)</FormLabel>
                 <div className="flex flex-col space-y-2">
                   <Input
                     type="file"

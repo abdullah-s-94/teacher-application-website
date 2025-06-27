@@ -137,12 +137,8 @@ export default function Admin() {
 
   const downloadWorkExperience = async (id: number, fileIndex: number, originalName?: string) => {
     try {
-      console.log('Downloading work experience file:', {id, fileIndex, originalName});
       const response = await fetch(`/api/applications/${id}/work-experience/${fileIndex}`);
-      console.log('Response status:', response.status, response.statusText);
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
         throw new Error('Failed to download work experience file');
       }
       
@@ -815,7 +811,7 @@ export default function Admin() {
                                               {application.workExperienceFilenames.split(',').map((filename, index) => {
                                                 const originalNames = application.workExperienceOriginalNames?.split(',') || [];
                                                 const originalName = originalNames[index]?.trim() || `Work_Experience_${index + 1}.pdf`;
-                                                console.log(`Work Experience File ${index}:`, {filename: filename.trim(), originalName, applicationId: application.id});
+
                                                 return (
                                                   <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
                                                     <span className="text-sm">{originalName}</span>
