@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f1f5f9"/>
+  
+  <!-- Classroom background -->
+  <rect x="0" y="400" width="800" height="200" fill="#e2e8f0"/>
+  
+  <!-- Blackboard -->
+  <rect x="50" y="150" width="300" height="200" fill="#1e293b" stroke="#475569" stroke-width="3"/>
+  <text x="200" y="190" text-anchor="middle" fill="white" font-family="Arial" font-size="18" font-weight="bold">مرحباً بكم في مدرسة</text>
+  <text x="200" y="220" text-anchor="middle" fill="white" font-family="Arial" font-size="18" font-weight="bold">أنجال النخبة الأهلية</text>
+  <text x="200" y="280" text-anchor="middle" fill="#fbbf24" font-family="Arial" font-size="24">أ ب ت ث ج ح خ</text>
+  <text x="200" y="310" text-anchor="middle" fill="#34d399" font-family="Arial" font-size="24">١ ٢ ٣ ٤ ٥ ٦ ٧</text>
+  
+  <!-- Teacher 1 - Mathematics teacher -->
+  <g transform="translate(400, 350)">
+    <!-- Body -->
+    <rect x="0" y="35" width="40" height="60" fill="#1f2937" rx="8"/>
+    <!-- Head -->
+    <circle cx="20" cy="18" r="18" fill="#d4a574"/>
+    <!-- Hijab -->
+    <path d="M 2 10 Q 20 -8 38 10 L 38 30 Q 20 25 2 30 Z" fill="#1f2937"/>
+    <!-- Eyes -->
+    <circle cx="14" cy="15" r="2" fill="#000"/>
+    <circle cx="26" cy="15" r="2" fill="#000"/>
+    <!-- Glasses -->
+    <circle cx="14" cy="15" r="5" fill="none" stroke="#374151" stroke-width="1"/>
+    <circle cx="26" cy="15" r="5" fill="none" stroke="#374151" stroke-width="1"/>
+    <line x1="19" y1="15" x2="21" y2="15" stroke="#374151" stroke-width="1"/>
+    <!-- Smile -->
+    <path d="M 14 22 Q 20 26 26 22" stroke="#000" stroke-width="1" fill="none"/>
+    <!-- Arms -->
+    <rect x="-10" y="40" width="12" height="30" fill="#d4a574" rx="6"/>
+    <rect x="38" y="40" width="12" height="30" fill="#d4a574" rx="6"/>
+    <!-- Legs -->
+    <rect x="10" y="95" width="8" height="30" fill="#1f2937"/>
+    <rect x="22" y="95" width="8" height="30" fill="#1f2937"/>
+    <!-- Shoes -->
+    <ellipse cx="14" cy="128" rx="8" ry="4" fill="#000"/>
+    <ellipse cx="26" cy="128" rx="8" ry="4" fill="#000"/>
+    <!-- Pointer -->
+    <rect x="52" y="35" width="30" height="3" fill="#92400e"/>
+    <!-- Books and supplies -->
+    <rect x="-12" y="70" width="8" height="12" fill="#dc2626" rx="1"/>
+    <rect x="-12" y="84" width="8" height="12" fill="#3b82f6" rx="1"/>
+  </g>
+  
+  <!-- Teacher 2 - Science teacher -->
+  <g transform="translate(550, 350)">
+    <!-- Body -->
+    <rect x="0" y="35" width="40" height="60" fill="#059669" rx="8"/>
+    <!-- Head -->
+    <circle cx="20" cy="18" r="18" fill="#d4a574"/>
+    <!-- Hijab -->
+    <path d="M 2 10 Q 20 -8 38 10 L 38 30 Q 20 25 2 30 Z" fill="#1e40af"/>
+    <!-- Eyes -->
+    <circle cx="14" cy="15" r="2" fill="#000"/>
+    <circle cx="26" cy="15" r="2" fill="#000"/>
+    <!-- Smile -->
+    <path d="M 14 22 Q 20 26 26 22" stroke="#000" stroke-width="1" fill="none"/>
+    <!-- Arms -->
+    <rect x="-10" y="40" width="12" height="30" fill="#d4a574" rx="6"/>
+    <rect x="38" y="40" width="12" height="30" fill="#d4a574" rx="6"/>
+    <!-- Legs -->
+    <rect x="10" y="95" width="8" height="30" fill="#059669"/>
+    <rect x="22" y="95" width="8" height="30" fill="#059669"/>
+    <!-- Shoes -->
+    <ellipse cx="14" cy="128" rx="8" ry="4" fill="#000"/>
+    <ellipse cx="26" cy="128" rx="8" ry="4" fill="#000"/>
+    <!-- Lab equipment -->
+    <rect x="52" y="45" width="6" height="15" fill="#e5e7eb" stroke="#6b7280" stroke-width="1"/>
+    <circle cx="55" cy="42" r="3" fill="#3b82f6"/>
+    <circle cx="55" cy="62" r="2" fill="#ef4444"/>
+  </g>
+  
+  <!-- Teacher 3 - Arabic teacher -->
+  <g transform="translate(650, 350)">
+    <!-- Body -->
+    <rect x="0" y="35" width="40" height="60" fill="#7c3aed" rx="8"/>
+    <!-- Head -->
+    <circle cx="20" cy="18" r="18" fill="#d4a574"/>
+    <!-- Hijab -->
+    <path d="M 2 10 Q 20 -8 38 10 L 38 30 Q 20 25 2 30 Z" fill="#e11d48"/>
+    <!-- Eyes -->
+    <circle cx="14" cy="15" r="2" fill="#000"/>
+    <circle cx="26" cy="15" r="2" fill="#000"/>
+    <!-- Smile -->
+    <path d="M 14 22 Q 20 26 26 22" stroke="#000" stroke-width="1" fill="none"/>
+    <!-- Arms -->
+    <rect x="-10" y="40" width="12" height="30" fill="#d4a574" rx="6"/>
+    <rect x="38" y="40" width="12" height="30" fill="#d4a574" rx="6"/>
+    <!-- Legs -->
+    <rect x="10" y="95" width="8" height="30" fill="#7c3aed"/>
+    <rect x="22" y="95" width="8" height="30" fill="#7c3aed"/>
+    <!-- Shoes -->
+    <ellipse cx="14" cy="128" rx="8" ry="4" fill="#000"/>
+    <ellipse cx="26" cy="128" rx="8" ry="4" fill="#000"/>
+    <!-- Arabic book -->
+    <rect x="52" y="40" width="10" height="15" fill="#f59e0b" rx="1"/>
+    <text x="57" y="50" text-anchor="middle" fill="white" font-family="Arial" font-size="8" font-weight="bold">عربي</text>
+  </g>
+  
+  <!-- Student desks -->
+  <rect x="100" y="450" width="80" height="40" fill="#8b5cf6" rx="5"/>
+  <rect x="200" y="450" width="80" height="40" fill="#8b5cf6" rx="5"/>
+  <rect x="300" y="450" width="80" height="40" fill="#8b5cf6" rx="5"/>
+  <rect x="100" y="510" width="80" height="40" fill="#8b5cf6" rx="5"/>
+  <rect x="200" y="510" width="80" height="40" fill="#8b5cf6" rx="5"/>
+  <rect x="300" y="510" width="80" height="40" fill="#8b5cf6" rx="5"/>
+  
+  <!-- Students at desks -->
+  <g transform="translate(120, 430)">
+    <circle cx="15" cy="10" r="8" fill="#d4a574"/>
+    <path d="M 7 6 Q 15 0 23 6 L 23 14 Q 15 12 7 14 Z" fill="#dc2626"/>
+    <circle cx="11" cy="8" r="1" fill="#000"/>
+    <circle cx="19" cy="8" r="1" fill="#000"/>
+  </g>
+  
+  <g transform="translate(220, 430)">
+    <circle cx="15" cy="10" r="8" fill="#d4a574"/>
+    <path d="M 7 6 Q 15 0 23 6 L 23 14 Q 15 12 7 14 Z" fill="#059669"/>
+    <circle cx="11" cy="8" r="1" fill="#000"/>
+    <circle cx="19" cy="8" r="1" fill="#000"/>
+  </g>
+  
+  <g transform="translate(320, 430)">
+    <circle cx="15" cy="10" r="8" fill="#d4a574"/>
+    <path d="M 7 6 Q 15 0 23 6 L 23 14 Q 15 12 7 14 Z" fill="#7c3aed"/>
+    <circle cx="11" cy="8" r="1" fill="#000"/>
+    <circle cx="19" cy="8" r="1" fill="#000"/>
+  </g>
+  
+  <!-- Windows -->
+  <rect x="600" y="200" width="120" height="80" fill="#bfdbfe" stroke="#3b82f6" stroke-width="3"/>
+  <line x1="660" y1="200" x2="660" y2="280" stroke="#3b82f6" stroke-width="2"/>
+  <line x1="600" y1="240" x2="720" y2="240" stroke="#3b82f6" stroke-width="2"/>
+  
+  <!-- Sun through window -->
+  <circle cx="680" cy="220" r="15" fill="#fbbf24"/>
+  <line x1="665" y1="205" x2="670" y2="210" stroke="#fbbf24" stroke-width="2"/>
+  <line x1="690" y1="210" x2="695" y2="205" stroke="#fbbf24" stroke-width="2"/>
+  <line x1="665" y1="235" x2="670" y2="230" stroke="#fbbf24" stroke-width="2"/>
+  <line x1="690" y1="230" x2="695" y2="235" stroke="#fbbf24" stroke-width="2"/>
+  
+  <!-- Educational posters -->
+  <rect x="450" y="180" width="80" height="60" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
+  <text x="490" y="200" text-anchor="middle" fill="#dc2626" font-family="Arial" font-size="12" font-weight="bold">ABC</text>
+  <text x="490" y="220" text-anchor="middle" fill="#dc2626" font-family="Arial" font-size="12" font-weight="bold">أ ب ت</text>
+  
+  <!-- School logo area -->
+  <circle cx="70" cy="80" r="40" fill="#1e40af"/>
+  <text x="70" y="70" text-anchor="middle" fill="white" font-family="Arial" font-size="12" font-weight="bold">أنجال</text>
+  <text x="70" y="85" text-anchor="middle" fill="white" font-family="Arial" font-size="12" font-weight="bold">النخبة</text>
+  <text x="70" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="10">الأهلية</text>
+  
+  <!-- Decorative stars -->
+  <text x="750" y="50" fill="#fbbf24" font-size="20">★</text>
+  <text x="720" y="100" fill="#fbbf24" font-size="16">★</text>
+  <text x="30" y="200" fill="#fbbf24" font-size="18">★</text>
+  
+  <!-- Bottom text -->
+  <text x="400" y="580" text-anchor="middle" fill="#1e40af" font-family="Arial" font-size="18" font-weight="bold">معلمات متميزات في خدمة التعليم</text>
+</svg>

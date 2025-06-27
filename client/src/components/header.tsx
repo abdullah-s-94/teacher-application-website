@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import logoPath from "@assets/انجال النخبة_1751014663653.jpg";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, FileText } from "lucide-react";
 
 interface HeaderProps {
   currentView: "application" | "admin";
@@ -24,6 +24,14 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
             </div>
           </div>
           <div className="flex gap-2">
+            <Button
+              onClick={() => onViewChange("application")}
+              variant={currentView === "application" ? "default" : "secondary"}
+              className="gap-2"
+            >
+              <FileText className="h-5 w-5" />
+              صفحة التقديم
+            </Button>
             <Button
               onClick={() => onViewChange("admin")}
               variant={currentView === "admin" ? "default" : "secondary"}
