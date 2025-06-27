@@ -34,7 +34,7 @@ function App() {
                 </div>
               </div>
               <div className="text-center mt-6 pt-6 border-t border-slate-700">
-                <p className="text-slate-400 text-sm">© 2024 مدارس أنجال النخبة الأهلية. جميع الحقوق محفوظة.</p>
+                <p className="text-slate-400 text-sm">© 2025 مدارس أنجال النخبة الأهلية. جميع الحقوق محفوظة.</p>
               </div>
             </div>
           </footer>
