@@ -48,6 +48,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         phone: req.body.phone,
         email: req.body.email,
         city: req.body.city,
+        birthDate: req.body.birthDate,
         position: req.body.position,
         qualification: req.body.qualification,
         specialization: req.body.specialization,

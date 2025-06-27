@@ -46,10 +46,11 @@ Two main entities:
 2. **Users** - Basic user authentication system (prepared but not fully implemented)
 
 Key application fields:
-- Personal information (name, phone, email, city)
-- Job details (position, qualification, specialization)
+- Personal information (name, phone, email, city, birth date)
+- Job details (position, qualification, specialization from predefined list)
 - Experience and grade information
 - CV file metadata (filename, original name)
+- Automatic age calculation from birth date
 
 ## Data Flow
 
@@ -155,3 +156,4 @@ Changelog:
 - June 27, 2025. Added navigation between application form and admin panel with dedicated buttons, updated copyright year to 2025
 - June 27, 2025. Removed all images containing people and replaced with appropriate SVG icons for girls' school environment
 - June 27, 2025. Fixed CV download functionality and Arabic filename encoding issues
+- June 27, 2025. Added birth date field with automatic age calculation in admin panel, converted specialization to dropdown with predefined options (early childhood, Arabic, English, computer science, mathematics, chemistry, physics, history, geography, business administration, biology, home economics, religion)

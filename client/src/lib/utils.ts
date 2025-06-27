@@ -54,3 +54,25 @@ export function getExperienceLabel(experience: string): string {
   if (exp >= 10) return "10 سنوات أو أكثر";
   return `${exp} سنوات`;
 }
+
+export function calculateAge(birthDate: string | Date | null): number | null {
+  if (!birthDate) return null;
+  
+  const birth = typeof birthDate === 'string' ? new Date(birthDate) : birthDate;
+  const today = new Date();
+  
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  
+  return age;
+}
+
+export function formatAgeLabel(birthDate: string | Date | null): string {
+  const age = calculateAge(birthDate);
+  if (age === null) return "غير محدد";
+  return `${age} سنة`;
+}

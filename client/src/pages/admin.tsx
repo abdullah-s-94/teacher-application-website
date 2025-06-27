@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText } from "lucide-react";
-import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel } from "@/lib/utils";
+import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel, formatAgeLabel } from "@/lib/utils";
 import { LoginForm } from "@/components/login-form";
 import type { Application } from "@shared/schema";
 
@@ -321,6 +321,7 @@ export default function Admin() {
                   <TableHead className="text-right">المؤهل</TableHead>
                   <TableHead className="text-right">التخصص</TableHead>
                   <TableHead className="text-right">الخبرة</TableHead>
+                  <TableHead className="text-right">العمر</TableHead>
                   <TableHead className="text-right">المعدل</TableHead>
                   <TableHead className="text-right">تاريخ التقديم</TableHead>
                   <TableHead className="text-right">الإجراءات</TableHead>
@@ -329,7 +330,7 @@ export default function Admin() {
               <TableBody>
                 {applications.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-slate-500">
+                    <TableCell colSpan={9} className="text-center py-8 text-slate-500">
                       لا توجد طلبات تقديم متاحة
                     </TableCell>
                   </TableRow>
@@ -373,6 +374,9 @@ export default function Admin() {
                       </TableCell>
                       <TableCell className="text-sm">
                         {getExperienceLabel(application.experience)}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {formatAgeLabel(application.birthDate)}
                       </TableCell>
                       <TableCell className="text-sm">
                         {application.grade}/{application.gradeType}
@@ -425,6 +429,20 @@ export default function Admin() {
                                       <span className="font-medium">المدينة:</span>
                                       <span>{getCityLabel(application.city)}</span>
                                     </div>
+                                    {application.birthDate && (
+                                      <div className="flex items-center gap-2">
+                                        <Calendar className="h-4 w-4 text-slate-600" />
+                                        <span className="font-medium">تاريخ الميلاد:</span>
+                                        <span>{formatDate(application.birthDate)}</span>
+                                      </div>
+                                    )}
+                                    {application.birthDate && (
+                                      <div className="flex items-center gap-2">
+                                        <User className="h-4 w-4 text-slate-600" />
+                                        <span className="font-medium">العمر:</span>
+                                        <span>{formatAgeLabel(application.birthDate)}</span>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
 

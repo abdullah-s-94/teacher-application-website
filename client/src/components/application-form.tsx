@@ -32,6 +32,7 @@ export function ApplicationForm() {
       phone: "",
       email: "",
       city: "",
+      birthDate: "",
       position: "",
       qualification: "",
       specialization: "",
@@ -194,6 +195,31 @@ export function ApplicationForm() {
               />
             </div>
 
+            {/* Birth Date */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="birthDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>تاريخ الميلاد (ميلادي) *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="date" 
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        value={field.value || ""}
+                        ref={field.ref}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div></div> {/* Empty cell for grid layout */}
+            </div>
+
             {/* Position Information */}
             <div className="grid md:grid-cols-2 gap-6">
               <FormField
@@ -249,9 +275,28 @@ export function ApplicationForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>التخصص *</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="أدخلي تخصصك الدراسي" {...field} />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختاري التخصص" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="طفولة مبكرة">طفولة مبكرة</SelectItem>
+                      <SelectItem value="لغة عربية">لغة عربية</SelectItem>
+                      <SelectItem value="لغة انجليزية">لغة انجليزية</SelectItem>
+                      <SelectItem value="حاسب الي">حاسب الي</SelectItem>
+                      <SelectItem value="رياضيات">رياضيات</SelectItem>
+                      <SelectItem value="كيمياء">كيمياء</SelectItem>
+                      <SelectItem value="فيزياء">فيزياء</SelectItem>
+                      <SelectItem value="تاريخ">تاريخ</SelectItem>
+                      <SelectItem value="جغرافيا">جغرافيا</SelectItem>
+                      <SelectItem value="ادارة اعمال">ادارة اعمال</SelectItem>
+                      <SelectItem value="احياء">احياء</SelectItem>
+                      <SelectItem value="اقتصاد منزلي">اقتصاد منزلي</SelectItem>
+                      <SelectItem value="دين">دين</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

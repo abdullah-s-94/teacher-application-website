@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -7,7 +7,8 @@ export const applications = pgTable("applications", {
   fullName: text("full_name").notNull(),
   phone: text("phone").notNull(),
   email: text("email").notNull(),
-  city: text("city").notNull(), 
+  city: text("city").notNull(),
+  birthDate: date("birth_date"),
   position: text("position").notNull(),
   qualification: text("qualification").notNull(),
   specialization: text("specialization").notNull(),
