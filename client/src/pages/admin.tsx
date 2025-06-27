@@ -7,33 +7,26 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Download, Eye, FileDown, User, LogOut } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText } from "lucide-react";
 import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel } from "@/lib/utils";
 import { LoginForm } from "@/components/login-form";
 import type { Application } from "@shared/schema";
 
 export default function Admin() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const loggedIn = localStorage.getItem("adminLoggedIn") === "true";
-    setIsLoggedIn(loggedIn);
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("adminLoggedIn");
-    setIsLoggedIn(false);
-  };
-
-  if (!isLoggedIn) {
-    return <LoginForm onLoginSuccess={() => setIsLoggedIn(true)} />;
-  }
   const [filters, setFilters] = useState({
     search: "",
     position: "",
     qualification: "",
     experienceRange: "",
   });
+
+  useEffect(() => {
+    const loggedIn = localStorage.getItem("adminLoggedIn") === "true";
+    setIsLoggedIn(loggedIn);
+  }, []);
 
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ['/api/applications', filters],
@@ -47,6 +40,7 @@ export default function Admin() {
       if (!response.ok) throw new Error('Failed to fetch applications');
       return response.json() as Application[];
     },
+    enabled: isLoggedIn, // Only fetch when logged in
   });
 
   const { data: stats } = useQuery({
@@ -56,7 +50,17 @@ export default function Admin() {
       if (!response.ok) throw new Error('Failed to fetch stats');
       return response.json();
     },
+    enabled: isLoggedIn, // Only fetch when logged in
   });
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminLoggedIn");
+    setIsLoggedIn(false);
+  };
+
+  if (!isLoggedIn) {
+    return <LoginForm onLoginSuccess={() => setIsLoggedIn(true)} />;
+  }
 
   const downloadCV = async (id: number, originalName?: string) => {
     try {
@@ -118,9 +122,53 @@ export default function Admin() {
   if (isLoading) {
     return (
       <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center h-64">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </div>
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex items-center justify-between mb-6">
+              <CardTitle className="text-2xl">لوحة تحكم المتقدمين</CardTitle>
+              <div className="flex gap-2">
+                <Button disabled className="gap-2">
+                  <FileDown className="h-5 w-5" />
+                  تصدير البيانات
+                </Button>
+                <Button onClick={handleLogout} variant="outline" className="gap-2">
+                  <LogOut className="h-5 w-5" />
+                  تسجيل الخروج
+                </Button>
+              </div>
+            </div>
+            
+            {/* Loading skeleton for stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-slate-100 p-4 rounded-lg animate-pulse">
+                  <div className="h-4 bg-slate-300 rounded w-3/4 mb-2"></div>
+                  <div className="h-8 bg-slate-300 rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-4 bg-slate-300 rounded w-16 animate-pulse"></div>
+                  <div className="h-10 bg-slate-100 rounded animate-pulse"></div>
+                </div>
+              ))}
+            </div>
+          </CardHeader>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-0">
+            <div className="p-8 flex items-center justify-center">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <span className="text-slate-600">جاري تحميل بيانات المتقدمين...</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </main>
     );
   }
@@ -147,21 +195,41 @@ export default function Admin() {
           {/* Statistics Cards */}
           {stats && (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-primary/10 p-4 rounded-lg">
-                <h3 className="text-sm font-semibold text-primary mb-1">إجمالي المتقدمين</h3>
-                <p className="text-2xl font-bold text-primary">{stats.total}</p>
+              <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-4 rounded-lg border border-primary/20 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-primary mb-1">إجمالي المتقدمين</h3>
+                    <p className="text-2xl font-bold text-primary">{stats.total}</p>
+                  </div>
+                  <User className="h-8 w-8 text-primary/50" />
+                </div>
               </div>
-              <div className="bg-secondary/10 p-4 rounded-lg">
-                <h3 className="text-sm font-semibold text-secondary mb-1">معلمين</h3>
-                <p className="text-2xl font-bold text-secondary">{stats.teachers}</p>
+              <div className="bg-gradient-to-br from-blue-100 to-blue-50 p-4 rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-blue-600 mb-1">معلمين</h3>
+                    <p className="text-2xl font-bold text-blue-600">{stats.teachers}</p>
+                  </div>
+                  <GraduationCap className="h-8 w-8 text-blue-400" />
+                </div>
               </div>
-              <div className="bg-accent/10 p-4 rounded-lg">
-                <h3 className="text-sm font-semibold text-accent mb-1">إداريين</h3>
-                <p className="text-2xl font-bold text-accent">{stats.admin}</p>
+              <div className="bg-gradient-to-br from-orange-100 to-orange-50 p-4 rounded-lg border border-orange-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-orange-600 mb-1">إداريين</h3>
+                    <p className="text-2xl font-bold text-orange-600">{stats.admin}</p>
+                  </div>
+                  <FileText className="h-8 w-8 text-orange-400" />
+                </div>
               </div>
-              <div className="bg-emerald-100 p-4 rounded-lg">
-                <h3 className="text-sm font-semibold text-emerald-600 mb-1">مدراء ووكلاء</h3>
-                <p className="text-2xl font-bold text-emerald-600">{stats.management}</p>
+              <div className="bg-gradient-to-br from-emerald-100 to-emerald-50 p-4 rounded-lg border border-emerald-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-emerald-600 mb-1">مدراء ووكلاء</h3>
+                    <p className="text-2xl font-bold text-emerald-600">{stats.management}</p>
+                  </div>
+                  <Award className="h-8 w-8 text-emerald-400" />
+                </div>
               </div>
             </div>
           )}
@@ -249,17 +317,28 @@ export default function Admin() {
                   </TableRow>
                 ) : (
                   applications.map((application) => (
-                    <TableRow key={application.id} className="hover:bg-slate-50">
+                    <TableRow key={application.id} className="hover:bg-slate-50 transition-colors">
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarFallback className="bg-primary/10 text-primary">
-                              <User className="h-5 w-5" />
+                          <Avatar className="h-10 w-10 border-2 border-slate-200">
+                            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
+                              {application.fullName.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
-                          <div>
-                            <p className="font-semibold">{application.fullName}</p>
-                            <p className="text-sm text-slate-500">{application.email}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold text-slate-900 truncate">{application.fullName}</p>
+                            <p className="text-sm text-slate-500 truncate">{application.email}</p>
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                              <div className="flex items-center gap-1">
+                                <Phone className="h-3 w-3 text-slate-400" />
+                                <span className="text-xs text-slate-600">{application.phone}</span>
+                              </div>
+                              <span className="text-xs text-slate-400">•</span>
+                              <div className="flex items-center gap-1">
+                                <MapPin className="h-3 w-3 text-slate-400" />
+                                <span className="text-xs text-slate-600">{getCityLabel(application.city)}</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </TableCell>
@@ -285,14 +364,125 @@ export default function Admin() {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                            title="عرض التفاصيل"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0"
+                                title="عرض التفاصيل"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl" dir="rtl">
+                              <DialogHeader>
+                                <DialogTitle className="text-xl">تفاصيل المتقدم</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-6">
+                                {/* Personal Information */}
+                                <div>
+                                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                                    <User className="h-5 w-5" />
+                                    المعلومات الشخصية
+                                  </h3>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg">
+                                    <div className="flex items-center gap-2">
+                                      <User className="h-4 w-4 text-slate-600" />
+                                      <span className="font-medium">الاسم:</span>
+                                      <span>{application.fullName}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Mail className="h-4 w-4 text-slate-600" />
+                                      <span className="font-medium">البريد الإلكتروني:</span>
+                                      <span>{application.email}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Phone className="h-4 w-4 text-slate-600" />
+                                      <span className="font-medium">الهاتف:</span>
+                                      <span>{application.phone}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <MapPin className="h-4 w-4 text-slate-600" />
+                                      <span className="font-medium">المدينة:</span>
+                                      <span>{getCityLabel(application.city)}</span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <Separator />
+
+                                {/* Professional Information */}
+                                <div>
+                                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                                    <GraduationCap className="h-5 w-5" />
+                                    المعلومات المهنية
+                                  </h3>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg">
+                                    <div className="flex items-center gap-2">
+                                      <Badge className={getPositionBadgeColor(application.position)}>
+                                        {getPositionLabel(application.position)}
+                                      </Badge>
+                                      <span className="font-medium">الوظيفة المطلوبة</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Award className="h-4 w-4 text-slate-600" />
+                                      <span className="font-medium">المؤهل:</span>
+                                      <span>{getQualificationLabel(application.qualification)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <GraduationCap className="h-4 w-4 text-slate-600" />
+                                      <span className="font-medium">التخصص:</span>
+                                      <span>{application.specialization}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Calendar className="h-4 w-4 text-slate-600" />
+                                      <span className="font-medium">سنوات الخبرة:</span>
+                                      <span>{getExperienceLabel(application.experience)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Award className="h-4 w-4 text-slate-600" />
+                                      <span className="font-medium">المعدل:</span>
+                                      <span>{application.grade} من {application.gradeType}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Calendar className="h-4 w-4 text-slate-600" />
+                                      <span className="font-medium">تاريخ التقديم:</span>
+                                      <span>{formatDate(application.submittedAt)}</span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* CV Section */}
+                                {application.cvFilename && (
+                                  <>
+                                    <Separator />
+                                    <div>
+                                      <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                                        <FileText className="h-5 w-5" />
+                                        السيرة الذاتية
+                                      </h3>
+                                      <div className="bg-slate-50 p-4 rounded-lg">
+                                        <div className="flex items-center justify-between">
+                                          <div className="flex items-center gap-2">
+                                            <FileText className="h-4 w-4 text-slate-600" />
+                                            <span>{application.cvOriginalName || 'CV.pdf'}</span>
+                                          </div>
+                                          <Button
+                                            onClick={() => downloadCV(application.id, application.cvOriginalName || undefined)}
+                                            className="gap-2"
+                                          >
+                                            <Download className="h-4 w-4" />
+                                            تحميل السيرة الذاتية
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                           {application.cvFilename && (
                             <Button
                               size="sm"
