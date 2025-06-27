@@ -27,6 +27,7 @@ export default function Admin() {
     specialization: "",
     hasProfessionalLicense: "",
   });
+  const [selectedApplications, setSelectedApplications] = useState<number[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -167,8 +168,9 @@ export default function Admin() {
         variant: "default",
       });
       
-      // Refetch data
-      window.location.reload();
+      // Refetch data without reloading the page
+      queryClient.invalidateQueries({ queryKey: ['/api/applications'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/applications/stats'] });
     } catch (error) {
       console.error('Error deleting application:', error);
       toast({
@@ -193,13 +195,61 @@ export default function Admin() {
         variant: "default",
       });
       
-      // Refetch data
-      window.location.reload();
+      // Refetch data without reloading the page
+      queryClient.invalidateQueries({ queryKey: ['/api/applications'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/applications/stats'] });
     } catch (error) {
       console.error('Error deleting all applications:', error);
       toast({
         title: "خطأ",
         description: "فشل في حذف جميع الطلبات. يرجى المحاولة مرة أخرى.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedApplications(applications.map(app => app.id));
+    } else {
+      setSelectedApplications([]);
+    }
+  };
+
+  const handleSelectApplication = (id: number, checked: boolean) => {
+    if (checked) {
+      setSelectedApplications(prev => [...prev, id]);
+    } else {
+      setSelectedApplications(prev => prev.filter(appId => appId !== id));
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedApplications.length === 0) return;
+    
+    try {
+      // Delete each selected application
+      await Promise.all(
+        selectedApplications.map(id => 
+          fetch(`/api/applications/${id}`, { method: 'DELETE' })
+        )
+      );
+      
+      toast({
+        title: "تم الحذف",
+        description: `تم حذف ${selectedApplications.length} طلب بنجاح`,
+        variant: "default",
+      });
+      
+      // Clear selection and refetch data
+      setSelectedApplications([]);
+      queryClient.invalidateQueries({ queryKey: ['/api/applications'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/applications/stats'] });
+    } catch (error) {
+      console.error('Error deleting selected applications:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في حذف الطلبات المحددة. يرجى المحاولة مرة أخرى.",
         variant: "destructive",
       });
     }
@@ -309,6 +359,33 @@ export default function Admin() {
                 <FileDown className="h-5 w-5" />
                 تصدير البيانات
               </Button>
+              {selectedApplications.length > 0 && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="gap-2">
+                      <Trash2 className="h-5 w-5" />
+                      حذف المحدد ({selectedApplications.length})
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent dir="rtl">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>حذف الطلبات المحددة</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        سيتم حذف {selectedApplications.length} طلب نهائياً. هل أنت متأكد؟
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteSelected}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        حذف المحدد
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" className="gap-2">
@@ -529,6 +606,14 @@ export default function Admin() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12">
+                    <input
+                      type="checkbox"
+                      checked={selectedApplications.length === applications.length && applications.length > 0}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                  </TableHead>
                   <TableHead className="text-right">الاسم</TableHead>
                   <TableHead className="text-right">الوظيفة</TableHead>
                   <TableHead className="text-right">المؤهل</TableHead>
@@ -544,13 +629,21 @@ export default function Admin() {
               <TableBody>
                 {applications.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={10} className="text-center py-8 text-slate-500">
+                    <TableCell colSpan={11} className="text-center py-8 text-slate-500">
                       لا توجد طلبات تقديم متاحة
                     </TableCell>
                   </TableRow>
                 ) : (
                   applications.map((application) => (
                     <TableRow key={application.id} className="hover:bg-slate-50 transition-colors">
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedApplications.includes(application.id)}
+                          onChange={(e) => handleSelectApplication(application.id, e.target.checked)}
+                          className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        />
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10 border-2 border-slate-200">
