@@ -721,69 +721,160 @@ export default function Admin() {
                                       <div className="space-y-4">
                                         {/* CV File */}
                                         <div className="bg-slate-50 p-4 rounded-lg">
-                                          <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                              <FileText className="h-4 w-4 text-slate-600" />
-                                              <span className="font-medium">السيرة الذاتية</span>
+                                          <div className="flex items-start gap-4">
+                                            {/* Thumbnail */}
+                                            <div className="flex-shrink-0">
+                                              <div className="w-16 h-20 bg-red-100 border-2 border-red-200 rounded-lg flex items-center justify-center relative overflow-hidden">
+                                                <iframe
+                                                  src={`/api/applications/${application.id}/cv#toolbar=0&navpanes=0&scrollbar=0`}
+                                                  className="absolute inset-0 w-full h-full pointer-events-none scale-50 origin-top-left"
+                                                  style={{ width: '200%', height: '200%' }}
+                                                  title="CV Preview"
+                                                  onError={() => {
+                                                    // Fallback to PDF icon if iframe fails
+                                                    const target = document.currentScript?.parentElement;
+                                                    if (target) target.innerHTML = '<FileText className="h-8 w-8 text-red-600" />';
+                                                  }}
+                                                />
+                                                <div className="absolute inset-0 bg-white/20"></div>
+                                                <div className="absolute bottom-0 right-0 bg-red-600 text-white text-xs px-1 rounded-tl">PDF</div>
+                                              </div>
                                             </div>
-                                            <Button
-                                              onClick={() => downloadCV(application.id, application.cvOriginalName || undefined)}
-                                              className="gap-2"
-                                            >
-                                              <Download className="h-4 w-4" />
-                                              تحميل
-                                            </Button>
-                                          </div>
-                                          <div className="text-sm text-slate-600 mt-2">
-                                            {getDisplayFileName(application.cvOriginalName || undefined, application.fullName, application.id)}
+                                            {/* File Info */}
+                                            <div className="flex-1">
+                                              <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                  <FileText className="h-4 w-4 text-slate-600" />
+                                                  <span className="font-medium">السيرة الذاتية</span>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                  <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => window.open(`/api/applications/${application.id}/cv`, '_blank')}
+                                                    className="gap-1"
+                                                  >
+                                                    <Eye className="h-3 w-3" />
+                                                    معاينة
+                                                  </Button>
+                                                  <Button
+                                                    size="sm"
+                                                    onClick={() => downloadCV(application.id, application.cvOriginalName || undefined)}
+                                                    className="gap-1"
+                                                  >
+                                                    <Download className="h-3 w-3" />
+                                                    تحميل
+                                                  </Button>
+                                                </div>
+                                              </div>
+                                              <div className="text-sm text-slate-600 mt-2">
+                                                {getDisplayFileName(application.cvOriginalName || undefined, application.fullName, application.id)}
+                                              </div>
+                                            </div>
                                           </div>
                                         </div>
 
                                         {/* Education Certificate */}
                                         {application.educationCertFilename && (
                                           <div className="bg-slate-50 p-4 rounded-lg">
-                                            <div className="flex items-center justify-between">
-                                              <div className="flex items-center gap-2">
-                                                <FileText className="h-4 w-4 text-slate-600" />
-                                                <span className="font-medium">شهادة آخر مؤهل دراسي</span>
+                                            <div className="flex items-start gap-4">
+                                              {/* Thumbnail */}
+                                              <div className="flex-shrink-0">
+                                                <div className="w-16 h-20 bg-blue-100 border-2 border-blue-200 rounded-lg flex items-center justify-center relative overflow-hidden">
+                                                  <iframe
+                                                    src={`/api/applications/${application.id}/education-cert#toolbar=0&navpanes=0&scrollbar=0`}
+                                                    className="absolute inset-0 w-full h-full pointer-events-none scale-50 origin-top-left"
+                                                    style={{ width: '200%', height: '200%' }}
+                                                    title="Education Certificate Preview"
+                                                  />
+                                                  <div className="absolute inset-0 bg-white/20"></div>
+                                                </div>
                                               </div>
-                                              <Button
-                                                onClick={() => downloadEducationCert(application.id, application.educationCertOriginalName || undefined)}
-                                                className="gap-2"
-                                              >
-                                                <Download className="h-4 w-4" />
-                                                تحميل
-                                              </Button>
-                                            </div>
-                                            <div className="text-sm text-slate-600 mt-2">
-                                              {application.educationCertOriginalName || 'Education_Certificate.pdf'}
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* Work Experience Files */}
-                                        {application.workExperienceFilenames && (
-                                          <div className="bg-slate-50 p-4 rounded-lg">
-                                            <div className="flex items-center gap-2 mb-3">
-                                              <FileText className="h-4 w-4 text-slate-600" />
-                                              <span className="font-medium">ملفات الخبرات العملية</span>
-                                            </div>
-                                            <div className="space-y-2">
-                                              {application.workExperienceFilenames.split(',').filter(filename => filename.trim()).map((filename, index) => {
-                                                const originalNames = application.workExperienceOriginalNames?.split(',') || [];
-                                                const originalName = originalNames[index]?.trim() || `Work_Experience_${index + 1}.pdf`;
-                                                console.log('Rendering work experience file:', {index, filename: filename.trim(), originalName, total: application.workExperienceFilenames.split(',').length});
-                                                return (
-                                                  <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
-                                                    <span className="text-sm">{originalName}</span>
+                                              {/* File Info */}
+                                              <div className="flex-1">
+                                                <div className="flex items-center justify-between">
+                                                  <div className="flex items-center gap-2">
+                                                    <FileText className="h-4 w-4 text-slate-600" />
+                                                    <span className="font-medium">شهادة آخر مؤهل دراسي</span>
+                                                  </div>
+                                                  <div className="flex gap-2">
                                                     <Button
                                                       size="sm"
-                                                      onClick={() => downloadWorkExperience(application.id, index, originalName)}
+                                                      variant="outline"
+                                                      onClick={() => window.open(`/api/applications/${application.id}/education-cert`, '_blank')}
+                                                      className="gap-1"
+                                                    >
+                                                      <Eye className="h-3 w-3" />
+                                                      معاينة
+                                                    </Button>
+                                                    <Button
+                                                      size="sm"
+                                                      onClick={() => downloadEducationCert(application.id, application.educationCertOriginalName || undefined)}
                                                       className="gap-1"
                                                     >
                                                       <Download className="h-3 w-3" />
                                                       تحميل
                                                     </Button>
+                                                  </div>
+                                                </div>
+                                                <div className="text-sm text-slate-600 mt-2">
+                                                  {application.educationCertOriginalName || 'Education_Certificate.pdf'}
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {/* Work Experience Files */}
+                                        {application.workExperienceFilenames && application.workExperienceFilenames.trim() && (
+                                          <div className="bg-slate-50 p-4 rounded-lg">
+                                            <div className="flex items-center gap-2 mb-3">
+                                              <FileText className="h-4 w-4 text-slate-600" />
+                                              <span className="font-medium">ملفات الخبرات العملية</span>
+                                            </div>
+                                            <div className="space-y-3">
+                                              {application.workExperienceFilenames?.split(',').filter(filename => filename.trim()).map((filename, index) => {
+                                                const originalNames = application.workExperienceOriginalNames?.split(',') || [];
+                                                const originalName = originalNames[index]?.trim() || `Work_Experience_${index + 1}.pdf`;
+                                                return (
+                                                  <div key={index} className="flex items-start gap-4 p-3 bg-white rounded border">
+                                                    {/* Thumbnail */}
+                                                    <div className="flex-shrink-0">
+                                                      <div className="w-12 h-16 bg-green-100 border-2 border-green-200 rounded-lg flex items-center justify-center relative overflow-hidden">
+                                                        <iframe
+                                                          src={`/api/applications/${application.id}/work-experience/${index}#toolbar=0&navpanes=0&scrollbar=0`}
+                                                          className="absolute inset-0 w-full h-full pointer-events-none scale-50 origin-top-left"
+                                                          style={{ width: '200%', height: '200%' }}
+                                                          title={`Work Experience ${index + 1} Preview`}
+                                                        />
+                                                        <div className="absolute inset-0 bg-white/20"></div>
+                                                      </div>
+                                                    </div>
+                                                    {/* File Info */}
+                                                    <div className="flex-1">
+                                                      <div className="flex items-center justify-between">
+                                                        <span className="text-sm font-medium">{originalName}</span>
+                                                        <div className="flex gap-2">
+                                                          <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={() => window.open(`/api/applications/${application.id}/work-experience/${index}`, '_blank')}
+                                                            className="gap-1"
+                                                          >
+                                                            <Eye className="h-3 w-3" />
+                                                            معاينة
+                                                          </Button>
+                                                          <Button
+                                                            size="sm"
+                                                            onClick={() => downloadWorkExperience(application.id, index, originalName)}
+                                                            className="gap-1"
+                                                          >
+                                                            <Download className="h-3 w-3" />
+                                                            تحميل
+                                                          </Button>
+                                                        </div>
+                                                      </div>
+                                                    </div>
                                                   </div>
                                                 );
                                               })}
