@@ -616,11 +616,11 @@ export default function Admin() {
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-2xl" dir="rtl">
+                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
                               <DialogHeader>
                                 <DialogTitle className="text-xl">تفاصيل المتقدم</DialogTitle>
                               </DialogHeader>
-                              <div className="space-y-6">
+                              <div className="space-y-6 pb-4">
                                 {/* Personal Information */}
                                 <div>
                                   <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -848,7 +848,7 @@ export default function Admin() {
                                               <FileText className="h-4 w-4 text-slate-600" />
                                               <span className="font-medium">ملفات الخبرات العملية</span>
                                             </div>
-                                            <div className="space-y-3 max-h-96 overflow-y-auto">
+                                            <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
                                               {application.workExperienceFilenames?.split(',').filter(filename => filename.trim()).map((filename, index) => {
                                                 const originalNames = application.workExperienceOriginalNames?.split(',') || [];
                                                 const originalName = originalNames[index]?.trim() || `Work_Experience_${index + 1}.pdf`;
