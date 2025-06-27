@@ -143,6 +143,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Download education certificate file
+  app.get("/api/applications/:id/education-cert", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const application = await storage.getApplicationById(id);
+      
+      if (!application || !application.educationCertFilename) {
+        return res.status(404).json({ message: "الملف غير موجود" });
+      }
+
+      const filePath = path.join(uploadsDir, application.educationCertFilename);
+      
+      if (!fs.existsSync(filePath)) {
+        console.log(`Education cert file not found: ${filePath} for application ID: ${id}`);
+        return res.status(404).json({ message: "الملف غير موجود في النظام" });
+      }
+
+      let downloadName = application.educationCertOriginalName || application.educationCertFilename;
+      
+      if (downloadName && /[^\x20-\x7E\u0600-\u06FF\u0750-\u077F]/.test(downloadName) && !downloadName.includes('.pdf')) {
+        downloadName = `شهادة_تعليمية_${application.fullName || id}.pdf`;
+      } else if (!downloadName.endsWith('.pdf')) {
+        downloadName = downloadName + '.pdf';
+      }
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
+      
+      res.sendFile(filePath);
+    } catch (error) {
+      console.error('Error downloading education certificate:', error);
+      res.status(500).json({ message: "فشل في تحميل الملف" });
+    }
+  });
+
+  // Download work experience files
+  app.get("/api/applications/:id/work-experience/:fileIndex", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const fileIndex = parseInt(req.params.fileIndex);
+      const application = await storage.getApplicationById(id);
+      
+      if (!application || !application.workExperienceFilenames) {
+        return res.status(404).json({ message: "الملف غير موجود" });
+      }
+
+      const filenames = application.workExperienceFilenames.split(',');
+      const originalNames = application.workExperienceOriginalNames?.split(',') || [];
+      
+      if (fileIndex >= filenames.length || fileIndex < 0) {
+        return res.status(404).json({ message: "رقم الملف غير صحيح" });
+      }
+
+      const filename = filenames[fileIndex].trim();
+      const filePath = path.join(uploadsDir, filename);
+      
+      if (!fs.existsSync(filePath)) {
+        console.log(`Work experience file not found: ${filePath} for application ID: ${id}`);
+        return res.status(404).json({ message: "الملف غير موجود في النظام" });
+      }
+
+      let downloadName = originalNames[fileIndex]?.trim() || filename;
+      
+      if (downloadName && /[^\x20-\x7E\u0600-\u06FF\u0750-\u077F]/.test(downloadName) && !downloadName.includes('.pdf')) {
+        downloadName = `خبرة_عملية_${fileIndex + 1}_${application.fullName || id}.pdf`;
+      } else if (!downloadName.endsWith('.pdf')) {
+        downloadName = downloadName + '.pdf';
+      }
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
+      
+      res.sendFile(filePath);
+    } catch (error) {
+      console.error('Error downloading work experience file:', error);
+      res.status(500).json({ message: "فشل في تحميل الملف" });
+    }
+  });
+
   // Get application stats
   app.get("/api/applications/stats", async (req, res) => {
     try {

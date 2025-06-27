@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -28,6 +28,7 @@ export default function Admin() {
     hasProfessionalLicense: "",
   });
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loggedIn = localStorage.getItem("adminLoggedIn") === "true";
@@ -108,6 +109,58 @@ export default function Admin() {
     }
   };
 
+  const downloadEducationCert = async (id: number, originalName?: string) => {
+    try {
+      const response = await fetch(`/api/applications/${id}/education-cert`);
+      if (!response.ok) {
+        throw new Error('Failed to download education certificate');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = originalName || `education-cert-${id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading education certificate:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في تحميل شهادة التعليم. يرجى المحاولة مرة أخرى.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const downloadWorkExperience = async (id: number, fileIndex: number, originalName?: string) => {
+    try {
+      const response = await fetch(`/api/applications/${id}/work-experience/${fileIndex}`);
+      if (!response.ok) {
+        throw new Error('Failed to download work experience file');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = originalName || `work-experience-${fileIndex + 1}-${id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading work experience file:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في تحميل ملف الخبرة العملية. يرجى المحاولة مرة أخرى.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleStatusUpdate = async (id: number, status: string) => {
     try {
       const response = await fetch(`/api/applications/${id}/status`, {
@@ -126,8 +179,9 @@ export default function Admin() {
         variant: "default",
       });
       
-      // Refetch data
-      window.location.reload();
+      // Refetch data without page reload
+      queryClient.invalidateQueries({ queryKey: ['/api/applications'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/applications/stats'] });
     } catch (error) {
       console.error('Error updating status:', error);
       toast({
@@ -702,20 +756,78 @@ export default function Admin() {
                                         <FileText className="h-5 w-5" />
                                         السيرة الذاتية
                                       </h3>
-                                      <div className="bg-slate-50 p-4 rounded-lg">
-                                        <div className="flex items-center justify-between">
-                                          <div className="flex items-center gap-2">
-                                            <FileText className="h-4 w-4 text-slate-600" />
-                                            <span>{getDisplayFileName(application.cvOriginalName || undefined, application.fullName, application.id)}</span>
+                                      {/* Files Download Section */}
+                                      <div className="space-y-4">
+                                        {/* CV File */}
+                                        <div className="bg-slate-50 p-4 rounded-lg">
+                                          <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                              <FileText className="h-4 w-4 text-slate-600" />
+                                              <span className="font-medium">السيرة الذاتية</span>
+                                            </div>
+                                            <Button
+                                              onClick={() => downloadCV(application.id, application.cvOriginalName || undefined)}
+                                              className="gap-2"
+                                            >
+                                              <Download className="h-4 w-4" />
+                                              تحميل
+                                            </Button>
                                           </div>
-                                          <Button
-                                            onClick={() => downloadCV(application.id, application.cvOriginalName || undefined)}
-                                            className="gap-2"
-                                          >
-                                            <Download className="h-4 w-4" />
-                                            تحميل السيرة الذاتية
-                                          </Button>
+                                          <div className="text-sm text-slate-600 mt-2">
+                                            {getDisplayFileName(application.cvOriginalName || undefined, application.fullName, application.id)}
+                                          </div>
                                         </div>
+
+                                        {/* Education Certificate */}
+                                        {application.educationCertFilename && (
+                                          <div className="bg-slate-50 p-4 rounded-lg">
+                                            <div className="flex items-center justify-between">
+                                              <div className="flex items-center gap-2">
+                                                <FileText className="h-4 w-4 text-slate-600" />
+                                                <span className="font-medium">شهادة آخر مؤهل دراسي</span>
+                                              </div>
+                                              <Button
+                                                onClick={() => downloadEducationCert(application.id, application.educationCertOriginalName || undefined)}
+                                                className="gap-2"
+                                              >
+                                                <Download className="h-4 w-4" />
+                                                تحميل
+                                              </Button>
+                                            </div>
+                                            <div className="text-sm text-slate-600 mt-2">
+                                              {application.educationCertOriginalName || 'Education_Certificate.pdf'}
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {/* Work Experience Files */}
+                                        {application.workExperienceFilenames && (
+                                          <div className="bg-slate-50 p-4 rounded-lg">
+                                            <div className="flex items-center gap-2 mb-3">
+                                              <FileText className="h-4 w-4 text-slate-600" />
+                                              <span className="font-medium">ملفات الخبرات العملية</span>
+                                            </div>
+                                            <div className="space-y-2">
+                                              {application.workExperienceFilenames.split(',').map((filename, index) => {
+                                                const originalNames = application.workExperienceOriginalNames?.split(',') || [];
+                                                const originalName = originalNames[index]?.trim() || `Work_Experience_${index + 1}.pdf`;
+                                                return (
+                                                  <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
+                                                    <span className="text-sm">{originalName}</span>
+                                                    <Button
+                                                      size="sm"
+                                                      onClick={() => downloadWorkExperience(application.id, index, originalName)}
+                                                      className="gap-1"
+                                                    >
+                                                      <Download className="h-3 w-3" />
+                                                      تحميل
+                                                    </Button>
+                                                  </div>
+                                                );
+                                              })}
+                                            </div>
+                                          </div>
+                                        )}
                                       </div>
                                     </div>
                                   </>
