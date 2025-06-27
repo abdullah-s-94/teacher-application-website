@@ -85,20 +85,7 @@ export default function Admin() {
 
   const downloadCV = async (id: number, originalName?: string) => {
     try {
-      const response = await fetch(`/api/applications/${id}/cv`);
-      if (!response.ok) {
-        throw new Error('Failed to download CV');
-      }
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = originalName || `cv-${id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      window.open(`/api/applications/${id}/cv`, '_blank');
     } catch (error) {
       console.error('Error downloading CV:', error);
       toast({
@@ -111,20 +98,7 @@ export default function Admin() {
 
   const downloadEducationCert = async (id: number, originalName?: string) => {
     try {
-      const response = await fetch(`/api/applications/${id}/education-cert`);
-      if (!response.ok) {
-        throw new Error('Failed to download education certificate');
-      }
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = originalName || `education-cert-${id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      window.open(`/api/applications/${id}/education-cert`, '_blank');
     } catch (error) {
       console.error('Error downloading education certificate:', error);
       toast({
@@ -137,20 +111,7 @@ export default function Admin() {
 
   const downloadWorkExperience = async (id: number, fileIndex: number, originalName?: string) => {
     try {
-      const response = await fetch(`/api/applications/${id}/work-experience/${fileIndex}`);
-      if (!response.ok) {
-        throw new Error('Failed to download work experience file');
-      }
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = originalName || `work-experience-${fileIndex + 1}-${id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      window.open(`/api/applications/${id}/work-experience/${fileIndex}`, '_blank');
     } catch (error) {
       console.error('Error downloading work experience file:', error);
       toast({
@@ -808,10 +769,10 @@ export default function Admin() {
                                               <span className="font-medium">ملفات الخبرات العملية</span>
                                             </div>
                                             <div className="space-y-2">
-                                              {application.workExperienceFilenames.split(',').map((filename, index) => {
+                                              {application.workExperienceFilenames.split(',').filter(filename => filename.trim()).map((filename, index) => {
                                                 const originalNames = application.workExperienceOriginalNames?.split(',') || [];
                                                 const originalName = originalNames[index]?.trim() || `Work_Experience_${index + 1}.pdf`;
-
+                                                console.log('Rendering work experience file:', {index, filename: filename.trim(), originalName, total: application.workExperienceFilenames.split(',').length});
                                                 return (
                                                   <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
                                                     <span className="text-sm">{originalName}</span>
