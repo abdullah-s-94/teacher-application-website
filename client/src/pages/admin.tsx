@@ -513,8 +513,8 @@ export default function Admin() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">الكل</SelectItem>
-                  <SelectItem value="true">نعم</SelectItem>
-                  <SelectItem value="false">لا</SelectItem>
+                  <SelectItem value="yes">نعم</SelectItem>
+                  <SelectItem value="no">لا</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -704,6 +704,13 @@ export default function Admin() {
                                       <Calendar className="h-4 w-4 text-slate-600" />
                                       <span className="font-medium">تاريخ التقديم:</span>
                                       <span>{formatDate(application.submittedAt)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Award className="h-4 w-4 text-slate-600" />
+                                      <span className="font-medium">الرخصة المهنية:</span>
+                                      <Badge variant={application.hasProfessionalLicense === 'yes' ? 'default' : 'secondary'}>
+                                        {application.hasProfessionalLicense === 'yes' ? 'يمتلك رخصة مهنية' : 'لا يمتلك رخصة مهنية'}
+                                      </Badge>
                                     </div>
                                   </div>
                                 </div>
