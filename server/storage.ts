@@ -16,6 +16,7 @@ export interface IStorage {
     qualification?: string;
     experienceRange?: string;
     search?: string;
+    specialization?: string;
   }): Promise<Application[]>;
   updateApplicationStatus(id: number, status: string): Promise<void>;
   deleteApplication(id: number): Promise<void>;
@@ -78,6 +79,7 @@ export class DatabaseStorage implements IStorage {
     qualification?: string;
     experienceRange?: string;
     search?: string;
+    specialization?: string;
   }): Promise<Application[]> {
     const conditions = [];
 
@@ -87,6 +89,10 @@ export class DatabaseStorage implements IStorage {
 
     if (filter.qualification) {
       conditions.push(eq(applications.qualification, filter.qualification));
+    }
+
+    if (filter.specialization) {
+      conditions.push(eq(applications.specialization, filter.specialization));
     }
 
     if (filter.experienceRange) {
@@ -115,13 +121,29 @@ export class DatabaseStorage implements IStorage {
         .select()
         .from(applications)
         .where(and(...conditions))
-        .orderBy(desc(applications.submittedAt));
+        .orderBy(
+          sql`CASE 
+            WHEN ${applications.status} = 'under_review' THEN 1 
+            WHEN ${applications.status} = 'accepted' THEN 2 
+            WHEN ${applications.status} = 'rejected' THEN 3 
+            ELSE 4 
+          END`,
+          desc(applications.submittedAt)
+        );
     }
     
     return await db
       .select()
       .from(applications)
-      .orderBy(desc(applications.submittedAt));
+      .orderBy(
+        sql`CASE 
+          WHEN ${applications.status} = 'under_review' THEN 1 
+          WHEN ${applications.status} = 'accepted' THEN 2 
+          WHEN ${applications.status} = 'rejected' THEN 3 
+          ELSE 4 
+        END`,
+        desc(applications.submittedAt)
+      );
   }
 
   async updateApplicationStatus(id: number, status: string): Promise<void> {

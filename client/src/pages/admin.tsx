@@ -24,6 +24,7 @@ export default function Admin() {
     position: "",
     qualification: "",
     experienceRange: "",
+    specialization: "",
   });
   const { toast } = useToast();
 
@@ -420,7 +421,7 @@ export default function Admin() {
           )}
 
           {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
               <label className="block text-sm font-semibold mb-2">البحث</label>
               <Input
@@ -469,6 +470,30 @@ export default function Admin() {
                   <SelectItem value="0-2">0-2 سنوات</SelectItem>
                   <SelectItem value="3-5">3-5 سنوات</SelectItem>
                   <SelectItem value="6-10">6-10 سنوات</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold mb-2">التخصص</label>
+              <Select value={filters.specialization} onValueChange={(value) => setFilters(prev => ({ ...prev, specialization: value === "all" ? "" : value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="جميع التخصصات" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">جميع التخصصات</SelectItem>
+                  <SelectItem value="early_childhood">طفولة مبكرة</SelectItem>
+                  <SelectItem value="arabic">لغة عربية</SelectItem>
+                  <SelectItem value="english">لغة إنجليزية</SelectItem>
+                  <SelectItem value="computer_science">حاسب آلي</SelectItem>
+                  <SelectItem value="mathematics">رياضيات</SelectItem>
+                  <SelectItem value="chemistry">كيمياء</SelectItem>
+                  <SelectItem value="physics">فيزياء</SelectItem>
+                  <SelectItem value="history">تاريخ</SelectItem>
+                  <SelectItem value="geography">جغرافيا</SelectItem>
+                  <SelectItem value="business_administration">إدارة أعمال</SelectItem>
+                  <SelectItem value="biology">أحياء</SelectItem>
+                  <SelectItem value="home_economics">اقتصاد منزلي</SelectItem>
+                  <SelectItem value="religion">تربية إسلامية</SelectItem>
                 </SelectContent>
               </Select>
             </div>
