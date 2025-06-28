@@ -27,7 +27,7 @@ export default function GenderSelection() {
               <GraduationCap className="h-14 w-14 text-slate-700 group-hover:text-slate-600 transition-all duration-300 group-hover:scale-110" />
               <Sparkles className="h-6 w-6 text-amber-500 absolute -top-2 -right-2 animate-bounce" />
             </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-800 via-gray-700 to-slate-600 bg-clip-text text-transparent arabic-text">
+            <h1 className="text-5xl font-bold text-slate-800 arabic-text">
               مدارس أنجال النخبة الأهلية
             </h1>
           </div>

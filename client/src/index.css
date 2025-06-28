@@ -79,6 +79,17 @@
     direction: rtl;
     text-align: right;
     font-weight: inherit;
+    font-feature-settings: "kern" 1, "liga" 1;
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Specific fix for gradient text with Arabic characters */
+  .arabic-text.bg-clip-text {
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    font-synthesis: none;
   }
 }
 
