@@ -28,12 +28,12 @@ export default function GenderSelection() {
               <Sparkles className="h-6 w-6 text-amber-500 absolute -top-2 -right-2 animate-bounce" />
             </div>
             <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-800 via-gray-700 to-slate-600 bg-clip-text text-transparent arabic-text">
-              مَدَارِسُ أَنْجَالِ النُّخْبَةِ الأَهْلِيَّةِ
+              مدارس أنجال النخبة الأهلية
             </h1>
           </div>
           <div className="relative inline-block mb-8 animate-float">
             <p className="text-xl text-slate-600 px-6 py-3 bg-white/70 backdrop-blur-sm rounded-full border border-slate-200/50 shadow-lg animate-glow arabic-text">
-              نِظَامُ التَّوْظِيفِ الإِلِكْتُرُونِيِّ المُوَحَّدِ
+              نظام التوظيف الإلكتروني الموحد
             </p>
           </div>
           <h2 className="text-2xl font-semibold text-slate-700 mb-6 animate-fade-in arabic-text">

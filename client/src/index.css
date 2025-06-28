@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&subset=arabic&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;600;700&subset=arabic&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -73,65 +73,12 @@
     -moz-osx-font-smoothing: grayscale;
   }
   
-  /* Enhanced Arabic font features with diacritics support */
+  /* Simple Arabic text styling */
   .arabic-text {
-    font-family: 'Amiri', 'Noto Sans Arabic', 'Scheherazade New', 'Traditional Arabic', 'Tahoma', 'Arial Unicode MS', sans-serif !important;
-    font-feature-settings: "liga" 1, "calt" 1, "ccmp" 1, "locl" 1, "mark" 1, "mkmk" 1, "kern" 1 !important;
-    -webkit-font-feature-settings: "liga" 1, "calt" 1, "ccmp" 1, "locl" 1, "mark" 1, "mkmk" 1, "kern" 1 !important;
-    text-rendering: optimizeLegibility !important;
-    unicode-bidi: bidi-override;
+    font-family: 'Cairo', 'Tajawal', 'Tahoma', 'Arial Unicode MS', sans-serif;
     direction: rtl;
-    font-synthesis: none;
-    -webkit-text-stroke: 0.05px transparent;
-    font-variant-ligatures: contextual;
-    font-size: inherit;
-    line-height: 1.6;
-  }
-  
-  /* Specific CSS for Arabic diacritics */
-  .arabic-text::before,
-  .arabic-text::after {
-    font-feature-settings: inherit;
-  }
-  
-  /* Force proper rendering on WebKit browsers */
-  @supports (-webkit-appearance: none) {
-    .arabic-text {
-      -webkit-font-smoothing: subpixel-antialiased;
-      font-variant-ligatures: normal;
-    }
-  }
-  
-  /* Alternative CSS for browsers that support font-display */
-  @supports (font-display: swap) {
-    .arabic-text {
-      font-display: swap;
-    }
-  }
-  
-  /* Ensure diacritics are visible */
-  .arabic-text,
-  .arabic-text * {
-    font-variation-settings: normal;
-    font-optical-sizing: auto;
-  }
-  
-  /* Chrome/Safari specific fixes for Arabic diacritics */
-  @media screen and (-webkit-min-device-pixel-ratio: 0) {
-    .arabic-text {
-      -webkit-text-stroke: 0.01em rgba(0, 0, 0, 0.1);
-      -webkit-font-smoothing: antialiased;
-      transform: translateZ(0);
-      will-change: transform;
-    }
-  }
-  
-  /* Firefox specific fixes */
-  @-moz-document url-prefix() {
-    .arabic-text {
-      -moz-font-feature-settings: "mark=1", "mkmk=1";
-      -moz-osx-font-smoothing: grayscale;
-    }
+    text-align: right;
+    font-weight: inherit;
   }
 }
 
