@@ -402,13 +402,20 @@ export default function Admin() {
       const baseUrl = url.split('?')[0];
       const downloadUrl = `${baseUrl}?download=true`;
       
+      console.log('Downloading from:', downloadUrl);
+      
       // Fetch the file and create a blob
       const response = await fetch(downloadUrl);
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers.get('content-type'));
+      
       if (!response.ok) {
-        throw new Error('Failed to download file');
+        throw new Error(`Failed to download file: ${response.status}`);
       }
       
       const blob = await response.blob();
+      console.log('Blob size:', blob.size);
+      console.log('Blob type:', blob.type);
       
       // Create a temporary URL for the blob
       const blobUrl = window.URL.createObjectURL(blob);
@@ -417,12 +424,15 @@ export default function Admin() {
       const link = document.createElement('a');
       link.href = blobUrl;
       link.download = filename;
+      link.style.display = 'none';
       document.body.appendChild(link);
       link.click();
       
-      // Clean up
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
+      // Clean up after a short delay
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+      }, 100);
       
       toast({
         title: "تم التحميل بنجاح",
@@ -433,7 +443,7 @@ export default function Admin() {
       console.error('Error downloading file:', error);
       toast({
         title: "خطأ في التحميل",
-        description: "لا يمكن تحميل الملف. تحقق من اتصال الإنترنت.",
+        description: error instanceof Error ? error.message : "لا يمكن تحميل الملف. تحقق من اتصال الإنترنت.",
         variant: "destructive",
       });
     }
