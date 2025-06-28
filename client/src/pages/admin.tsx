@@ -19,20 +19,16 @@ import { useLocation } from "wouter";
 import type { Application } from "@shared/schema";
 
 export default function Admin() {
+  // Get initial user data
+  const initialUserData = localStorage.getItem("adminUser") ? JSON.parse(localStorage.getItem("adminUser")!) : null;
+  const initialGender = initialUserData?.permissions?.gender || null;
+  
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(() => {
-    // Initialize from localStorage first
-    const userDataStr = localStorage.getItem("adminUser");
-    if (userDataStr) {
-      const userData = JSON.parse(userDataStr);
-      const gender = userData.permissions?.gender || null;
-      console.log("Initial gender from localStorage:", gender);
-      return gender;
-    }
-    return null;
-  });
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(initialGender);
+  const [currentUser, setCurrentUser] = useState<any>(initialUserData);
   const [, setLocation] = useLocation();
+  
+  console.log("Component initialized with gender:", initialGender);
   const [filters, setFilters] = useState({
     search: "",
     position: "",
@@ -53,7 +49,7 @@ export default function Admin() {
       return;
     }
 
-    // Get user information
+    // Get user information  
     const userDataStr = localStorage.getItem("adminUser");
     if (!userDataStr) {
       setIsLoggedIn(false);
@@ -61,20 +57,13 @@ export default function Admin() {
     }
 
     const userData = JSON.parse(userDataStr);
-    console.log("userData loaded:", userData);
-    console.log("userData.permissions:", userData.permissions);
-    console.log("userData.permissions.gender:", userData.permissions?.gender);
-    setCurrentUser(userData);
-
+    console.log("useEffect - userData loaded:", userData);
+    
     // Handle gender-specific admins (AdminB and AdminG)
     if (userData.permissions && userData.permissions.gender) {
-      console.log("Setting gender for specific admin:", userData.permissions.gender);
-      // Don't override if already set from initial state
-      if (!selectedGender) {
-        setSelectedGender(userData.permissions.gender);
-      }
+      console.log("useEffect - Gender-specific admin detected:", userData.permissions.gender);
       setIsLoggedIn(true);
-      console.log("After setting - selectedGender should be:", userData.permissions.gender);
+      // Gender is already set from initial state, no need to set again
       return;
     }
 
@@ -90,7 +79,7 @@ export default function Admin() {
     
     setSelectedGender(genderParam);
     setIsLoggedIn(true);
-  }, [setLocation, selectedGender]);
+  }, [setLocation]);
 
   // Monitor selectedGender changes
   useEffect(() => {
