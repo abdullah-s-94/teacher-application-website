@@ -185,8 +185,13 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('CV input change event:', e);
+    console.log('CV e.target:', e.target);
+    console.log('CV e.target.files:', e.target.files);
     const file = e.target.files?.[0];
     console.log('CV file selected:', file);
+    console.log('CV file type:', typeof file);
+    console.log('CV file instanceof File:', file instanceof File);
     if (file) {
       if (file.type !== 'application/pdf') {
         toast({
@@ -632,11 +637,11 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
               <div className="space-y-2">
                 <FormLabel>رفع السيرة الذاتية * (PDF فقط)</FormLabel>
                 <div className="flex flex-col space-y-2">
-                  <Input
+                  <input
                     type="file"
                     accept=".pdf"
                     onChange={handleFileChange}
-                    className={`file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold ${genderTheme.buttonBg} file:text-white hover:file:opacity-90`}
+                    className={`w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold ${genderTheme.buttonBg} file:text-white hover:file:opacity-90 border border-input bg-background px-3 py-2 text-sm ring-offset-background file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md`}
                   />
                   {selectedFile && (
                     <div className={`flex items-center space-x-2 text-sm ${genderTheme.accentColor}`}>
@@ -651,11 +656,11 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
               <div className="space-y-2">
                 <FormLabel>رفع شهادة آخر مؤهل دراسي * (PDF فقط)</FormLabel>
                 <div className="flex flex-col space-y-2">
-                  <Input
+                  <input
                     type="file"
                     accept=".pdf"
                     onChange={handleEducationCertChange}
-                    className={`file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold ${genderTheme.buttonBg} file:text-white hover:file:opacity-90`}
+                    className={`w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold ${genderTheme.buttonBg} file:text-white hover:file:opacity-90 border border-input bg-background px-3 py-2 text-sm ring-offset-background file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md`}
                   />
                   {selectedEducationCert && (
                     <div className={`flex items-center space-x-2 text-sm ${genderTheme.accentColor}`}>
@@ -670,12 +675,12 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
               <div className="space-y-2">
                 <FormLabel>رفع ملفات الخبرة المهنية (اختياري - PDF فقط، حد أقصى 3 ملفات)</FormLabel>
                 <div className="flex flex-col space-y-2">
-                  <Input
+                  <input
                     type="file"
                     accept=".pdf"
                     multiple
                     onChange={handleWorkExperienceChange}
-                    className={`file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold ${genderTheme.buttonBg} file:text-white hover:file:opacity-90`}
+                    className={`w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold ${genderTheme.buttonBg} file:text-white hover:file:opacity-90 border border-input bg-background px-3 py-2 text-sm ring-offset-background file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md`}
                   />
                   {selectedWorkExperience.length > 0 && (
                     <div className="space-y-2">
