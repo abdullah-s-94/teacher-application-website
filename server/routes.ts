@@ -85,6 +85,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         gradeType: req.body.gradeType,
         grade: req.body.grade,
         hasProfessionalLicense: req.body.hasProfessionalLicense,
+        gender: req.body.gender,
         // Keep local filenames for backward compatibility (optional)
         cvFilename: files.cv?.[0]?.originalname,
         cvOriginalName: files.cv?.[0]?.originalname,
@@ -116,7 +117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all applications
   app.get("/api/applications", async (req, res) => {
     try {
-      const { position, qualification, experienceRange, search, specialization, hasProfessionalLicense } = req.query;
+      const { position, qualification, experienceRange, search, specialization, hasProfessionalLicense, gender } = req.query;
       
       const applications = await storage.getApplicationsByFilter({
         position: position as string,
@@ -125,6 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         search: search as string,
         specialization: specialization as string,
         hasProfessionalLicense: hasProfessionalLicense as string,
+        gender: gender as string,
       });
       
       res.json(applications);
