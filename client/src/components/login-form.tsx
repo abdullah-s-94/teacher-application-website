@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, User } from "lucide-react";
+import { useLocation } from "wouter";
+import { Lock, User, Home } from "lucide-react";
 
 const loginSchema = z.object({
   username: z.string().min(1, "اسم المستخدم مطلوب"),
@@ -23,6 +24,7 @@ interface LoginFormProps {
 export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const form = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
@@ -120,6 +122,19 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               </Button>
             </form>
           </Form>
+          
+          {/* Back to Home */}
+          <div className="text-center mt-6 pt-6 border-t border-slate-200">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setLocation('/')}
+              className="gap-2"
+            >
+              <Home className="h-4 w-4" />
+              العودة للصفحة الرئيسية
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
