@@ -91,6 +91,53 @@
     color: transparent !important;
     font-synthesis: none;
   }
+  
+  /* iPhone Safari optimizations */
+  @supports (-webkit-touch-callout: none) {
+    /* iOS Safari specific styles */
+    input, textarea, select {
+      font-size: 16px; /* Prevents zoom on iOS */
+      -webkit-appearance: none;
+      border-radius: 0.5rem;
+    }
+    
+    /* Fix for iOS Safari viewport height issues */
+    .min-h-screen {
+      min-height: -webkit-fill-available;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+    
+    /* Smooth scrolling on iOS */
+    body {
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Fix for iOS Safari backdrop blur */
+    .backdrop-blur-sm, .backdrop-blur-md, .backdrop-blur-lg {
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+    }
+  }
+  
+  /* Touch-friendly button sizes */
+  @media (max-width: 768px) {
+    button, .btn {
+      min-height: 44px; /* Apple recommended touch target size */
+      min-width: 44px;
+    }
+    
+    /* Larger text for better readability on mobile */
+    body {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    
+    /* Better spacing for mobile forms */
+    .form-field {
+      margin-bottom: 1rem;
+    }
+  }
 }
 
 @layer utilities {
