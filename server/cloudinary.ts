@@ -24,7 +24,7 @@ export async function uploadToCloudinary(
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: folder,
-        resource_type: 'auto',
+        resource_type: 'raw', // Use 'raw' for PDF files to get proper URLs
         public_id: `${Date.now()}_${Math.random().toString(36).substring(2)}`,
         use_filename: true,
         unique_filename: true,
