@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -81,10 +81,16 @@ interface ApplicationFormProps {
 }
 
 export function ApplicationForm({ gender }: ApplicationFormProps) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedEducationCert, setSelectedEducationCert] = useState<File | null>(null);
-  const [selectedWorkExperience, setSelectedWorkExperience] = useState<File[]>([]);
+  const [selectedFile, setSelectedFile] = useState<{name: string, size: number} | null>(null);
+  const [selectedEducationCert, setSelectedEducationCert] = useState<{name: string, size: number} | null>(null);
+  const [selectedWorkExperience, setSelectedWorkExperience] = useState<{name: string, size: number}[]>([]);
   const [showCustomSpecialization, setShowCustomSpecialization] = useState(false);
+  
+  // Use refs to store actual File objects
+  const cvFileRef = useRef<File | null>(null);
+  const educationCertFileRef = useRef<File | null>(null);
+  const workExperienceFilesRef = useRef<File[]>([]);
+  
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -124,17 +130,17 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
       formData.append('gender', gender);
 
       // Add CV file
-      if (selectedFile) {
-        formData.append('cv', selectedFile);
+      if (cvFileRef.current) {
+        formData.append('cv', cvFileRef.current);
       }
 
       // Add education certificate file
-      if (selectedEducationCert) {
-        formData.append('educationCert', selectedEducationCert);
+      if (educationCertFileRef.current) {
+        formData.append('educationCert', educationCertFileRef.current);
       }
 
       // Add work experience files
-      selectedWorkExperience.forEach((file) => {
+      workExperienceFilesRef.current.forEach((file) => {
         formData.append('workExperience', file);
       });
 
@@ -159,6 +165,10 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
       setSelectedFile(null);
       setSelectedEducationCert(null);
       setSelectedWorkExperience([]);
+      // Clear refs
+      cvFileRef.current = null;
+      educationCertFileRef.current = null;
+      workExperienceFilesRef.current = [];
       queryClient.invalidateQueries({ queryKey: ['/api/applications'] });
       queryClient.invalidateQueries({ queryKey: ['/api/applications/stats'] });
     },
@@ -176,22 +186,17 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
     console.log('Form valid:', form.formState.isValid);
     console.log('Form errors:', form.formState.errors);
     console.log('Selected files:', {
-      cv: selectedFile,
-      cert: selectedEducationCert,
-      work: selectedWorkExperience
+      cv: cvFileRef.current?.name,
+      cert: educationCertFileRef.current?.name,
+      work: workExperienceFilesRef.current.map(f => f.name)
     });
     console.log('Form submitted with data:', data);
     submitMutation.mutate(data);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('CV input change event:', e);
-    console.log('CV e.target:', e.target);
-    console.log('CV e.target.files:', e.target.files);
     const file = e.target.files?.[0];
-    console.log('CV file selected:', file);
-    console.log('CV file type:', typeof file);
-    console.log('CV file instanceof File:', file instanceof File);
+    console.log('CV file selected:', file?.name, file?.size);
     if (file) {
       if (file.type !== 'application/pdf') {
         toast({
@@ -209,14 +214,16 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
         });
         return;
       }
-      setSelectedFile(file);
-      console.log('CV file saved to state:', file);
+      // Store file in ref and metadata in state
+      cvFileRef.current = file;
+      setSelectedFile({name: file.name, size: file.size});
+      console.log('CV file saved successfully:', file.name);
     }
   };
 
   const handleEducationCertChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    console.log('Education cert file selected:', file);
+    console.log('Education cert file selected:', file?.name, file?.size);
     if (file) {
       if (file.type !== 'application/pdf') {
         toast({
@@ -234,16 +241,18 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
         });
         return;
       }
-      setSelectedEducationCert(file);
-      console.log('Education cert file saved to state:', file);
+      // Store file in ref and metadata in state
+      educationCertFileRef.current = file;
+      setSelectedEducationCert({name: file.name, size: file.size});
+      console.log('Education cert file saved successfully:', file.name);
     }
   };
 
   const handleWorkExperienceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    console.log('Work experience files selected:', files);
+    console.log('Work experience files selected:', files.map(f => `${f.name} (${f.size})`));
     
-    if (files.length + selectedWorkExperience.length > 3) {
+    if (files.length + workExperienceFilesRef.current.length > 3) {
       toast({
         variant: "destructive",
         title: "عدد الملفات كبير",
@@ -271,14 +280,19 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
       }
     }
 
-    const newFiles = [...selectedWorkExperience, ...files];
-    setSelectedWorkExperience(newFiles);
-    console.log('Work experience files saved to state:', newFiles);
+    // Store files in ref and metadata in state
+    const newFiles = [...workExperienceFilesRef.current, ...files];
+    workExperienceFilesRef.current = newFiles;
+    const newFilesMetadata = [...selectedWorkExperience, ...files.map(f => ({name: f.name, size: f.size}))];
+    setSelectedWorkExperience(newFilesMetadata);
+    console.log('Work experience files saved successfully:', files.map(f => f.name));
   };
 
   const removeWorkExperienceFile = (index: number) => {
     const newFiles = selectedWorkExperience.filter((_, i) => i !== index);
+    const newActualFiles = workExperienceFilesRef.current.filter((_, i) => i !== index);
     setSelectedWorkExperience(newFiles);
+    workExperienceFilesRef.current = newActualFiles;
   };
 
   const gradeType = form.watch('gradeType');
