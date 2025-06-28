@@ -478,16 +478,6 @@ export default function Admin() {
     document.body.removeChild(a);
   };
 
-  const getPositionBadgeColor = (position: string) => {
-    switch (position) {
-      case 'teacher': return 'bg-primary/10 text-primary hover:bg-primary/20';
-      case 'admin': return 'bg-accent/10 text-accent hover:bg-accent/20';
-      case 'vice_principal': return 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200';
-      case 'principal': return 'bg-purple-100 text-purple-600 hover:bg-purple-200';
-      default: return 'bg-slate-100 text-slate-600 hover:bg-slate-200';
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 relative overflow-hidden">
