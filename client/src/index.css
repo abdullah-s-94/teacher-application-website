@@ -180,15 +180,17 @@
   ring-color: rgb(225, 29, 72);
 }
 
-/* Gender-specific styling for selected and highlighted items */
+/* Gender-specific styling for selected and highlighted items with higher specificity */
 .male-theme [data-radix-select-item][data-highlighted],
-.male-theme [data-radix-select-item][data-state="checked"] {
+.male-theme [data-radix-select-item][data-state="checked"],
+.male-theme [data-radix-select-item]:focus {
   background-color: rgb(37, 99, 235) !important;
   color: white !important;
 }
 
 .female-theme [data-radix-select-item][data-highlighted],
-.female-theme [data-radix-select-item][data-state="checked"] {
+.female-theme [data-radix-select-item][data-state="checked"],
+.female-theme [data-radix-select-item]:focus {
   background-color: rgb(225, 29, 72) !important;
   color: white !important;
 }
@@ -213,15 +215,56 @@
   color: rgb(225, 29, 72) !important;
 }
 
-/* Override default accent color for selected items */
+/* Override default accent color for selected items with specificity */
 .male-theme {
-  --accent: hsl(217, 91%, 60%);
-  --accent-foreground: hsl(210, 40%, 98%);
+  --accent: hsl(217, 91%, 60%) !important;
+  --accent-foreground: hsl(210, 40%, 98%) !important;
 }
 
 .female-theme {
-  --accent: hsl(350, 89%, 60%);
-  --accent-foreground: hsl(210, 40%, 98%);
+  --accent: hsl(350, 89%, 60%) !important;
+  --accent-foreground: hsl(210, 40%, 98%) !important;
+}
+
+/* Force override with universal selectors */
+.male-theme *[data-radix-select-item] {
+  --tw-bg-opacity: 1;
+}
+
+.male-theme *[data-radix-select-item][data-highlighted],
+.male-theme *[data-radix-select-item]:focus,
+.male-theme *[data-radix-select-item][data-state="checked"] {
+  background-color: rgb(37 99 235) !important;
+  color: rgb(255 255 255) !important;
+}
+
+.female-theme *[data-radix-select-item][data-highlighted],
+.female-theme *[data-radix-select-item]:focus,
+.female-theme *[data-radix-select-item][data-state="checked"] {
+  background-color: rgb(225 29 72) !important;
+  color: rgb(255 255 255) !important;
+}
+
+/* Global override for focus states */
+.male-theme .focus\\:bg-accent:focus {
+  background-color: rgb(37, 99, 235) !important;
+  color: white !important;
+}
+
+.female-theme .focus\\:bg-accent:focus {
+  background-color: rgb(225, 29, 72) !important;
+  color: white !important;
+}
+
+/* Tailwind class overrides */
+.male-theme .bg-accent {
+  background-color: rgb(37, 99, 235) !important;
+  color: white !important;
+}
+
+.female-theme .bg-accent {
+  background-color: rgb(225, 29, 72) !important;
+  color: white !important;
 }
 
 /* Additional coverage for select items */
