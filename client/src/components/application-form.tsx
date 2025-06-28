@@ -43,8 +43,8 @@ const formSchema = insertApplicationSchema.extend({
     .min(1, "التقدير/المعدل مطلوب"),
   hasProfessionalLicense: z.string()
     .min(1, "يرجى الإجابة على سؤال الرخصة المهنية"),
-  cv: z.any().refine((file) => file instanceof File, "يرجى رفع السيرة الذاتية"),
-  educationCert: z.any().refine((file) => file instanceof File, "يرجى رفع شهادة آخر مؤهل دراسي"),
+  cv: z.any().optional(),
+  educationCert: z.any().optional(),
   workExperience: z.any().optional().refine(
     (files) => !files || (Array.isArray(files) && files.length <= 3 && files.every(file => file instanceof File)), 
     "يمكن رفع حد أقصى 3 ملفات للخبرات العملية"

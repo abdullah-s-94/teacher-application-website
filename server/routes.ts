@@ -36,7 +36,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     { name: 'workExperience', maxCount: 3 }
   ]), async (req, res) => {
     try {
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const files = (req.files as { [fieldname: string]: Express.Multer.File[] }) || {};
       
       // Upload files to Cloudinary
       let cvCloudinaryId = '';
