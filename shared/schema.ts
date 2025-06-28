@@ -16,6 +16,7 @@ export const applications = pgTable("applications", {
   gradeType: text("grade_type").notNull(),
   grade: text("grade").notNull(),
   hasProfessionalLicense: text("has_professional_license").notNull(),
+  gender: text("gender").notNull(), // 'male' or 'female'
   cvFilename: text("cv_filename"),
   cvOriginalName: text("cv_original_name"),
   cvCloudinaryId: text("cv_cloudinary_id"),

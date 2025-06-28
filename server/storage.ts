@@ -18,6 +18,7 @@ export interface IStorage {
     search?: string;
     specialization?: string;
     hasProfessionalLicense?: string;
+    gender?: string;
   }): Promise<Application[]>;
   updateApplicationStatus(id: number, status: string): Promise<void>;
   deleteApplication(id: number): Promise<void>;
@@ -82,6 +83,7 @@ export class DatabaseStorage implements IStorage {
     search?: string;
     specialization?: string;
     hasProfessionalLicense?: string;
+    gender?: string;
   }): Promise<Application[]> {
     const conditions = [];
 
@@ -146,6 +148,10 @@ export class DatabaseStorage implements IStorage {
       conditions.push(
         eq(applications.hasProfessionalLicense, filter.hasProfessionalLicense)
       );
+    }
+
+    if (filter.gender) {
+      conditions.push(eq(applications.gender, filter.gender));
     }
 
     if (conditions.length > 0) {

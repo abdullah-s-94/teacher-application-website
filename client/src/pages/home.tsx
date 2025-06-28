@@ -1,7 +1,29 @@
 import { ApplicationForm } from "@/components/application-form";
 import { Card, CardContent } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 
 export default function Home() {
+  const [, setLocation] = useLocation();
+  const [gender, setGender] = useState<'male' | 'female' | null>(null);
+
+  useEffect(() => {
+    // Get gender from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const genderParam = urlParams.get('gender') as 'male' | 'female';
+    
+    if (!genderParam || (genderParam !== 'male' && genderParam !== 'female')) {
+      // Redirect to gender selection if no valid gender specified
+      setLocation('/');
+      return;
+    }
+    
+    setGender(genderParam);
+  }, [setLocation]);
+
+  if (!gender) {
+    return <div className="min-h-screen flex items-center justify-center">جاري التحميل...</div>;
+  }
   return (
     <main className="container mx-auto px-4 py-8">
       {/* Hero Section */}
@@ -9,9 +31,9 @@ export default function Home() {
         <div className="gradient-primary text-white rounded-2xl p-8 mb-8">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-4">انضمي إلى فريق التميز</h2>
+              <h2 className="text-3xl font-bold mb-4">انضم إلى فريق التميز</h2>
               <p className="text-lg opacity-90 mb-6">
-                نبحث عن معلمات متميزات لينضممن إلى أسرة مدارس أنجال النخبة الأهلية
+                نبحث عن معلمين متميزين لينضموا إلى أسرة مدارس أنجال النخبة الأهلية
               </p>
               <div className="flex flex-wrap gap-3 mb-6">
                 <span className="bg-white/20 px-3 py-1 rounded-full text-sm">بيئة عمل محفزة</span>
@@ -71,7 +93,7 @@ export default function Home() {
       </section>
 
       {/* Application Form */}
-      <ApplicationForm />
+      <ApplicationForm gender={gender} />
     </main>
   );
 }

@@ -15,10 +15,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star } from "lucide-react";
 import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel, formatAgeLabel, getStatusLabel, getStatusBadgeColor, getSpecializationLabel, getPositionBadgeColor, STANDARD_SPECIALIZATIONS } from "@/lib/utils";
 import { LoginForm } from "@/components/login-form";
+import { useLocation } from "wouter";
 import type { Application } from "@shared/schema";
 
 export default function Admin() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(null);
+  const [, setLocation] = useLocation();
   const [filters, setFilters] = useState({
     search: "",
     position: "",
@@ -34,8 +37,24 @@ export default function Admin() {
 
   useEffect(() => {
     const loggedIn = localStorage.getItem("adminLoggedIn") === "true";
-    setIsLoggedIn(loggedIn);
-  }, []);
+    if (!loggedIn) {
+      setIsLoggedIn(false);
+      return;
+    }
+    
+    // Check for gender parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const genderParam = urlParams.get('gender') as 'male' | 'female';
+    
+    if (!genderParam || (genderParam !== 'male' && genderParam !== 'female')) {
+      // Redirect to admin selection if no valid gender specified
+      setLocation('/admin');
+      return;
+    }
+    
+    setSelectedGender(genderParam);
+    setIsLoggedIn(true);
+  }, [setLocation]);
 
   // Debounce search input
   useEffect(() => {
@@ -47,18 +66,23 @@ export default function Admin() {
   }, [searchInput]);
 
   const { data: applications = [], isLoading } = useQuery({
-    queryKey: ['/api/applications', filters],
+    queryKey: ['/api/applications', filters, selectedGender],
     queryFn: async (): Promise<Application[]> => {
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
         if (value) params.append(key, value);
       });
       
+      // Add gender filter
+      if (selectedGender) {
+        params.append('gender', selectedGender);
+      }
+      
       const response = await fetch(`/api/applications?${params}`);
       if (!response.ok) throw new Error('Failed to fetch applications');
       return await response.json();
     },
-    enabled: isLoggedIn, // Only fetch when logged in
+    enabled: isLoggedIn && !!selectedGender, // Only fetch when logged in and gender selected
   });
 
   const { data: stats } = useQuery({
@@ -425,7 +449,12 @@ export default function Admin() {
       <Card className="mb-8">
         <CardHeader>
           <div className="flex items-center justify-between mb-6">
-            <CardTitle className="text-2xl">لوحة تحكم المتقدمين</CardTitle>
+            <div>
+              <CardTitle className="text-2xl">لوحة تحكم المتقدمين</CardTitle>
+              <p className="text-muted-foreground mt-1">
+                المجمع التعليمي - {selectedGender === 'male' ? 'بنين' : 'بنات'}
+              </p>
+            </div>
             <div className="flex gap-2">
               <Button onClick={exportData} className="gap-2">
                 <FileDown className="h-5 w-5" />
@@ -483,6 +512,10 @@ export default function Admin() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+              <Button onClick={() => setLocation('/admin')} variant="outline" className="gap-2">
+                <Building className="h-5 w-5" />
+                تغيير المجمع
+              </Button>
               <Button onClick={handleLogout} variant="outline" className="gap-2">
                 <LogOut className="h-5 w-5" />
                 تسجيل الخروج

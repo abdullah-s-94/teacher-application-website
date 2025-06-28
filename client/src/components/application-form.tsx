@@ -59,7 +59,11 @@ const formSchema = insertApplicationSchema.extend({
 
 type FormData = z.infer<typeof formSchema>;
 
-export function ApplicationForm() {
+interface ApplicationFormProps {
+  gender: 'male' | 'female';
+}
+
+export function ApplicationForm({ gender }: ApplicationFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedEducationCert, setSelectedEducationCert] = useState<File | null>(null);
   const [selectedWorkExperience, setSelectedWorkExperience] = useState<File[]>([]);
@@ -96,6 +100,9 @@ export function ApplicationForm() {
         }
         formData.append(key, value as string);
       });
+      
+      // Add gender
+      formData.append('gender', gender);
 
       // Add CV file
       if (selectedFile) {
@@ -260,7 +267,7 @@ export function ApplicationForm() {
                     <FormLabel>الاسم الكامل *</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="أدخلي اسمك الكامل" 
+                        placeholder="أدخل اسمك الكامل" 
                         {...field} 
                         onInput={(e) => {
                           const target = e.target as HTMLInputElement;
