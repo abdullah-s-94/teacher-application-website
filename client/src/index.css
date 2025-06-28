@@ -139,3 +139,33 @@
     box-shadow: 0 0 30px rgba(148, 163, 184, 0.6);
   }
 }
+
+/* Gender-specific themes for better visual identity */
+.male-theme {
+  --primary-color: rgb(37, 99, 235); /* Blue 600 */
+  --primary-hover: rgb(29, 78, 216); /* Blue 700 */
+  --primary-light: rgb(147, 197, 253); /* Blue 300 */
+  --primary-dark: rgb(30, 64, 175); /* Blue 800 */
+}
+
+.female-theme {
+  --primary-color: rgb(225, 29, 72); /* Rose 600 */
+  --primary-hover: rgb(190, 24, 93); /* Rose 700 */
+  --primary-light: rgb(253, 164, 175); /* Rose 300 */
+  --primary-dark: rgb(159, 18, 57); /* Rose 800 */
+}
+
+/* Custom input focus styles for gender themes */
+.male-theme input:focus,
+.male-theme select:focus,
+.male-theme textarea:focus {
+  border-color: rgb(37, 99, 235);
+  ring-color: rgb(37, 99, 235);
+}
+
+.female-theme input:focus,
+.female-theme select:focus,
+.female-theme textarea:focus {
+  border-color: rgb(225, 29, 72);
+  ring-color: rgb(225, 29, 72);
+}

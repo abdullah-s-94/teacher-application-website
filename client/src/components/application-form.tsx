@@ -260,14 +260,29 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
 
   const gradeType = form.watch('gradeType');
 
+  const genderTheme = gender === 'male' ? {
+    headerBg: 'bg-gradient-to-r from-blue-600 to-blue-700',
+    buttonBg: 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800',
+    accentColor: 'text-blue-600',
+    borderColor: 'border-blue-200',
+    focusColor: 'focus:ring-blue-500'
+  } : {
+    headerBg: 'bg-gradient-to-r from-rose-600 to-rose-700',
+    buttonBg: 'bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800',
+    accentColor: 'text-rose-600',
+    borderColor: 'border-rose-200',
+    focusColor: 'focus:ring-rose-500'
+  };
+
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader className="bg-primary text-white rounded-t-lg">
-        <CardTitle className="text-2xl">استمارة التقديم</CardTitle>
-        <p className="opacity-90">يرجى ملء جميع البيانات المطلوبة بدقة</p>
-      </CardHeader>
-      <CardContent className="p-8">
-        <Form {...form}>
+    <div className={gender === 'male' ? 'male-theme' : 'female-theme'}>
+      <Card className="w-full max-w-4xl mx-auto bg-white/80 backdrop-blur-sm border border-slate-200/50 shadow-xl">
+        <CardHeader className={`${genderTheme.headerBg} text-white rounded-t-lg`}>
+          <CardTitle className="text-2xl arabic-text">استمارة التقديم</CardTitle>
+          <p className="opacity-90 arabic-text">يرجى ملء جميع البيانات المطلوبة بدقة</p>
+        </CardHeader>
+        <CardContent className="p-8">
+          <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Personal Information */}
             <div className="grid md:grid-cols-2 gap-6">
@@ -668,11 +683,14 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
 
             <Button 
               type="submit" 
-              className="w-full" 
+              className={`w-full ${genderTheme.buttonBg} text-white py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl arabic-text`}
               disabled={submitMutation.isPending}
             >
               {submitMutation.isPending ? (
-                "جاري الإرسال..."
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent ml-2" />
+                  جاري الإرسال...
+                </>
               ) : (
                 <>
                   <Send className="ml-2 h-4 w-4" />
@@ -683,6 +701,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
           </form>
         </Form>
       </CardContent>
-    </Card>
+      </Card>
+    </div>
   );
 }
