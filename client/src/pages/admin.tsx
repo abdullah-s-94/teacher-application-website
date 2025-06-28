@@ -53,26 +53,31 @@ export default function Admin() {
     const userData = JSON.parse(userDataStr);
     setCurrentUser(userData);
 
-    // Handle gender-specific admins
+    // Handle gender-specific admins (AdminB and AdminG)
     if (userData.permissions.gender) {
-      // User is gender-specific (AdminB or AdminG)
+      // User is gender-specific (AdminB or AdminG) - go directly to their panel
+      console.log('Gender-specific admin detected:', userData.permissions.gender);
       setSelectedGender(userData.permissions.gender);
       setIsLoggedIn(true);
       return;
     }
 
-    // For super admin, check URL parameter
+    // For super admin (Admin), check URL parameter
     const urlParams = new URLSearchParams(window.location.search);
     const genderParam = urlParams.get('gender') as 'male' | 'female';
     
-    if (!genderParam || (genderParam !== 'male' && genderParam !== 'female')) {
-      // Redirect to admin selection if no valid gender specified for super admin
-      setLocation('/admin');
+    if (genderParam && (genderParam === 'male' || genderParam === 'female')) {
+      // Super admin with valid gender parameter - go to specific panel
+      console.log('Super admin with gender parameter:', genderParam);
+      setSelectedGender(genderParam);
+      setIsLoggedIn(true);
       return;
     }
     
-    setSelectedGender(genderParam);
-    setIsLoggedIn(true);
+    // Super admin without gender parameter - show selection page
+    console.log('Super admin without gender parameter - showing selection');
+    setSelectedGender(null);
+    setIsLoggedIn(false); // This will show the admin selection interface
   }, [setLocation]);
 
   // Handle search submission

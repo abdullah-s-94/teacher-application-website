@@ -178,13 +178,13 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       // Determine redirect path based on user type
       console.log('User type:', user.type); // Debug log
       if (user.type === "boys_admin") {
-        // AdminB - redirect directly to boys admin panel
-        console.log('Setting redirect to boys admin panel'); // Debug log
-        setShouldRedirect('/admin?gender=male');
+        // AdminB - redirect directly to admin page (will be handled by admin page logic)
+        console.log('Setting redirect to admin page for boys admin'); // Debug log
+        setShouldRedirect('/admin');
       } else if (user.type === "girls_admin") {
-        // AdminG - redirect directly to girls admin panel
-        console.log('Setting redirect to girls admin panel'); // Debug log
-        setShouldRedirect('/admin?gender=female');
+        // AdminG - redirect directly to admin page (will be handled by admin page logic)
+        console.log('Setting redirect to admin page for girls admin'); // Debug log
+        setShouldRedirect('/admin');
       } else {
         // Super admin - allow selection between complexes
         console.log('Showing admin selection for super admin'); // Debug log
