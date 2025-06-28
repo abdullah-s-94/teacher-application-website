@@ -66,7 +66,7 @@ export default function Admin() {
     const genderParam = urlParams.get('gender') as 'male' | 'female';
     
     if (!genderParam || (genderParam !== 'male' && genderParam !== 'female')) {
-      // Redirect to admin selection if no valid gender specified
+      // Redirect to admin selection if no valid gender specified for super admin
       setLocation('/admin');
       return;
     }
