@@ -399,8 +399,8 @@ export default function Admin() {
         const errorData = await response.json().catch(() => ({}));
         if (errorData.fileNotFound) {
           toast({
-            title: "ملف مفقود",
-            description: "تم حذف الملف من النظام. يرجى من المتقدم إعادة رفع الملف.",
+            title: "ملف غير متاح",
+            description: errorData.message || "الملف غير متاح حالياً. يرجى المحاولة لاحقاً.",
             variant: "destructive",
           });
         } else {
@@ -430,8 +430,8 @@ export default function Admin() {
         const errorData = await response.json().catch(() => ({}));
         if (errorData.fileNotFound) {
           toast({
-            title: "ملف مفقود",
-            description: "تم حذف الملف من النظام. يرجى من المتقدم إعادة رفع الملف.",
+            title: "ملف غير متاح",
+            description: errorData.message || "الملف غير متاح حالياً. يرجى المحاولة لاحقاً.",
             variant: "destructive",
           });
         } else {

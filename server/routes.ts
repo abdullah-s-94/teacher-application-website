@@ -146,15 +146,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "الطلب غير موجود" });
       }
 
-      // Check if we have Cloudinary URL
+      // Check if we have Cloudinary URL (priority)
       if (application.cvCloudinaryUrl) {
-        // Redirect to Cloudinary URL
-        return res.redirect(application.cvCloudinaryUrl);
+        // Add download query parameter if needed
+        const downloadParam = req.query.download === 'true' ? '?fl_attachment' : '';
+        return res.redirect(application.cvCloudinaryUrl + downloadParam);
       }
       
       // Fallback to local file if no Cloudinary URL (for backward compatibility)
       if (!application.cvFilename) {
-        return res.status(404).json({ message: "الملف غير موجود" });
+        return res.status(404).json({ 
+          message: "لم يتم رفع ملف السيرة الذاتية بعد.",
+          fileNotFound: true 
+        });
       }
 
       const filePath = path.join(uploadsDir, application.cvFilename);
@@ -162,7 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!fs.existsSync(filePath)) {
         console.log(`CV file not found: ${filePath} for application ID: ${id}`);
         return res.status(404).json({ 
-          message: "تم حذف الملف من النظام. يرجى من المتقدم إعادة رفع الملف.",
+          message: "الملف غير متاح حالياً. يرجى المحاولة لاحقاً أو الاتصال بالدعم الفني.",
           fileNotFound: true
         });
       }
@@ -203,14 +207,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "الطلب غير موجود" });
       }
 
-      // Check if we have Cloudinary URL
+      // Check if we have Cloudinary URL (priority)
       if (application.educationCertCloudinaryUrl) {
-        return res.redirect(application.educationCertCloudinaryUrl);
+        const downloadParam = req.query.download === 'true' ? '?fl_attachment' : '';
+        return res.redirect(application.educationCertCloudinaryUrl + downloadParam);
       }
       
       // Fallback to local file
       if (!application.educationCertFilename) {
-        return res.status(404).json({ message: "الملف غير موجود" });
+        return res.status(404).json({ 
+          message: "لم يتم رفع شهادة التعليم بعد.",
+          fileNotFound: true 
+        });
       }
 
       const filePath = path.join(uploadsDir, application.educationCertFilename);
@@ -218,7 +226,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!fs.existsSync(filePath)) {
         console.log(`Education cert file not found: ${filePath} for application ID: ${id}`);
         return res.status(404).json({ 
-          message: "تم حذف الملف من النظام. يرجى من المتقدم إعادة رفع الملف.",
+          message: "الملف غير متاح حالياً. يرجى المحاولة لاحقاً أو الاتصال بالدعم الفني.",
           fileNotFound: true
         });
       }
@@ -265,14 +273,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (fileIndex < cloudinaryUrls.length && fileIndex >= 0) {
           const cloudinaryUrl = cloudinaryUrls[fileIndex].trim();
           if (cloudinaryUrl) {
-            return res.redirect(cloudinaryUrl);
+            const downloadParam = req.query.download === 'true' ? '?fl_attachment' : '';
+            return res.redirect(cloudinaryUrl + downloadParam);
           }
         }
       }
 
       // Fallback to local files
       if (!application.workExperienceFilenames) {
-        return res.status(404).json({ message: "الملف غير موجود" });
+        return res.status(404).json({ 
+          message: "لم يتم رفع ملفات الخبرة العملية بعد.",
+          fileNotFound: true 
+        });
       }
 
       const filenames = application.workExperienceFilenames.split(',');
@@ -288,7 +300,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!fs.existsSync(filePath)) {
         console.log(`Work experience file not found: ${filePath} for application ID: ${id}`);
         return res.status(404).json({ 
-          message: "تم حذف الملف من النظام. يرجى من المتقدم إعادة رفع الملف.",
+          message: "الملف غير متاح حالياً. يرجى المحاولة لاحقاً أو الاتصال بالدعم الفني.",
           fileNotFound: true
         });
       }
