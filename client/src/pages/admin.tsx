@@ -20,7 +20,15 @@ import type { Application } from "@shared/schema";
 
 export default function Admin() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(null);
+  const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(() => {
+    const userDataStr = localStorage.getItem("adminUser");
+    if (userDataStr) {
+      const userData = JSON.parse(userDataStr);
+
+      return userData.permissions?.gender || null;
+    }
+    return null;
+  });
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [, setLocation] = useLocation();
   const [filters, setFilters] = useState({
@@ -51,16 +59,12 @@ export default function Admin() {
     }
 
     const userData = JSON.parse(userDataStr);
-    console.log("User data loaded:", userData);
     setCurrentUser(userData);
 
     // Handle gender-specific admins (AdminB and AdminG)
     if (userData.permissions.gender) {
-      console.log("Gender-specific admin detected:", userData.permissions.gender);
-      console.log("Setting selectedGender to:", userData.permissions.gender);
       setSelectedGender(userData.permissions.gender);
       setIsLoggedIn(true);
-      console.log("State after setting - isLoggedIn: true, selectedGender:", userData.permissions.gender);
       return;
     }
 
@@ -70,12 +74,10 @@ export default function Admin() {
     
     if (!genderParam || (genderParam !== 'male' && genderParam !== 'female')) {
       // Redirect to admin selection if no valid gender specified for super admin
-      console.log("Super admin without gender param, redirecting to selection");
       setLocation('/admin/selection');
       return;
     }
     
-    console.log("Super admin with gender parameter:", genderParam);
     setSelectedGender(genderParam);
     setIsLoggedIn(true);
   }, [setLocation]);
@@ -101,12 +103,9 @@ export default function Admin() {
     }
   };
 
-  console.log("Query state - isLoggedIn:", isLoggedIn, "selectedGender:", selectedGender);
-  
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ['/api/applications', filters, selectedGender],
     queryFn: async (): Promise<Application[]> => {
-      console.log("queryFn executing - selectedGender:", selectedGender);
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
         if (value) params.append(key, value);
@@ -114,17 +113,12 @@ export default function Admin() {
       
       // Add gender filter
       if (selectedGender) {
-        console.log("Fetching applications for gender:", selectedGender);
         params.append('gender', selectedGender);
       }
       
-      const url = `/api/applications?${params}`;
-      console.log("API URL:", url);
-      const response = await fetch(url);
+      const response = await fetch(`/api/applications?${params}`);
       if (!response.ok) throw new Error('Failed to fetch applications');
-      const data = await response.json();
-      console.log("Applications received:", data.length);
-      return data;
+      return await response.json();
     },
     enabled: isLoggedIn && !!selectedGender, // Only fetch when logged in and gender selected
   });
@@ -143,7 +137,6 @@ export default function Admin() {
     // Clear all admin-related data
     localStorage.removeItem("adminLoggedIn");
     localStorage.removeItem("adminUser");
-    console.log("Admin logged out successfully from admin page");
     setIsLoggedIn(false);
     setCurrentUser(null);
     setSelectedGender(null);
@@ -916,7 +909,6 @@ export default function Admin() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {console.log("Rendering table - applications count:", applications.length)}
                 {applications.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={11} className="text-center py-8 text-slate-500">
