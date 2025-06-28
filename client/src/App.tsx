@@ -17,8 +17,8 @@ function App() {
           <div className="min-h-screen bg-slate-50">
             <Route path="/" component={GenderSelection} />
             <Route path="/application" component={Home} />
-            <Route path="/admin" component={AdminSelection} />
-            <Route path="/admin/dashboard" component={Admin} />
+            <Route path="/admin" component={Admin} />
+            <Route path="/admin/selection" component={AdminSelection} />
             <Route path="/admin/recovery" component={AdminRecovery} />
           </div>
         </Router>

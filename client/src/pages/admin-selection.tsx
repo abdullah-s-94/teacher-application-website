@@ -19,11 +19,15 @@ export default function AdminSelection() {
   }
 
   const handleSelection = (gender: 'male' | 'female') => {
-    setLocation(`/admin/dashboard?gender=${gender}`);
+    console.log("Admin selection:", gender);
+    setLocation(`/admin?gender=${gender}`);
   };
 
   const handleLogout = () => {
+    // Clear all admin-related data
     localStorage.removeItem("adminLoggedIn");
+    localStorage.removeItem("adminUser");
+    console.log("Admin logged out successfully");
     setIsLoggedIn(false);
   };
 

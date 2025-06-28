@@ -53,9 +53,9 @@ export default function Admin() {
     const userData = JSON.parse(userDataStr);
     setCurrentUser(userData);
 
-    // Handle gender-specific admins
+    // Handle gender-specific admins (AdminB and AdminG)
     if (userData.permissions.gender) {
-      // User is gender-specific (AdminB or AdminG)
+      console.log("Gender-specific admin detected:", userData.permissions.gender);
       setSelectedGender(userData.permissions.gender);
       setIsLoggedIn(true);
       return;
@@ -66,11 +66,13 @@ export default function Admin() {
     const genderParam = urlParams.get('gender') as 'male' | 'female';
     
     if (!genderParam || (genderParam !== 'male' && genderParam !== 'female')) {
-      // Redirect to admin selection if no valid gender specified
-      setLocation('/admin');
+      // Redirect to admin selection if no valid gender specified for super admin
+      console.log("Super admin without gender param, redirecting to selection");
+      setLocation('/admin/selection');
       return;
     }
     
+    console.log("Super admin with gender parameter:", genderParam);
     setSelectedGender(genderParam);
     setIsLoggedIn(true);
   }, [setLocation]);
@@ -127,10 +129,13 @@ export default function Admin() {
   });
 
   const handleLogout = () => {
+    // Clear all admin-related data
     localStorage.removeItem("adminLoggedIn");
     localStorage.removeItem("adminUser");
+    console.log("Admin logged out successfully from admin page");
     setIsLoggedIn(false);
     setCurrentUser(null);
+    setSelectedGender(null);
   };
 
   if (!isLoggedIn) {
@@ -668,7 +673,7 @@ export default function Admin() {
                 </AlertDialogContent>
               </AlertDialog>
               {currentUser?.permissions.canSwitchGender ? (
-                <Button onClick={() => setLocation('/admin')} variant="outline" className="gap-2 bg-white/70 backdrop-blur-sm border-slate-300 hover:bg-white/90 hover:border-slate-400 transition-all duration-300">
+                <Button onClick={() => setLocation('/admin/selection')} variant="outline" className="gap-2 bg-white/70 backdrop-blur-sm border-slate-300 hover:bg-white/90 hover:border-slate-400 transition-all duration-300">
                   <Building className="h-5 w-5" />
                   تغيير المجمع
                 </Button>
