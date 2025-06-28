@@ -1,7 +1,9 @@
 import { ApplicationForm } from "@/components/application-form";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
+import { Home as HomeIcon } from "lucide-react";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -26,6 +28,21 @@ export default function Home() {
   }
   return (
     <main className="container mx-auto px-4 py-8">
+      {/* Navigation */}
+      <div className="flex justify-between items-center mb-8">
+        <Button 
+          onClick={() => setLocation('/')}
+          variant="outline" 
+          className="gap-2"
+        >
+          <HomeIcon className="h-4 w-4" />
+          العودة للصفحة الرئيسية
+        </Button>
+        <h1 className="text-xl font-bold text-primary">
+          التقديم لوظائف المجمع التعليمي - {gender === 'male' ? 'بنين' : 'بنات'}
+        </h1>
+      </div>
+
       {/* Hero Section */}
       <section className="mb-12">
         <div className="gradient-primary text-white rounded-2xl p-8 mb-8">

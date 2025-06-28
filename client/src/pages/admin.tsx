@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star } from "lucide-react";
+import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star, Home } from "lucide-react";
 import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel, formatAgeLabel, getStatusLabel, getStatusBadgeColor, getSpecializationLabel, getPositionBadgeColor, STANDARD_SPECIALIZATIONS } from "@/lib/utils";
 import { LoginForm } from "@/components/login-form";
 import { useLocation } from "wouter";
@@ -512,6 +512,10 @@ export default function Admin() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+              <Button onClick={() => setLocation('/')} variant="outline" className="gap-2">
+                <Home className="h-5 w-5" />
+                الصفحة الرئيسية
+              </Button>
               <Button onClick={() => setLocation('/admin')} variant="outline" className="gap-2">
                 <Building className="h-5 w-5" />
                 تغيير المجمع
