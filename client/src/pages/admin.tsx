@@ -371,8 +371,9 @@ export default function Admin() {
         const fileInfo = await response.json();
         
         if (fileInfo.url) {
-          // Open the actual PDF file URL
-          window.open(fileInfo.url, '_blank');
+          // Use Google Docs Viewer for PDF preview
+          const googleDocsUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fileInfo.url)}&embedded=true`;
+          window.open(googleDocsUrl, '_blank');
           
           toast({
             title: "تم فتح المعاينة",
