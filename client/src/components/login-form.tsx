@@ -245,7 +245,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                       <div className="relative group">
                         <User className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-slate-600 transition-colors duration-300" />
                         <Input 
-                          className="pr-12 h-12 bg-white/60 backdrop-blur-sm border-slate-300 hover:border-slate-400 focus:border-slate-500 transition-all duration-300 rounded-xl text-right arabic-text" 
+                          className="pr-12 h-12 bg-white/60 backdrop-blur-sm border-slate-300 hover:border-slate-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 focus:ring-offset-0 transition-all duration-300 rounded-xl text-right arabic-text" 
                           placeholder="أدخل اسم المستخدم" 
                           {...field} 
                         />
@@ -266,7 +266,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                         <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-slate-600 transition-colors duration-300" />
                         <Input 
                           type="password" 
-                          className="pr-12 h-12 bg-white/60 backdrop-blur-sm border-slate-300 hover:border-slate-400 focus:border-slate-500 transition-all duration-300 rounded-xl text-right arabic-text" 
+                          className="pr-12 h-12 bg-white/60 backdrop-blur-sm border-slate-300 hover:border-slate-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 focus:ring-offset-0 transition-all duration-300 rounded-xl text-right arabic-text" 
                           placeholder="أدخل كلمة المرور" 
                           {...field} 
                         />

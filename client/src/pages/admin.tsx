@@ -186,17 +186,7 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* Navigation */}
-            <div className="mt-8 text-center">
-              <Button 
-                variant="outline" 
-                onClick={() => setLocation('/')}
-                className="gap-2 bg-white/70 backdrop-blur-sm border-slate-300 hover:bg-white/90 hover:border-slate-400 transition-all duration-300 rounded-full px-6 arabic-text group"
-              >
-                <Home className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
-                العودة للصفحة الرئيسية
-              </Button>
-            </div>
+
 
             {/* Footer */}
             <div className="text-center mt-12">
@@ -677,12 +667,8 @@ export default function Admin() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-              <Button onClick={() => setLocation('/')} variant="outline" className="gap-2">
-                <Home className="h-5 w-5" />
-                الصفحة الرئيسية
-              </Button>
               {currentUser?.permissions.canSwitchGender ? (
-                <Button onClick={() => setLocation('/admin')} variant="outline" className="gap-2">
+                <Button onClick={() => setLocation('/admin')} variant="outline" className="gap-2 bg-white/70 backdrop-blur-sm border-slate-300 hover:bg-white/90 hover:border-slate-400 transition-all duration-300">
                   <Building className="h-5 w-5" />
                   تغيير المجمع
                 </Button>
@@ -694,7 +680,7 @@ export default function Admin() {
                     description: "ليس لديك صلاحيات للتغيير بين المجمعات"
                   })} 
                   variant="outline" 
-                  className="gap-2"
+                  className="gap-2 bg-white/70 backdrop-blur-sm border-slate-300 hover:bg-white/90 hover:border-slate-400 transition-all duration-300"
                 >
                   <Building className="h-5 w-5" />
                   تغيير المجمع
