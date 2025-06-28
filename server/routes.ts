@@ -118,7 +118,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!fs.existsSync(filePath)) {
         console.log(`CV file not found: ${filePath} for application ID: ${id}`);
-        return res.status(404).json({ message: "الملف غير موجود في النظام" });
+        console.log(`Available files in uploads:`, fs.readdirSync(uploadsDir));
+        return res.status(404).json({ 
+          message: "تم حذف الملف من النظام. يرجى من المتقدم إعادة رفع الملف.",
+          fileNotFound: true
+        });
       }
 
       // Improve file naming for Arabic files
@@ -166,7 +170,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!fs.existsSync(filePath)) {
         console.log(`Education cert file not found: ${filePath} for application ID: ${id}`);
-        return res.status(404).json({ message: "الملف غير موجود في النظام" });
+        console.log(`Available files in uploads:`, fs.readdirSync(uploadsDir));
+        return res.status(404).json({ 
+          message: "تم حذف الملف من النظام. يرجى من المتقدم إعادة رفع الملف.",
+          fileNotFound: true
+        });
       }
 
       let downloadName = application.educationCertOriginalName || application.educationCertFilename;
@@ -219,7 +227,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!fs.existsSync(filePath)) {
         console.log(`Work experience file not found: ${filePath} for application ID: ${id}`);
-        return res.status(404).json({ message: "الملف غير موجود في النظام" });
+        console.log(`Available files in uploads:`, fs.readdirSync(uploadsDir));
+        return res.status(404).json({ 
+          message: "تم حذف الملف من النظام. يرجى من المتقدم إعادة رفع الملف.",
+          fileNotFound: true
+        });
       }
 
       let downloadName = originalNames[fileIndex]?.trim() || filename;

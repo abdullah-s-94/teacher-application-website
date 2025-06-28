@@ -265,6 +265,68 @@ export default function Admin() {
     }
   };
 
+  const handleFilePreview = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.fileNotFound) {
+          toast({
+            title: "ملف مفقود",
+            description: "تم حذف الملف من النظام. يرجى من المتقدم إعادة رفع الملف.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "خطأ في الوصول للملف",
+            description: "لا يمكن الوصول إلى الملف. يرجى المحاولة مرة أخرى.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error('Error accessing file:', error);
+      toast({
+        title: "خطأ في الشبكة",
+        description: "لا يمكن الوصول إلى الملف. تحقق من اتصال الإنترنت.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleFileDownload = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.fileNotFound) {
+          toast({
+            title: "ملف مفقود",
+            description: "تم حذف الملف من النظام. يرجى من المتقدم إعادة رفع الملف.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "خطأ في تحميل الملف",
+            description: "لا يمكن تحميل الملف. يرجى المحاولة مرة أخرى.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast({
+        title: "خطأ في الشبكة",
+        description: "لا يمكن تحميل الملف. تحقق من اتصال الإنترنت.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const exportData = () => {
     const csvContent = [
       ['الاسم', 'الهوية الوطنية', 'رقم الجوال', 'المدينة', 'الوظيفة', 'المؤهل', 'التخصص', 'الخبرة', 'المعدل', 'تاريخ التقديم'],
@@ -862,10 +924,8 @@ export default function Admin() {
                                                     size="sm"
                                                     variant="outline"
                                                     onClick={() => {
-                                                      const previewWindow = window.open(`/api/applications/${application.id}/cv`, '_blank');
-                                                      if (previewWindow) {
-                                                        previewWindow.focus();
-                                                      }
+                                                      const previewUrl = `/api/applications/${application.id}/cv`;
+                                                      handleFilePreview(previewUrl, 'CV');
                                                     }}
                                                     className="gap-1"
                                                   >
@@ -876,7 +936,7 @@ export default function Admin() {
                                                     size="sm"
                                                     onClick={() => {
                                                       const downloadUrl = `/api/applications/${application.id}/cv?download=true`;
-                                                      window.open(downloadUrl, '_blank');
+                                                      handleFileDownload(downloadUrl, 'CV');
                                                     }}
                                                     className="gap-1"
                                                   >
@@ -920,10 +980,8 @@ export default function Admin() {
                                                       size="sm"
                                                       variant="outline"
                                                       onClick={() => {
-                                                        const previewWindow = window.open(`/api/applications/${application.id}/education-cert`, '_blank');
-                                                        if (previewWindow) {
-                                                          previewWindow.focus();
-                                                        }
+                                                        const previewUrl = `/api/applications/${application.id}/education-cert`;
+                                                        handleFilePreview(previewUrl, 'Education Certificate');
                                                       }}
                                                       className="gap-1"
                                                     >
@@ -985,10 +1043,8 @@ export default function Admin() {
                                                             size="sm"
                                                             variant="outline"
                                                             onClick={() => {
-                                                              const previewWindow = window.open(`/api/applications/${application.id}/work-experience/${index}`, '_blank');
-                                                              if (previewWindow) {
-                                                                previewWindow.focus();
-                                                              }
+                                                              const previewUrl = `/api/applications/${application.id}/work-experience/${index}`;
+                                                              handleFilePreview(previewUrl, `Work Experience ${index + 1}`);
                                                             }}
                                                             className="gap-1"
                                                           >
@@ -999,7 +1055,7 @@ export default function Admin() {
                                                             size="sm"
                                                             onClick={() => {
                                                               const downloadUrl = `/api/applications/${application.id}/work-experience/${index}?download=true`;
-                                                              window.open(downloadUrl, '_blank');
+                                                              handleFileDownload(downloadUrl, `Work Experience ${index + 1}`);
                                                             }}
                                                             className="gap-1"
                                                           >
