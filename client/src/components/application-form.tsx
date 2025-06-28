@@ -223,7 +223,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
       toast({
         variant: "destructive",
         title: "عدد الملفات كبير",
-        description: "يمكن رفع حد أقصى 3 ملفات للخبرة العملية",
+        description: "يمكن رفع حد أقصى 3 ملفات للخبرة المهنية",
       });
       return;
     }
@@ -650,7 +650,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
 
               {/* Work Experience Upload */}
               <div className="space-y-2">
-                <FormLabel>رفع ملفات الخبرة العملية (اختياري - PDF فقط، حد أقصى 3 ملفات)</FormLabel>
+                <FormLabel>رفع ملفات الخبرة المهنية (اختياري - PDF فقط، حد أقصى 3 ملفات)</FormLabel>
                 <div className="flex flex-col space-y-2">
                   <Input
                     type="file"
