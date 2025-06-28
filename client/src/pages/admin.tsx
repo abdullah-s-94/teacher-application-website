@@ -56,14 +56,26 @@ export default function Admin() {
     setIsLoggedIn(true);
   }, [setLocation]);
 
-  // Debounce search input
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setFilters(prev => ({ ...prev, search: searchInput }));
-    }, 500); // Wait 500ms after user stops typing
+  // Handle search submission
+  const handleSearchSubmit = () => {
+    setFilters(prev => ({ ...prev, search: searchInput }));
+  };
 
-    return () => clearTimeout(timeoutId);
-  }, [searchInput]);
+  // Handle search input change - only trigger search if input is empty
+  const handleSearchInputChange = (value: string) => {
+    setSearchInput(value);
+    if (value === "") {
+      // Immediately clear search when input is empty
+      setFilters(prev => ({ ...prev, search: "" }));
+    }
+  };
+
+  // Handle Enter key press for search
+  const handleSearchKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit();
+    }
+  };
 
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ['/api/applications', filters, selectedGender],
@@ -626,11 +638,23 @@ export default function Admin() {
           <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
             <div>
               <label className="block text-sm font-semibold mb-2">البحث</label>
-              <Input
-                placeholder="ابحث بالاسم أو الهوية الوطنية"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-              />
+              <div className="flex gap-2">
+                <Input
+                  placeholder="ابحث بالاسم أو الهوية الوطنية"
+                  value={searchInput}
+                  onChange={(e) => handleSearchInputChange(e.target.value)}
+                  onKeyPress={handleSearchKeyPress}
+                  className="flex-1"
+                />
+                <Button 
+                  onClick={handleSearchSubmit}
+                  variant="outline"
+                  size="default"
+                  className="whitespace-nowrap"
+                >
+                  بحث
+                </Button>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-semibold mb-2">الوظيفة</label>
