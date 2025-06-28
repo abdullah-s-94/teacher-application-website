@@ -15,15 +15,15 @@
   --card-foreground: hsl(222.2, 84%, 4.9%);
   --border: hsl(214.3, 31.8%, 91.4%);
   --input: hsl(214.3, 31.8%, 91.4%);
-  --primary: hsl(217, 91%, 60%);
+  --primary: hsl(172.4, 66%, 50.4%);
   --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(217, 91%, 70%);
+  --secondary: hsl(172.4, 66%, 60.4%);
   --secondary-foreground: hsl(222.2, 84%, 4.9%);
-  --accent: hsl(217, 91%, 65%);
+  --accent: hsl(41.8, 96.1%, 40.4%);
   --accent-foreground: hsl(210, 40%, 98%);
   --destructive: hsl(0, 84.2%, 60.2%);
   --destructive-foreground: hsl(210, 40%, 98%);
-  --ring: hsl(217, 91%, 60%);
+  --ring: hsl(172.4, 66%, 50.4%);
   --radius: 0.75rem;
 }
 
@@ -180,41 +180,10 @@
   ring-color: rgb(225, 29, 72);
 }
 
-/* Override button colors for gender themes */
-.male-theme button[data-state="open"],
-.male-theme button[role="combobox"],
-.male-theme .bg-primary,
-.male-theme [data-radix-select-trigger] {
-  background-color: rgb(37, 99, 235) !important;
-  color: white !important;
-}
-
-.female-theme button[data-state="open"],
-.female-theme button[role="combobox"],
-.female-theme .bg-primary,
-.female-theme [data-radix-select-trigger] {
-  background-color: rgb(225, 29, 72) !important;
-  color: white !important;
-}
-
-/* Hover states */
-.male-theme button[data-state="open"]:hover,
-.male-theme button[role="combobox"]:hover,
-.male-theme .bg-primary:hover,
-.male-theme [data-radix-select-trigger]:hover {
-  background-color: rgb(29, 78, 216) !important;
-}
-
-.female-theme button[data-state="open"]:hover,
-.female-theme button[role="combobox"]:hover,
-.female-theme .bg-primary:hover,
-.female-theme [data-radix-select-trigger]:hover {
-  background-color: rgb(190, 24, 93) !important;
-}
-
-/* Additional select trigger styling for better coverage */
-.female-theme [data-radix-select-content] {
-  border-color: rgb(225, 29, 72);
+/* Subtle gender themes - only for selected items and highlights */
+.male-theme [data-radix-select-item][data-highlighted] {
+  background-color: rgb(147, 197, 253);
+  color: rgb(30, 64, 175);
 }
 
 .female-theme [data-radix-select-item][data-highlighted] {
@@ -222,54 +191,22 @@
   color: rgb(159, 18, 57);
 }
 
-.male-theme [data-radix-select-content] {
-  border-color: rgb(37, 99, 235);
-}
-
-.male-theme [data-radix-select-item][data-highlighted] {
-  background-color: rgb(147, 197, 253);
-  color: rgb(30, 64, 175);
-}
-
-/* Force override for all select components */
-.female-theme .select-trigger,
-.female-theme [data-radix-select-trigger],
-.female-theme button[role="combobox"] {
-  background-color: rgb(225, 29, 72) !important;
-  border-color: rgb(225, 29, 72) !important;
-  color: white !important;
-}
-
-.male-theme .select-trigger,
-.male-theme [data-radix-select-trigger],
-.male-theme button[role="combobox"] {
-  background-color: rgb(37, 99, 235) !important;
-  border-color: rgb(37, 99, 235) !important;
-  color: white !important;
-}
-
-/* Enhanced specificity for all primary buttons */
-.female-theme button.bg-primary,
-.female-theme .bg-primary {
-  background-color: rgb(225, 29, 72) !important;
-}
-
-.male-theme button.bg-primary,
-.male-theme .bg-primary {
+/* Override only submit buttons and file upload buttons */
+.male-theme button[type="submit"],
+.male-theme .file-upload-button {
   background-color: rgb(37, 99, 235) !important;
 }
 
-/* Specific overrides for select triggers and form elements only */
-.female-theme button[data-radix-select-trigger],
-.female-theme .select-trigger {
+.female-theme button[type="submit"],
+.female-theme .file-upload-button {
   background-color: rgb(225, 29, 72) !important;
-  border-color: rgb(225, 29, 72) !important;
-  color: white !important;
 }
 
-.male-theme button[data-radix-select-trigger],
-.male-theme .select-trigger {
-  background-color: rgb(37, 99, 235) !important;
-  border-color: rgb(37, 99, 235) !important;
-  color: white !important;
+/* Success indicators colors */
+.male-theme .text-blue-600 {
+  color: rgb(37, 99, 235) !important;
+}
+
+.female-theme .text-rose-600 {
+  color: rgb(225, 29, 72) !important;
 }
