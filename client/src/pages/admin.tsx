@@ -51,11 +51,13 @@ export default function Admin() {
     }
 
     const userData = JSON.parse(userDataStr);
+    console.log("User data loaded:", userData);
     setCurrentUser(userData);
 
     // Handle gender-specific admins (AdminB and AdminG)
     if (userData.permissions.gender) {
       console.log("Gender-specific admin detected:", userData.permissions.gender);
+      console.log("Setting selectedGender to:", userData.permissions.gender);
       setSelectedGender(userData.permissions.gender);
       setIsLoggedIn(true);
       return;
@@ -108,12 +110,17 @@ export default function Admin() {
       
       // Add gender filter
       if (selectedGender) {
+        console.log("Fetching applications for gender:", selectedGender);
         params.append('gender', selectedGender);
       }
       
-      const response = await fetch(`/api/applications?${params}`);
+      const url = `/api/applications?${params}`;
+      console.log("API URL:", url);
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch applications');
-      return await response.json();
+      const data = await response.json();
+      console.log("Applications received:", data.length);
+      return data;
     },
     enabled: isLoggedIn && !!selectedGender, // Only fetch when logged in and gender selected
   });
