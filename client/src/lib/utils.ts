@@ -97,12 +97,12 @@ export function getStatusBadgeColor(status: string): string {
 
 export function getPositionBadgeColor(position: string): string {
   const positionColors: Record<string, string> = {
-    'teacher': 'bg-blue-100 text-blue-800 border-blue-200',
-    'admin': 'bg-purple-100 text-purple-800 border-purple-200',
-    'vice_principal': 'bg-orange-100 text-orange-800 border-orange-200',
-    'principal': 'bg-red-100 text-red-800 border-red-200'
+    'teacher': 'bg-sky-500 text-white border-sky-600 shadow-sm',
+    'admin': 'bg-violet-500 text-white border-violet-600 shadow-sm',
+    'vice_principal': 'bg-amber-500 text-white border-amber-600 shadow-sm',
+    'principal': 'bg-rose-500 text-white border-rose-600 shadow-sm'
   };
-  return positionColors[position] || 'bg-gray-100 text-gray-800 border-gray-200';
+  return positionColors[position] || 'bg-gray-500 text-white border-gray-600 shadow-sm';
 }
 
 export function getSpecializationLabel(specialization: string, customSpecialization?: string): string {
