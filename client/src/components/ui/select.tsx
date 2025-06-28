@@ -114,24 +114,59 @@ SelectLabel.displayName = SelectPrimitive.Label.displayName
 const SelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Item
-    ref={ref}
-    className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      className
-    )}
-    {...props}
-  >
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-      <SelectPrimitive.ItemIndicator>
-        <Check className="h-4 w-4" />
-      </SelectPrimitive.ItemIndicator>
-    </span>
+>(({ className, children, ...props }, ref) => {
+  // Check if we're in a gender-themed context
+  const [genderTheme, setGenderTheme] = React.useState<string>('');
+  
+  React.useEffect(() => {
+    // Find the closest parent with gender theme
+    const checkTheme = () => {
+      const maleTheme = document.querySelector('.male-theme');
+      const femaleTheme = document.querySelector('.female-theme');
+      
+      if (maleTheme && maleTheme.contains(document.activeElement)) {
+        setGenderTheme('male');
+      } else if (femaleTheme && femaleTheme.contains(document.activeElement)) {
+        setGenderTheme('female');
+      } else if (maleTheme) {
+        setGenderTheme('male');
+      } else if (femaleTheme) {
+        setGenderTheme('female');
+      }
+    };
+    
+    checkTheme();
+    // Check theme on focus events
+    document.addEventListener('focusin', checkTheme);
+    return () => document.removeEventListener('focusin', checkTheme);
+  }, []);
+  
+  const themeClasses = genderTheme === 'male' 
+    ? 'focus:bg-blue-600 focus:text-white data-[highlighted]:bg-blue-600 data-[highlighted]:text-white hover:bg-blue-600 hover:text-white'
+    : genderTheme === 'female'
+    ? 'focus:bg-rose-600 focus:text-white data-[highlighted]:bg-rose-600 data-[highlighted]:text-white hover:bg-rose-600 hover:text-white'
+    : 'focus:bg-accent focus:text-accent-foreground';
 
-    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
-  </SelectPrimitive.Item>
-))
+  return (
+    <SelectPrimitive.Item
+      ref={ref}
+      className={cn(
+        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        themeClasses,
+        className
+      )}
+      {...props}
+    >
+      <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        <SelectPrimitive.ItemIndicator>
+          <Check className="h-4 w-4" />
+        </SelectPrimitive.ItemIndicator>
+      </span>
+
+      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    </SelectPrimitive.Item>
+  );
+})
 SelectItem.displayName = SelectPrimitive.Item.displayName
 
 const SelectSeparator = React.forwardRef<
