@@ -154,16 +154,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const originalName = application.cvOriginalName || 'cv.pdf';
         
         if (isDownload) {
-          // For download, add fl_attachment parameter to Cloudinary URL
-          let downloadUrl = application.cvCloudinaryUrl;
-          downloadUrl = downloadUrl + (downloadUrl.includes('?') ? '&' : '?') + 'fl_attachment=true';
-          
-          // Set proper headers and redirect
-          res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
-          res.setHeader('Content-Type', 'application/pdf');
-          res.setHeader('Cache-Control', 'no-cache');
-          
-          return res.redirect(302, downloadUrl);
+          // For download, proxy through our server to ensure correct headers and content
+          try {
+            const response = await fetch(application.cvCloudinaryUrl);
+            if (!response.ok) {
+              throw new Error('Failed to fetch from Cloudinary');
+            }
+            
+            const buffer = await response.arrayBuffer();
+            
+            // Set proper headers for PDF download
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Content-Length', buffer.byteLength.toString());
+            
+            // Send the actual PDF content
+            res.send(Buffer.from(buffer));
+            return;
+          } catch (error) {
+            console.error('Error proxying Cloudinary download:', error);
+            return res.status(500).json({ error: "خطأ في تحميل الملف من التخزين السحابي" });
+          }
         } else if (isPreview) {
           // For preview, return JSON with file info for mobile-friendly handling
           return res.json({
@@ -239,16 +251,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const originalName = application.educationCertOriginalName || 'education-cert.pdf';
         
         if (isDownload) {
-          // For download, add fl_attachment parameter to Cloudinary URL
-          let downloadUrl = application.educationCertCloudinaryUrl;
-          downloadUrl = downloadUrl + (downloadUrl.includes('?') ? '&' : '?') + 'fl_attachment=true';
-          
-          // Set proper headers and redirect
-          res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
-          res.setHeader('Content-Type', 'application/pdf');
-          res.setHeader('Cache-Control', 'no-cache');
-          
-          return res.redirect(302, downloadUrl);
+          // For download, proxy through our server to ensure correct headers and content
+          try {
+            const response = await fetch(application.educationCertCloudinaryUrl);
+            if (!response.ok) {
+              throw new Error('Failed to fetch from Cloudinary');
+            }
+            
+            const buffer = await response.arrayBuffer();
+            
+            // Set proper headers for PDF download
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Content-Length', buffer.byteLength.toString());
+            
+            // Send the actual PDF content
+            res.send(Buffer.from(buffer));
+            return;
+          } catch (error) {
+            console.error('Error proxying Cloudinary download:', error);
+            return res.status(500).json({ error: "خطأ في تحميل الملف من التخزين السحابي" });
+          }
         } else if (isPreview) {
           // For preview, return JSON with file info for mobile-friendly handling
           return res.json({
@@ -330,15 +354,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const isDownload = req.query.download === 'true';
             
             if (isDownload) {
-              // For download, add fl_attachment parameter to Cloudinary URL
-              let downloadUrl = cloudinaryUrl + (cloudinaryUrl.includes('?') ? '&' : '?') + 'fl_attachment=true';
-              
-              // Set proper headers for download
-              res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
-              res.setHeader('Content-Type', 'application/pdf');
-              res.setHeader('Cache-Control', 'no-cache');
-              
-              return res.redirect(302, downloadUrl);
+              // For download, proxy through our server to ensure correct headers and content
+              try {
+                const response = await fetch(cloudinaryUrl);
+                if (!response.ok) {
+                  throw new Error('Failed to fetch from Cloudinary');
+                }
+                
+                const buffer = await response.arrayBuffer();
+                
+                // Set proper headers for PDF download
+                res.setHeader('Content-Type', 'application/pdf');
+                res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+                res.setHeader('Cache-Control', 'no-cache');
+                res.setHeader('Content-Length', buffer.byteLength.toString());
+                
+                // Send the actual PDF content
+                res.send(Buffer.from(buffer));
+                return;
+              } catch (error) {
+                console.error('Error proxying Cloudinary download:', error);
+                return res.status(500).json({ error: "خطأ في تحميل الملف من التخزين السحابي" });
+              }
             } else if (req.query.preview === 'true') {
               // For preview, return JSON with file info for mobile-friendly handling
               return res.json({
