@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star, Home } from "lucide-react";
+import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star, Home, School } from "lucide-react";
 import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel, formatAgeLabel, getStatusLabel, getStatusBadgeColor, getSpecializationLabel, getPositionBadgeColor, STANDARD_SPECIALIZATIONS } from "@/lib/utils";
 import { LoginForm } from "@/components/login-form";
 import { useLocation } from "wouter";
@@ -134,7 +134,82 @@ export default function Admin() {
   };
 
   if (!isLoggedIn) {
-    return <LoginForm onLoginSuccess={() => setIsLoggedIn(true)} />;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 relative overflow-hidden" dir="rtl">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-20 left-20 w-64 h-64 bg-gradient-to-r from-slate-200/30 to-gray-200/30 rounded-full blur-3xl animate-float"></div>
+          <div className="absolute bottom-32 right-32 w-96 h-96 bg-gradient-to-r from-gray-200/20 to-slate-200/20 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-128 h-128 bg-gradient-to-r from-slate-100/40 to-gray-100/40 rounded-full blur-3xl animate-float" style={{animationDelay: '4s'}}></div>
+        </div>
+
+        <div className="min-h-screen py-12 px-4 relative z-10">
+          <div className="max-w-md mx-auto">
+            {/* Header */}
+            <div className="text-center mb-12">
+              <div className="flex justify-center items-center gap-4 mb-6 group">
+                <div className="relative">
+                  <div className="relative">
+                    <UserCheck className="h-12 w-12 text-slate-700 group-hover:text-slate-600 transition-all duration-300 group-hover:scale-110" />
+                    <UserX className="h-5 w-5 text-slate-500 absolute -bottom-1 -right-1" />
+                  </div>
+                  <Star className="h-4 w-4 text-amber-500 absolute -top-1 -right-1 animate-bounce" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-slate-800 arabic-text">
+                    لوحة تحكم الإدارة
+                  </h1>
+                  <p className="text-slate-600 text-sm arabic-text">نظام إدارة التوظيف</p>
+                </div>
+              </div>
+              
+              <div className="relative inline-block mb-6 animate-float">
+                <p className="text-lg text-slate-600 px-6 py-3 bg-white/70 backdrop-blur-sm rounded-full border border-slate-200/50 shadow-lg arabic-text">
+                  منطقة الدخول الآمن للمديرين
+                </p>
+              </div>
+            </div>
+
+            {/* Login Card */}
+            <div className="bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 p-8 relative overflow-hidden group">
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-blue-50/20 to-indigo-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              
+              <div className="relative z-10">
+                <div className="flex items-center justify-center mb-6">
+                  <div className="p-4 bg-slate-100/80 rounded-full group-hover:bg-slate-200/80 transition-all duration-300">
+                    <GraduationCap className="h-8 w-8 text-slate-600 group-hover:text-slate-700 transition-colors duration-300" />
+                  </div>
+                </div>
+                
+                <LoginForm onLoginSuccess={() => setIsLoggedIn(true)} />
+              </div>
+            </div>
+
+            {/* Navigation */}
+            <div className="mt-8 text-center">
+              <Button 
+                variant="outline" 
+                onClick={() => setLocation('/')}
+                className="gap-2 bg-white/70 backdrop-blur-sm border-slate-300 hover:bg-white/90 hover:border-slate-400 transition-all duration-300 rounded-full px-6 arabic-text group"
+              >
+                <Home className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
+                العودة للصفحة الرئيسية
+              </Button>
+            </div>
+
+            {/* Footer */}
+            <div className="text-center mt-12">
+              <div className="inline-block">
+                <p className="text-slate-500 text-sm px-6 py-2 bg-white/40 backdrop-blur-sm rounded-full border border-slate-200/30 arabic-text">
+                  نظام آمن ومحمي للإدارة
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Helper function to clean and display file names properly
@@ -507,33 +582,51 @@ export default function Admin() {
 
       <main className="container mx-auto px-4 py-8 relative z-10">
       {/* Dashboard Header */}
-      <Card className="mb-8">
-        <CardHeader>
+      <Card className="mb-8 bg-white/80 backdrop-blur-sm border border-slate-200/60 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
+        {/* Animated background gradient */}
+        <div className={`absolute inset-0 bg-gradient-to-br ${selectedGender === 'male' ? 'from-blue-50/30 via-slate-50/50 to-indigo-50/20' : 'from-rose-50/30 via-slate-50/50 to-pink-50/20'} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+        
+        <CardHeader className="relative z-10">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <CardTitle className="text-2xl">لوحة تحكم المتقدمين</CardTitle>
-              <p className="text-muted-foreground mt-1">
-                المجمع التعليمي - {selectedGender === 'male' ? 'بنين' : 'بنات'}
-              </p>
+              <div className="flex items-center gap-4 mb-2 group">
+                <div className="relative">
+                  <Building className={`h-8 w-8 ${selectedGender === 'male' ? 'text-blue-600' : 'text-rose-600'} group-hover:scale-110 transition-all duration-300`} />
+                  <TrendingUp className="h-4 w-4 text-amber-500 absolute -top-1 -right-1 animate-bounce" />
+                </div>
+                <CardTitle className="text-3xl font-bold text-slate-800 arabic-text">لوحة تحكم المتقدمين</CardTitle>
+              </div>
+              <div className="flex items-center gap-2 mb-2">
+                <School className={`h-5 w-5 ${selectedGender === 'male' ? 'text-blue-500' : 'text-rose-500'}`} />
+                <p className="text-slate-600 font-medium arabic-text">
+                  المجمع التعليمي - {selectedGender === 'male' ? 'بنين' : 'بنات'}
+                </p>
+              </div>
               {currentUser && (
-                <div className="flex items-center gap-2 mt-2">
-                  <User className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium text-primary">
+                <div className="flex items-center gap-2 mt-3 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full border border-slate-200/50">
+                  <User className={`h-4 w-4 ${selectedGender === 'male' ? 'text-blue-600' : 'text-rose-600'}`} />
+                  <span className={`text-sm font-medium ${selectedGender === 'male' ? 'text-blue-700' : 'text-rose-700'} arabic-text`}>
                     {currentUser.name} ({currentUser.username})
                   </span>
                 </div>
               )}
             </div>
-            <div className="flex gap-2">
-              <Button onClick={exportData} className="gap-2">
-                <FileDown className="h-5 w-5" />
+            <div className="flex gap-3 flex-wrap">
+              <Button 
+                onClick={exportData} 
+                className={`gap-2 bg-gradient-to-r ${selectedGender === 'male' ? 'from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800' : 'from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800'} text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl group arabic-text`}
+              >
+                <FileDown className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
                 تصدير البيانات
               </Button>
               {selectedApplications.length > 0 && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" className="gap-2">
-                      <Trash2 className="h-5 w-5" />
+                    <Button 
+                      variant="destructive" 
+                      className="gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl group arabic-text"
+                    >
+                      <Trash2 className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
                       حذف المحدد ({selectedApplications.length})
                     </Button>
                   </AlertDialogTrigger>
@@ -558,8 +651,11 @@ export default function Admin() {
               )}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive" className="gap-2">
-                    <Trash2 className="h-5 w-5" />
+                  <Button 
+                    variant="destructive" 
+                    className="gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl group arabic-text"
+                  >
+                    <Trash2 className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
                     حذف جميع الطلبات
                   </Button>
                 </AlertDialogTrigger>
