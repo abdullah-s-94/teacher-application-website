@@ -148,19 +148,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if we have Cloudinary URL (priority)
       if (application.cvCloudinaryUrl) {
-        // For raw files, Cloudinary URLs work differently
-        let cloudinaryUrl = application.cvCloudinaryUrl;
+        const isDownload = req.query.download === 'true';
+        const isPreview = req.query.preview === 'true';
+        const originalName = application.cvOriginalName || 'cv.pdf';
         
-        // For raw files, we need to adjust the URL structure
-        if (cloudinaryUrl.includes('/raw/upload/')) {
-          if (req.query.download === 'true') {
-            // For download, we can add attachment flag via query params
-            cloudinaryUrl = cloudinaryUrl + (cloudinaryUrl.includes('?') ? '&' : '?') + 'fl_attachment=true';
-          }
-          // For preview, just use the raw URL as-is (no modifications needed)
+        if (isDownload) {
+          // For download, create a proper download URL with attachment
+          let downloadUrl = application.cvCloudinaryUrl;
+          
+          // Add fl_attachment parameter for Cloudinary raw files
+          downloadUrl = downloadUrl.replace('/upload/', '/upload/fl_attachment/');
+          
+          // Set proper headers for download
+          res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+          res.setHeader('Content-Type', 'application/pdf');
+          res.setHeader('Cache-Control', 'no-cache');
+          
+          return res.redirect(302, downloadUrl);
+        } else if (isPreview) {
+          // For preview, return JSON with file info for mobile-friendly handling
+          return res.json({
+            url: application.cvCloudinaryUrl,
+            filename: originalName,
+            type: 'pdf',
+            action: 'preview'
+          });
+        } else {
+          // Default behavior (neither download nor preview) - redirect to file
+          return res.redirect(302, application.cvCloudinaryUrl);
         }
-        
-        return res.redirect(cloudinaryUrl);
       }
       
       // Fallback to local file if no Cloudinary URL (for backward compatibility)
@@ -219,15 +235,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if we have Cloudinary URL (priority)
       if (application.educationCertCloudinaryUrl) {
-        let cloudinaryUrl = application.educationCertCloudinaryUrl;
+        const isDownload = req.query.download === 'true';
+        const isPreview = req.query.preview === 'true';
+        const originalName = application.educationCertOriginalName || 'education-cert.pdf';
         
-        if (cloudinaryUrl.includes('/raw/upload/')) {
-          if (req.query.download === 'true') {
-            cloudinaryUrl = cloudinaryUrl + (cloudinaryUrl.includes('?') ? '&' : '?') + 'fl_attachment=true';
-          }
+        if (isDownload) {
+          // For download, create a proper download URL with attachment
+          let downloadUrl = application.educationCertCloudinaryUrl;
+          
+          // Add fl_attachment parameter for Cloudinary raw files
+          downloadUrl = downloadUrl.replace('/upload/', '/upload/fl_attachment/');
+          
+          // Set proper headers for download
+          res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+          res.setHeader('Content-Type', 'application/pdf');
+          res.setHeader('Cache-Control', 'no-cache');
+          
+          return res.redirect(302, downloadUrl);
+        } else if (isPreview) {
+          // For preview, return JSON with file info for mobile-friendly handling
+          return res.json({
+            url: application.educationCertCloudinaryUrl,
+            filename: originalName,
+            type: 'pdf',
+            action: 'preview'
+          });
+        } else {
+          // Default behavior - redirect to file
+          return res.redirect(302, application.educationCertCloudinaryUrl);
         }
-        
-        return res.redirect(cloudinaryUrl);
       }
       
       // Fallback to local file
@@ -287,15 +323,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if we have Cloudinary URLs
       if (application.workExperienceCloudinaryUrls) {
         const cloudinaryUrls = application.workExperienceCloudinaryUrls.split(',');
+        const originalNames = application.workExperienceOriginalNames?.split(',') || [];
+        
         if (fileIndex < cloudinaryUrls.length && fileIndex >= 0) {
           let cloudinaryUrl = cloudinaryUrls[fileIndex].trim();
+          const originalName = originalNames[fileIndex]?.trim() || `work-experience-${fileIndex + 1}.pdf`;
+          
           if (cloudinaryUrl) {
-            if (cloudinaryUrl.includes('/raw/upload/')) {
-              if (req.query.download === 'true') {
-                cloudinaryUrl = cloudinaryUrl + (cloudinaryUrl.includes('?') ? '&' : '?') + 'fl_attachment=true';
-              }
+            const isDownload = req.query.download === 'true';
+            
+            if (isDownload) {
+              // For download, create a proper download URL with attachment
+              let downloadUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_attachment/');
+              
+              // Set proper headers for download
+              res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+              res.setHeader('Content-Type', 'application/pdf');
+              res.setHeader('Cache-Control', 'no-cache');
+              
+              return res.redirect(302, downloadUrl);
+            } else {
+              // For preview, return JSON with file info for mobile-friendly handling
+              return res.json({
+                url: cloudinaryUrl,
+                filename: originalName,
+                type: 'pdf',
+                action: 'preview'
+              });
             }
-            return res.redirect(cloudinaryUrl);
           }
         }
       }

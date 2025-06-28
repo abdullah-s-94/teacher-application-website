@@ -427,20 +427,30 @@ export default function Admin() {
 
   const handleFilePreview = async (url: string, filename: string) => {
     try {
-      // Get the direct Cloudinary URL first by calling our API
-      const response = await fetch(`${url}?preview=true`, { method: 'HEAD' });
-      if (response.redirected && response.url) {
-        let cloudinaryUrl = response.url;
+      // For mobile-friendly preview, we get the JSON response with preview parameter
+      const previewUrl = url.includes('?') ? `${url}&preview=true` : `${url}?preview=true`;
+      const response = await fetch(previewUrl);
+      
+      if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
+        // New API returns JSON with file info
+        const fileInfo = await response.json();
         
-        // Remove any attachment flags from the URL for preview
-        cloudinaryUrl = cloudinaryUrl.replace(/[?&]fl_attachment=true/g, '');
-        
-        // Use Google Docs Viewer for better PDF preview experience
-        const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(cloudinaryUrl)}&embedded=true`;
-        window.open(googleViewerUrl, '_blank');
+        if (fileInfo.url) {
+          // Check if it's mobile (simple detection)
+          const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+          
+          if (isMobile) {
+            // On mobile, open the PDF directly in a new tab/viewer
+            window.open(fileInfo.url, '_blank');
+          } else {
+            // On desktop, use Google Docs Viewer for better preview
+            const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fileInfo.url)}&embedded=true`;
+            window.open(googleViewerUrl, '_blank');
+          }
+        }
       } else {
         // Fallback: open the preview URL directly
-        window.open(`${url}?preview=true`, '_blank');
+        window.open(previewUrl, '_blank');
       }
     } catch (error) {
       console.error('Error accessing file:', error);
@@ -454,13 +464,29 @@ export default function Admin() {
 
   const handleFileDownload = async (url: string, filename: string) => {
     try {
-      // For download, add download parameter and open directly
+      // Create download URL with download parameter
       const downloadUrl = url.includes('?') ? `${url}&download=true` : `${url}?download=true`;
-      window.open(downloadUrl, '_blank');
+      
+      // Use programmatic download approach for better compatibility
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      link.target = '_blank';
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "تم بدء التحميل",
+        description: `جار تحميل ${filename}`,
+        variant: "default",
+      });
     } catch (error) {
       console.error('Error downloading file:', error);
       toast({
-        title: "خطأ في الشبكة",
+        title: "خطأ في التحميل",
         description: "لا يمكن تحميل الملف. تحقق من اتصال الإنترنت.",
         variant: "destructive",
       });
