@@ -221,77 +221,11 @@ export default function Admin() {
     return originalName;
   };
 
-  const downloadCV = async (id: number, originalName?: string) => {
-    try {
-      // Get the direct Cloudinary URL first
-      const response = await fetch(`/api/applications/${id}/cv?download=true`, { method: 'HEAD' });
-      if (response.redirected && response.url) {
-        // Create a temporary link to download the file
-        const link = document.createElement('a');
-        link.href = response.url;
-        link.download = originalName || `CV_${id}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        // Fallback to window.open
-        window.open(`/api/applications/${id}/cv?download=true`, '_blank');
-      }
-    } catch (error) {
-      console.error('Error downloading CV:', error);
-      toast({
-        title: "خطأ",
-        description: "فشل في تحميل الملف. يرجى المحاولة مرة أخرى.",
-        variant: "destructive",
-      });
-    }
-  };
 
-  const downloadEducationCert = async (id: number, originalName?: string) => {
-    try {
-      const response = await fetch(`/api/applications/${id}/education-cert?download=true`, { method: 'HEAD' });
-      if (response.redirected && response.url) {
-        const link = document.createElement('a');
-        link.href = response.url;
-        link.download = originalName || `شهادة_التعليم_${id}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        window.open(`/api/applications/${id}/education-cert?download=true`, '_blank');
-      }
-    } catch (error) {
-      console.error('Error downloading education certificate:', error);
-      toast({
-        title: "خطأ",
-        description: "فشل في تحميل شهادة التعليم. يرجى المحاولة مرة أخرى.",
-        variant: "destructive",
-      });
-    }
-  };
 
-  const downloadWorkExperience = async (id: number, fileIndex: number, originalName?: string) => {
-    try {
-      const response = await fetch(`/api/applications/${id}/work-experience/${fileIndex}?download=true`, { method: 'HEAD' });
-      if (response.redirected && response.url) {
-        const link = document.createElement('a');
-        link.href = response.url;
-        link.download = originalName || `ملف_الخبرة_${fileIndex + 1}_${id}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        window.open(`/api/applications/${id}/work-experience/${fileIndex}?download=true`, '_blank');
-      }
-    } catch (error) {
-      console.error('Error downloading work experience file:', error);
-      toast({
-        title: "خطأ",
-        description: "فشل في تحميل ملف الخبرة العملية. يرجى المحاولة مرة أخرى.",
-        variant: "destructive",
-      });
-    }
-  };
+
+
+
 
   const handleStatusUpdate = async (id: number, status: string) => {
     try {
@@ -467,16 +401,8 @@ export default function Admin() {
       // Create download URL with download parameter
       const downloadUrl = url.includes('?') ? `${url}&download=true` : `${url}?download=true`;
       
-      // Use programmatic download approach for better compatibility
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = filename;
-      link.target = '_blank';
-      
-      // Append to body, click, and remove
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Use window.open for direct download - this works better with our proxy system
+      window.open(downloadUrl, '_blank');
       
       toast({
         title: "تم بدء التحميل",
@@ -1322,7 +1248,10 @@ export default function Admin() {
                               variant="ghost"
                               className="h-8 w-8 p-0"
                               title="تحميل السيرة الذاتية"
-                              onClick={() => downloadCV(application.id, application.cvOriginalName || undefined)}
+                              onClick={() => {
+                                const downloadUrl = `/api/applications/${application.id}/cv`;
+                                handleFileDownload(downloadUrl, application.cvOriginalName || 'CV.pdf');
+                              }}
                             >
                               <Download className="h-4 w-4" />
                             </Button>
