@@ -117,7 +117,9 @@ Key application fields:
 
 ### File Storage Considerations
 - Current implementation uses local file storage
-- Production deployment should consider cloud storage solutions
+- Files are temporarily lost when environment restarts (development limitation)
+- Production deployment requires cloud storage solutions for permanent file storage
+- Recommended options: Cloudinary (free tier), AWS S3, or Google Cloud Storage
 - CV files need persistent storage across deployments
 
 ## User Preferences
