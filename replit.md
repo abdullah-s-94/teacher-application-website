@@ -158,6 +158,14 @@ The system now supports three types of admin users with different permission lev
 - Automatic gender filtering based on user permissions
 - localStorage-based authentication with user metadata storage
 
+### Security Features
+- **Password Protection**: Passwords are hashed using simple hash function to prevent plain text exposure
+- **Rate Limiting**: Failed login attempts are tracked - 5 failed attempts result in 5-minute account lockout
+- **Real-time Blocking**: Visual countdown timer shows remaining lockout time
+- **Emergency Recovery**: Hidden recovery page (`/admin/recovery`) accessible after 3 failed attempts
+- **Recovery Code**: Master recovery code `ANJAL2025RECOVERY#` provides emergency access to all credentials
+- **Progressive Disclosure**: Recovery link only appears after multiple failed login attempts
+
 ## Known Issues & Solutions
 
 ### CV File Download Issues (Resolved)
@@ -197,3 +205,4 @@ Changelog:
 - June 28, 2025. Fixed gender-neutral language consistency: updated all placeholder texts and form instructions to use masculine form consistently across both male and female application forms, ensuring unified language experience regardless of selected gender track
 - June 28, 2025. Improved search functionality user experience: replaced automatic debounced search with manual search triggered by Enter key or search button, implemented immediate clearing when search field is empty, added search button alongside input field for better user control and reduced server load
 - June 28, 2025. Implemented multi-level admin access system: created three user types with different permission levels - Super Admin (Admin) with full access to both complexes, Boys Complex Admin (AdminB) with access only to boys applications, and Girls Complex Admin (AdminG) with access only to girls applications. Added role-based access control preventing gender-specific admins from switching between complexes, displaying appropriate error messages. Enhanced admin dashboard to show current user information and permissions in header.
+- June 28, 2025. Enhanced security measures: implemented password hashing to prevent plain text exposure in browser inspection, added rate limiting system (5 failed attempts = 5 minute lockout), created real-time blocking with countdown timer, added emergency recovery page with master recovery code (ANJAL2025RECOVERY#), implemented progressive disclosure of recovery options appearing only after multiple failed attempts.

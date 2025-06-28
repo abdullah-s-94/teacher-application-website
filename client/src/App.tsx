@@ -7,6 +7,7 @@ import GenderSelection from "@/pages/gender-selection";
 import AdminSelection from "@/pages/admin-selection";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
+import AdminRecovery from "@/pages/admin-recovery";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/application" component={Home} />
             <Route path="/admin" component={AdminSelection} />
             <Route path="/admin/dashboard" component={Admin} />
+            <Route path="/admin/recovery" component={AdminRecovery} />
           </div>
         </Router>
         <Toaster />

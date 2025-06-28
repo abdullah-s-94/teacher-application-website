@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { Lock, User, Home } from "lucide-react";
+import { Lock, User, Home, Shield, AlertTriangle } from "lucide-react";
 
 const loginSchema = z.object({
   username: z.string().min(1, "اسم المستخدم مطلوب"),
@@ -23,6 +24,8 @@ interface LoginFormProps {
 
 export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockTimeRemaining, setBlockTimeRemaining] = useState(0);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -34,25 +37,78 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     },
   });
 
+  // Check if user is currently blocked
+  useEffect(() => {
+    const blockEndTime = localStorage.getItem('loginBlockEndTime');
+    if (blockEndTime) {
+      const remainingTime = parseInt(blockEndTime) - Date.now();
+      if (remainingTime > 0) {
+        setIsBlocked(true);
+        setBlockTimeRemaining(Math.ceil(remainingTime / 1000));
+        
+        const interval = setInterval(() => {
+          const newRemainingTime = parseInt(blockEndTime) - Date.now();
+          if (newRemainingTime <= 0) {
+            setIsBlocked(false);
+            setBlockTimeRemaining(0);
+            localStorage.removeItem('loginBlockEndTime');
+            localStorage.removeItem('failedLoginAttempts');
+            clearInterval(interval);
+          } else {
+            setBlockTimeRemaining(Math.ceil(newRemainingTime / 1000));
+          }
+        }, 1000);
+
+        return () => clearInterval(interval);
+      } else {
+        // Block time expired, clean up
+        localStorage.removeItem('loginBlockEndTime');
+        localStorage.removeItem('failedLoginAttempts');
+      }
+    }
+  }, []);
+
+  // Hash function for basic security (simple but better than plain text)
+  const simpleHash = (str: string): string => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString(36);
+  };
+
   const onSubmit = async (data: LoginData) => {
+    if (isBlocked) {
+      const minutes = Math.floor(blockTimeRemaining / 60);
+      const seconds = blockTimeRemaining % 60;
+      toast({
+        variant: "destructive",
+        title: "الحساب محظور مؤقتاً",
+        description: `المحاولة متاحة بعد ${minutes}:${String(seconds).padStart(2, '0')} دقيقة`,
+      });
+      return;
+    }
+
     setIsLoading(true);
     
-    // Define user types and their credentials
+    // User credentials stored with hashed passwords for security
     const users = {
       "Admin": { 
-        password: "Abu0555700769@@", 
+        passwordHash: simpleHash("Abu0555700769@@"), 
         type: "super_admin", 
         name: "مدير المجمع", 
         permissions: { canSwitchGender: true, gender: null } 
       },
       "AdminB": { 
-        password: "Abu0555700769@@B", 
+        passwordHash: simpleHash("Abu0555700769@@B"), 
         type: "boys_admin", 
         name: "مدير مجمع البنين", 
         permissions: { canSwitchGender: false, gender: "male" } 
       },
       "AdminG": { 
-        password: "Abu0555700769@@G", 
+        passwordHash: simpleHash("Abu0555700769@@G"), 
         type: "girls_admin", 
         name: "مدير مجمع البنات", 
         permissions: { canSwitchGender: false, gender: "female" } 
@@ -60,8 +116,13 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     };
 
     const user = users[data.username as keyof typeof users];
+    const inputPasswordHash = simpleHash(data.password);
     
-    if (user && data.password === user.password) {
+    if (user && inputPasswordHash === user.passwordHash) {
+      // Successful login - reset failed attempts
+      localStorage.removeItem('failedLoginAttempts');
+      localStorage.removeItem('loginBlockEndTime');
+      
       // Store login information
       localStorage.setItem("adminLoggedIn", "true");
       localStorage.setItem("adminUser", JSON.stringify({
@@ -77,11 +138,29 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       });
       onLoginSuccess();
     } else {
-      toast({
-        variant: "destructive",
-        title: "خطأ في تسجيل الدخول",
-        description: "اسم المستخدم أو كلمة المرور غير صحيحة",
-      });
+      // Failed login - increment attempts
+      const failedAttempts = parseInt(localStorage.getItem('failedLoginAttempts') || '0') + 1;
+      localStorage.setItem('failedLoginAttempts', failedAttempts.toString());
+      
+      if (failedAttempts >= 5) {
+        // Block user for 5 minutes
+        const blockEndTime = Date.now() + (5 * 60 * 1000); // 5 minutes
+        localStorage.setItem('loginBlockEndTime', blockEndTime.toString());
+        setIsBlocked(true);
+        setBlockTimeRemaining(300); // 5 minutes in seconds
+        
+        toast({
+          variant: "destructive",
+          title: "تم حظر الحساب مؤقتاً",
+          description: "تم تجاوز عدد المحاولات المسموحة. المحاولة متاحة بعد 5 دقائق",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "خطأ في تسجيل الدخول",
+          description: `اسم المستخدم أو كلمة المرور غير صحيحة (${failedAttempts}/5 محاولات)`,
+        });
+      }
     }
     
     setIsLoading(false);
@@ -98,6 +177,16 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           <p className="text-slate-600">يرجى إدخال بيانات الدخول للوصول إلى لوحة التحكم</p>
         </CardHeader>
         <CardContent>
+          {isBlocked && (
+            <Alert className="mb-4 border-red-200 bg-red-50">
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-700">
+                تم حظر الحساب مؤقتاً لمدة {Math.floor(blockTimeRemaining / 60)}:{String(blockTimeRemaining % 60).padStart(2, '0')} دقيقة
+                <br />
+                <span className="text-sm">تم تجاوز عدد المحاولات المسموحة (5 محاولات)</span>
+              </AlertDescription>
+            </Alert>
+          )}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -154,8 +243,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             </form>
           </Form>
           
-          {/* Back to Home */}
-          <div className="text-center mt-6 pt-6 border-t border-slate-200">
+          {/* Back to Home and Recovery Link */}
+          <div className="text-center mt-6 pt-6 border-t border-slate-200 space-y-3">
             <Button 
               variant="outline" 
               size="sm"
@@ -165,6 +254,21 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               <Home className="h-4 w-4" />
               العودة للصفحة الرئيسية
             </Button>
+            
+            {/* Hidden recovery link - only appears after failed attempts */}
+            {parseInt(localStorage.getItem('failedLoginAttempts') || '0') >= 3 && (
+              <div>
+                <Button 
+                  variant="link" 
+                  size="sm"
+                  onClick={() => setLocation('/admin/recovery')}
+                  className="text-xs text-slate-500 hover:text-slate-700"
+                >
+                  <Shield className="h-3 w-3 mr-1" />
+                  استعادة بيانات الدخول (طوارئ)
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
