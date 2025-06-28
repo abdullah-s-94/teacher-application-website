@@ -26,6 +26,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [blockTimeRemaining, setBlockTimeRemaining] = useState(0);
+  const [shouldRedirect, setShouldRedirect] = useState<string | null>(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -57,6 +58,19 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     
     return fingerprint;
   };
+
+  // Handle redirect after successful login
+  useEffect(() => {
+    if (shouldRedirect) {
+      const timer = setTimeout(() => {
+        console.log('Redirecting to:', shouldRedirect);
+        setLocation(shouldRedirect);
+        setShouldRedirect(null);
+      }, 1500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [shouldRedirect, setLocation]);
 
   // Check if user is currently blocked
   useEffect(() => {
@@ -161,19 +175,21 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         description: `مرحباً بك ${user.name}`,
       });
       
-      // Small delay to show the toast, then redirect based on user type
-      setTimeout(() => {
-        if (user.type === "boys_admin") {
-          // AdminB - redirect directly to boys admin panel
-          setLocation('/admin?gender=male');
-        } else if (user.type === "girls_admin") {
-          // AdminG - redirect directly to girls admin panel
-          setLocation('/admin?gender=female');
-        } else {
-          // Super admin - allow selection between complexes
-          onLoginSuccess();
-        }
-      }, 1000); // 1 second delay to show the welcome message
+      // Determine redirect path based on user type
+      console.log('User type:', user.type); // Debug log
+      if (user.type === "boys_admin") {
+        // AdminB - redirect directly to boys admin panel
+        console.log('Setting redirect to boys admin panel'); // Debug log
+        setShouldRedirect('/admin?gender=male');
+      } else if (user.type === "girls_admin") {
+        // AdminG - redirect directly to girls admin panel
+        console.log('Setting redirect to girls admin panel'); // Debug log
+        setShouldRedirect('/admin?gender=female');
+      } else {
+        // Super admin - allow selection between complexes
+        console.log('Showing admin selection for super admin'); // Debug log
+        onLoginSuccess();
+      }
     } else {
       // Failed login - increment attempts for this device only
       const failedAttempts = parseInt(localStorage.getItem(`failedLoginAttempts_${deviceId}`) || '0') + 1;
