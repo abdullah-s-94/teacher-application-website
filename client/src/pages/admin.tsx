@@ -361,22 +361,16 @@ export default function Admin() {
 
   const handleFilePreview = async (url: string, filename: string) => {
     try {
-      console.log('Preview requested for:', url);
       // Get the file URL from our API first
       const previewUrl = url.includes('?') ? `${url}&preview=true` : `${url}?preview=true`;
-      console.log('Preview URL:', previewUrl);
       
       const response = await fetch(previewUrl);
-      console.log('Response status:', response.status);
-      console.log('Response content-type:', response.headers.get('content-type'));
       
       if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
         // API returns JSON with file URL
         const fileInfo = await response.json();
-        console.log('File info received:', fileInfo);
         
         if (fileInfo.url) {
-          console.log('Opening file URL:', fileInfo.url);
           // Open the actual PDF file URL
           window.open(fileInfo.url, '_blank');
           
@@ -389,7 +383,6 @@ export default function Admin() {
           throw new Error('No file URL in response');
         }
       } else {
-        console.log('Non-JSON response, opening preview URL directly');
         // Fallback: open the preview URL directly
         window.open(previewUrl, '_blank');
       }
@@ -405,17 +398,35 @@ export default function Admin() {
 
   const handleFileDownload = async (url: string, filename: string) => {
     try {
-      console.log('Download requested for:', url);
-      // Create download URL with download parameter
-      const downloadUrl = url.includes('?') ? `${url}&download=true` : `${url}?download=true`;
-      console.log('Download URL:', downloadUrl);
+      // Remove any existing query parameters and add download=true
+      const baseUrl = url.split('?')[0];
+      const downloadUrl = `${baseUrl}?download=true`;
       
-      // Use window.open for direct download - this works better with our proxy system
-      window.open(downloadUrl, '_blank');
+      // Fetch the file and create a blob
+      const response = await fetch(downloadUrl);
+      if (!response.ok) {
+        throw new Error('Failed to download file');
+      }
+      
+      const blob = await response.blob();
+      
+      // Create a temporary URL for the blob
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      // Create a temporary anchor element and trigger download
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
       
       toast({
-        title: "تم بدء التحميل",
-        description: `جار تحميل ${filename}`,
+        title: "تم التحميل بنجاح",
+        description: `تم تحميل ${filename}`,
         variant: "default",
       });
     } catch (error) {
