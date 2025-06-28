@@ -223,7 +223,20 @@ export default function Admin() {
 
   const downloadCV = async (id: number, originalName?: string) => {
     try {
-      window.open(`/api/applications/${id}/cv?download=true`, '_blank');
+      // Get the direct Cloudinary URL first
+      const response = await fetch(`/api/applications/${id}/cv?download=true`, { method: 'HEAD' });
+      if (response.redirected && response.url) {
+        // Create a temporary link to download the file
+        const link = document.createElement('a');
+        link.href = response.url;
+        link.download = originalName || `CV_${id}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        // Fallback to window.open
+        window.open(`/api/applications/${id}/cv?download=true`, '_blank');
+      }
     } catch (error) {
       console.error('Error downloading CV:', error);
       toast({
@@ -236,7 +249,17 @@ export default function Admin() {
 
   const downloadEducationCert = async (id: number, originalName?: string) => {
     try {
-      window.open(`/api/applications/${id}/education-cert?download=true`, '_blank');
+      const response = await fetch(`/api/applications/${id}/education-cert?download=true`, { method: 'HEAD' });
+      if (response.redirected && response.url) {
+        const link = document.createElement('a');
+        link.href = response.url;
+        link.download = originalName || `شهادة_التعليم_${id}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        window.open(`/api/applications/${id}/education-cert?download=true`, '_blank');
+      }
     } catch (error) {
       console.error('Error downloading education certificate:', error);
       toast({
@@ -249,7 +272,17 @@ export default function Admin() {
 
   const downloadWorkExperience = async (id: number, fileIndex: number, originalName?: string) => {
     try {
-      window.open(`/api/applications/${id}/work-experience/${fileIndex}?download=true`, '_blank');
+      const response = await fetch(`/api/applications/${id}/work-experience/${fileIndex}?download=true`, { method: 'HEAD' });
+      if (response.redirected && response.url) {
+        const link = document.createElement('a');
+        link.href = response.url;
+        link.download = originalName || `ملف_الخبرة_${fileIndex + 1}_${id}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        window.open(`/api/applications/${id}/work-experience/${fileIndex}?download=true`, '_blank');
+      }
     } catch (error) {
       console.error('Error downloading work experience file:', error);
       toast({
@@ -1096,19 +1129,8 @@ export default function Admin() {
                                           <div className="flex items-start gap-4">
                                             {/* Thumbnail */}
                                             <div className="flex-shrink-0">
-                                              <div className="w-16 h-20 bg-red-100 border-2 border-red-200 rounded-lg flex items-center justify-center relative overflow-hidden">
-                                                <iframe
-                                                  src={`/api/applications/${application.id}/cv#toolbar=0&navpanes=0&scrollbar=0`}
-                                                  className="absolute inset-0 w-full h-full pointer-events-none scale-50 origin-top-left"
-                                                  style={{ width: '200%', height: '200%' }}
-                                                  title="CV Preview"
-                                                  onError={() => {
-                                                    // Fallback to PDF icon if iframe fails
-                                                    const target = document.currentScript?.parentElement;
-                                                    if (target) target.innerHTML = '<FileText className="h-8 w-8 text-red-600" />';
-                                                  }}
-                                                />
-                                                <div className="absolute inset-0 bg-white/20"></div>
+                                              <div className="w-16 h-20 bg-red-100 border-2 border-red-200 rounded-lg flex items-center justify-center relative">
+                                                <FileText className="h-8 w-8 text-red-600" />
                                                 <div className="absolute bottom-0 right-0 bg-red-600 text-white text-xs px-1 rounded-tl">PDF</div>
                                               </div>
                                             </div>
@@ -1158,14 +1180,9 @@ export default function Admin() {
                                             <div className="flex items-start gap-4">
                                               {/* Thumbnail */}
                                               <div className="flex-shrink-0">
-                                                <div className="w-16 h-20 bg-blue-100 border-2 border-blue-200 rounded-lg flex items-center justify-center relative overflow-hidden">
-                                                  <iframe
-                                                    src={`/api/applications/${application.id}/education-cert#toolbar=0&navpanes=0&scrollbar=0`}
-                                                    className="absolute inset-0 w-full h-full pointer-events-none scale-50 origin-top-left"
-                                                    style={{ width: '200%', height: '200%' }}
-                                                    title="Education Certificate Preview"
-                                                  />
-                                                  <div className="absolute inset-0 bg-white/20"></div>
+                                                <div className="w-16 h-20 bg-blue-100 border-2 border-blue-200 rounded-lg flex items-center justify-center relative">
+                                                  <FileText className="h-8 w-8 text-blue-600" />
+                                                  <div className="absolute bottom-0 right-0 bg-blue-600 text-white text-xs px-1 rounded-tl">PDF</div>
                                                 </div>
                                               </div>
                                               {/* File Info */}
@@ -1224,14 +1241,9 @@ export default function Admin() {
                                                   <div key={index} className="flex items-start gap-4 p-3 bg-white rounded border">
                                                     {/* Thumbnail */}
                                                     <div className="flex-shrink-0">
-                                                      <div className="w-12 h-16 bg-green-100 border-2 border-green-200 rounded-lg flex items-center justify-center relative overflow-hidden">
-                                                        <iframe
-                                                          src={`/api/applications/${application.id}/work-experience/${index}#toolbar=0&navpanes=0&scrollbar=0`}
-                                                          className="absolute inset-0 w-full h-full pointer-events-none scale-50 origin-top-left"
-                                                          style={{ width: '200%', height: '200%' }}
-                                                          title={`Work Experience ${index + 1} Preview`}
-                                                        />
-                                                        <div className="absolute inset-0 bg-white/20"></div>
+                                                      <div className="w-12 h-16 bg-green-100 border-2 border-green-200 rounded-lg flex items-center justify-center relative">
+                                                        <FileText className="h-6 w-6 text-green-600" />
+                                                        <div className="absolute bottom-0 right-0 bg-green-600 text-white text-xs px-1 rounded-tl">PDF</div>
                                                       </div>
                                                     </div>
                                                     {/* File Info */}
