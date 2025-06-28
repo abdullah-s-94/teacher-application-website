@@ -179,3 +179,97 @@
   border-color: rgb(225, 29, 72);
   ring-color: rgb(225, 29, 72);
 }
+
+/* Override button colors for gender themes */
+.male-theme button[data-state="open"],
+.male-theme button[role="combobox"],
+.male-theme .bg-primary,
+.male-theme [data-radix-select-trigger] {
+  background-color: rgb(37, 99, 235) !important;
+  color: white !important;
+}
+
+.female-theme button[data-state="open"],
+.female-theme button[role="combobox"],
+.female-theme .bg-primary,
+.female-theme [data-radix-select-trigger] {
+  background-color: rgb(225, 29, 72) !important;
+  color: white !important;
+}
+
+/* Hover states */
+.male-theme button[data-state="open"]:hover,
+.male-theme button[role="combobox"]:hover,
+.male-theme .bg-primary:hover,
+.male-theme [data-radix-select-trigger]:hover {
+  background-color: rgb(29, 78, 216) !important;
+}
+
+.female-theme button[data-state="open"]:hover,
+.female-theme button[role="combobox"]:hover,
+.female-theme .bg-primary:hover,
+.female-theme [data-radix-select-trigger]:hover {
+  background-color: rgb(190, 24, 93) !important;
+}
+
+/* Additional select trigger styling for better coverage */
+.female-theme [data-radix-select-content] {
+  border-color: rgb(225, 29, 72);
+}
+
+.female-theme [data-radix-select-item][data-highlighted] {
+  background-color: rgb(253, 164, 175);
+  color: rgb(159, 18, 57);
+}
+
+.male-theme [data-radix-select-content] {
+  border-color: rgb(37, 99, 235);
+}
+
+.male-theme [data-radix-select-item][data-highlighted] {
+  background-color: rgb(147, 197, 253);
+  color: rgb(30, 64, 175);
+}
+
+/* Force override for all select components */
+.female-theme .select-trigger,
+.female-theme [data-radix-select-trigger],
+.female-theme button[role="combobox"] {
+  background-color: rgb(225, 29, 72) !important;
+  border-color: rgb(225, 29, 72) !important;
+  color: white !important;
+}
+
+.male-theme .select-trigger,
+.male-theme [data-radix-select-trigger],
+.male-theme button[role="combobox"] {
+  background-color: rgb(37, 99, 235) !important;
+  border-color: rgb(37, 99, 235) !important;
+  color: white !important;
+}
+
+/* Enhanced specificity for all primary buttons */
+.female-theme button.bg-primary,
+.female-theme .bg-primary {
+  background-color: rgb(225, 29, 72) !important;
+}
+
+.male-theme button.bg-primary,
+.male-theme .bg-primary {
+  background-color: rgb(37, 99, 235) !important;
+}
+
+/* Specific overrides for select triggers and form elements only */
+.female-theme button[data-radix-select-trigger],
+.female-theme .select-trigger {
+  background-color: rgb(225, 29, 72) !important;
+  border-color: rgb(225, 29, 72) !important;
+  color: white !important;
+}
+
+.male-theme button[data-radix-select-trigger],
+.male-theme .select-trigger {
+  background-color: rgb(37, 99, 235) !important;
+  border-color: rgb(37, 99, 235) !important;
+  color: white !important;
+}

@@ -275,7 +275,16 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
   };
 
   return (
-    <div className={gender === 'male' ? 'male-theme' : 'female-theme'}>
+    <div 
+      className={gender === 'male' ? 'male-theme' : 'female-theme'}
+      style={{
+        '--primary': gender === 'male' ? 'hsl(217, 91%, 60%)' : 'hsl(350, 89%, 60%)',
+        '--primary-foreground': 'hsl(210, 40%, 98%)',
+        '--secondary': gender === 'male' ? 'hsl(217, 91%, 70%)' : 'hsl(350, 89%, 70%)',
+        '--accent': gender === 'male' ? 'hsl(217, 91%, 65%)' : 'hsl(350, 89%, 65%)',
+        '--ring': gender === 'male' ? 'hsl(217, 91%, 60%)' : 'hsl(350, 89%, 60%)'
+      } as any}
+    >
       <Card className="w-full max-w-4xl mx-auto bg-white/80 backdrop-blur-sm border border-slate-200/50 shadow-xl">
         <CardHeader className={`${genderTheme.headerBg} text-white rounded-t-lg`}>
           <CardTitle className="text-2xl arabic-text">استمارة التقديم</CardTitle>
