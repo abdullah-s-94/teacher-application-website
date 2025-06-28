@@ -361,18 +361,30 @@ export default function Admin() {
 
   const handleFilePreview = async (url: string, filename: string) => {
     try {
-      // Simplified approach: open PDF directly in new tab
-      // This works better when Cloudinary has access issues
+      // Get the file URL from our API first
       const previewUrl = url.includes('?') ? `${url}&preview=true` : `${url}?preview=true`;
+      const response = await fetch(previewUrl);
       
-      // Open the file directly - browser will handle PDF preview
-      window.open(previewUrl, '_blank');
-      
-      toast({
-        title: "تم فتح المعاينة",
-        description: `جار فتح ${filename} في تبويب جديد`,
-        variant: "default",
-      });
+      if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
+        // API returns JSON with file URL
+        const fileInfo = await response.json();
+        
+        if (fileInfo.url) {
+          // Open the actual PDF file URL
+          window.open(fileInfo.url, '_blank');
+          
+          toast({
+            title: "تم فتح المعاينة",
+            description: `جار فتح ${filename} في تبويب جديد`,
+            variant: "default",
+          });
+        } else {
+          throw new Error('No file URL in response');
+        }
+      } else {
+        // Fallback: open the preview URL directly
+        window.open(previewUrl, '_blank');
+      }
     } catch (error) {
       console.error('Error accessing file:', error);
       toast({

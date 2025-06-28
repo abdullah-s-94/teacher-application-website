@@ -25,7 +25,7 @@ export async function uploadToCloudinary(
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: folder,
-        resource_type: 'auto', // Let Cloudinary detect the file type automatically
+        resource_type: 'raw', // Use raw for PDF files to avoid processing
         public_id: `${Date.now()}_${Math.random().toString(36).substring(2)}`,
         use_filename: false, // Don't use original filename to avoid encoding issues
         unique_filename: true,
@@ -72,9 +72,8 @@ export async function deleteFromCloudinary(publicId: string): Promise<void> {
 
 export function getCloudinaryUrl(publicId: string): string {
   return cloudinary.url(publicId, {
-    resource_type: 'auto',
+    resource_type: 'raw', // Use raw for PDF files
     secure: true,
-    access_mode: 'public',
     sign_url: false // Disable URL signing for public access
   });
 }
