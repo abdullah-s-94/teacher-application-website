@@ -616,10 +616,10 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                     type="file"
                     accept=".pdf"
                     onChange={handleFileChange}
-                    className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
+                    className={`file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold ${genderTheme.buttonBg} file:text-white hover:file:opacity-90`}
                   />
                   {selectedFile && (
-                    <div className="flex items-center space-x-2 text-sm text-green-600">
+                    <div className={`flex items-center space-x-2 text-sm ${genderTheme.accentColor}`}>
                       <CheckCircle className="h-4 w-4" />
                       <span>{selectedFile.name}</span>
                     </div>
@@ -635,10 +635,10 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                     type="file"
                     accept=".pdf"
                     onChange={handleEducationCertChange}
-                    className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
+                    className={`file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold ${genderTheme.buttonBg} file:text-white hover:file:opacity-90`}
                   />
                   {selectedEducationCert && (
-                    <div className="flex items-center space-x-2 text-sm text-green-600">
+                    <div className={`flex items-center space-x-2 text-sm ${genderTheme.accentColor}`}>
                       <CheckCircle className="h-4 w-4" />
                       <span>{selectedEducationCert.name}</span>
                     </div>
@@ -655,7 +655,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                     accept=".pdf"
                     multiple
                     onChange={handleWorkExperienceChange}
-                    className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-secondary file:text-secondary-foreground hover:file:bg-secondary/90"
+                    className={`file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold ${genderTheme.buttonBg} file:text-white hover:file:opacity-90`}
                   />
                   {selectedWorkExperience.length > 0 && (
                     <div className="space-y-2">

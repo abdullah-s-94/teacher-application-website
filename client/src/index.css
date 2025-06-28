@@ -15,15 +15,15 @@
   --card-foreground: hsl(222.2, 84%, 4.9%);
   --border: hsl(214.3, 31.8%, 91.4%);
   --input: hsl(214.3, 31.8%, 91.4%);
-  --primary: hsl(172.4, 66%, 50.4%);
+  --primary: hsl(217, 91%, 60%);
   --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(172.4, 66%, 60.4%);
+  --secondary: hsl(217, 91%, 70%);
   --secondary-foreground: hsl(222.2, 84%, 4.9%);
-  --accent: hsl(41.8, 96.1%, 40.4%);
+  --accent: hsl(217, 91%, 65%);
   --accent-foreground: hsl(210, 40%, 98%);
   --destructive: hsl(0, 84.2%, 60.2%);
   --destructive-foreground: hsl(210, 40%, 98%);
-  --ring: hsl(172.4, 66%, 50.4%);
+  --ring: hsl(217, 91%, 60%);
   --radius: 0.75rem;
 }
 
@@ -142,17 +142,27 @@
 
 /* Gender-specific themes for better visual identity */
 .male-theme {
-  --primary-color: rgb(37, 99, 235); /* Blue 600 */
-  --primary-hover: rgb(29, 78, 216); /* Blue 700 */
-  --primary-light: rgb(147, 197, 253); /* Blue 300 */
-  --primary-dark: rgb(30, 64, 175); /* Blue 800 */
+  --primary: hsl(217, 91%, 60%); /* Blue */
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(217, 91%, 70%);
+  --secondary-foreground: hsl(222.2, 84%, 4.9%);
+  --accent: hsl(217, 91%, 65%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(217, 91%, 60%);
+  --button-primary: rgb(37, 99, 235);
+  --button-primary-hover: rgb(29, 78, 216);
 }
 
 .female-theme {
-  --primary-color: rgb(225, 29, 72); /* Rose 600 */
-  --primary-hover: rgb(190, 24, 93); /* Rose 700 */
-  --primary-light: rgb(253, 164, 175); /* Rose 300 */
-  --primary-dark: rgb(159, 18, 57); /* Rose 800 */
+  --primary: hsl(350, 89%, 60%); /* Rose */
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(350, 89%, 70%);
+  --secondary-foreground: hsl(222.2, 84%, 4.9%);
+  --accent: hsl(350, 89%, 65%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(350, 89%, 60%);
+  --button-primary: rgb(225, 29, 72);
+  --button-primary-hover: rgb(190, 24, 93);
 }
 
 /* Custom input focus styles for gender themes */
