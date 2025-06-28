@@ -154,27 +154,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const originalName = application.cvOriginalName || 'cv.pdf';
         
         if (isDownload) {
-          // For download, proxy through our server to ensure correct headers and content
+          // For download, try direct redirect first (simpler approach)
           try {
-            const response = await fetch(application.cvCloudinaryUrl);
-            if (!response.ok) {
-              throw new Error('Failed to fetch from Cloudinary');
+            // Test if Cloudinary URL is accessible
+            const testResponse = await fetch(application.cvCloudinaryUrl, { method: 'HEAD' });
+            if (testResponse.ok) {
+              // If Cloudinary is accessible, redirect with proper download parameters
+              const downloadUrl = `${application.cvCloudinaryUrl}?download=true&fl_attachment=${encodeURIComponent(originalName)}`;
+              return res.redirect(302, downloadUrl);
+            } else {
+              throw new Error('Cloudinary file not accessible');
             }
-            
-            const buffer = await response.arrayBuffer();
-            
-            // Set proper headers for PDF download
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
-            res.setHeader('Cache-Control', 'no-cache');
-            res.setHeader('Content-Length', buffer.byteLength.toString());
-            
-            // Send the actual PDF content
-            res.send(Buffer.from(buffer));
-            return;
           } catch (error) {
-            console.error('Error proxying Cloudinary download:', error);
-            return res.status(500).json({ error: "خطأ في تحميل الملف من التخزين السحابي" });
+            console.error('Cloudinary not accessible, falling back to local file:', error);
+            // Fall through to local file handling below
           }
         } else if (isPreview) {
           // For preview, return JSON with file info for mobile-friendly handling
@@ -251,27 +244,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const originalName = application.educationCertOriginalName || 'education-cert.pdf';
         
         if (isDownload) {
-          // For download, proxy through our server to ensure correct headers and content
+          // For download, try direct redirect first (simpler approach)
           try {
-            const response = await fetch(application.educationCertCloudinaryUrl);
-            if (!response.ok) {
-              throw new Error('Failed to fetch from Cloudinary');
+            // Test if Cloudinary URL is accessible
+            const testResponse = await fetch(application.educationCertCloudinaryUrl, { method: 'HEAD' });
+            if (testResponse.ok) {
+              // If Cloudinary is accessible, redirect with proper download parameters
+              const downloadUrl = `${application.educationCertCloudinaryUrl}?download=true&fl_attachment=${encodeURIComponent(originalName)}`;
+              return res.redirect(302, downloadUrl);
+            } else {
+              throw new Error('Cloudinary file not accessible');
             }
-            
-            const buffer = await response.arrayBuffer();
-            
-            // Set proper headers for PDF download
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
-            res.setHeader('Cache-Control', 'no-cache');
-            res.setHeader('Content-Length', buffer.byteLength.toString());
-            
-            // Send the actual PDF content
-            res.send(Buffer.from(buffer));
-            return;
           } catch (error) {
-            console.error('Error proxying Cloudinary download:', error);
-            return res.status(500).json({ error: "خطأ في تحميل الملف من التخزين السحابي" });
+            console.error('Cloudinary not accessible, falling back to local file:', error);
+            // Fall through to local file handling below
           }
         } else if (isPreview) {
           // For preview, return JSON with file info for mobile-friendly handling
@@ -354,27 +340,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const isDownload = req.query.download === 'true';
             
             if (isDownload) {
-              // For download, proxy through our server to ensure correct headers and content
+              // For download, try direct redirect first (simpler approach)
               try {
-                const response = await fetch(cloudinaryUrl);
-                if (!response.ok) {
-                  throw new Error('Failed to fetch from Cloudinary');
+                // Test if Cloudinary URL is accessible
+                const testResponse = await fetch(cloudinaryUrl, { method: 'HEAD' });
+                if (testResponse.ok) {
+                  // If Cloudinary is accessible, redirect with proper download parameters
+                  const downloadUrl = `${cloudinaryUrl}?download=true&fl_attachment=${encodeURIComponent(originalName)}`;
+                  return res.redirect(302, downloadUrl);
+                } else {
+                  throw new Error('Cloudinary file not accessible');
                 }
-                
-                const buffer = await response.arrayBuffer();
-                
-                // Set proper headers for PDF download
-                res.setHeader('Content-Type', 'application/pdf');
-                res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
-                res.setHeader('Cache-Control', 'no-cache');
-                res.setHeader('Content-Length', buffer.byteLength.toString());
-                
-                // Send the actual PDF content
-                res.send(Buffer.from(buffer));
-                return;
               } catch (error) {
-                console.error('Error proxying Cloudinary download:', error);
-                return res.status(500).json({ error: "خطأ في تحميل الملف من التخزين السحابي" });
+                console.error('Cloudinary not accessible, falling back to local file:', error);
+                // Fall through to local file handling below
               }
             } else if (req.query.preview === 'true') {
               // For preview, return JSON with file info for mobile-friendly handling

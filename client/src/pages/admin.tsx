@@ -361,35 +361,22 @@ export default function Admin() {
 
   const handleFilePreview = async (url: string, filename: string) => {
     try {
-      // For mobile-friendly preview, we get the JSON response with preview parameter
+      // Simplified approach: open PDF directly in new tab
+      // This works better when Cloudinary has access issues
       const previewUrl = url.includes('?') ? `${url}&preview=true` : `${url}?preview=true`;
-      const response = await fetch(previewUrl);
       
-      if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
-        // New API returns JSON with file info
-        const fileInfo = await response.json();
-        
-        if (fileInfo.url) {
-          // Check if it's mobile (simple detection)
-          const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-          
-          if (isMobile) {
-            // On mobile, open the PDF directly in a new tab/viewer
-            window.open(fileInfo.url, '_blank');
-          } else {
-            // On desktop, use Google Docs Viewer for better preview
-            const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fileInfo.url)}&embedded=true`;
-            window.open(googleViewerUrl, '_blank');
-          }
-        }
-      } else {
-        // Fallback: open the preview URL directly
-        window.open(previewUrl, '_blank');
-      }
+      // Open the file directly - browser will handle PDF preview
+      window.open(previewUrl, '_blank');
+      
+      toast({
+        title: "تم فتح المعاينة",
+        description: `جار فتح ${filename} في تبويب جديد`,
+        variant: "default",
+      });
     } catch (error) {
       console.error('Error accessing file:', error);
       toast({
-        title: "خطأ في الشبكة",
+        title: "خطأ في المعاينة",
         description: "لا يمكن الوصول إلى الملف. تحقق من اتصال الإنترنت.",
         variant: "destructive",
       });

@@ -30,8 +30,8 @@ export async function uploadToCloudinary(
         use_filename: false, // Don't use original filename to avoid encoding issues
         unique_filename: true,
         overwrite: false,
-        // Add specific flags for PDF handling
-        flags: 'attachment', // This ensures proper download behavior
+        // Set access mode to public for file access
+        access_mode: 'public',
         // Set proper content type
         context: {
           original_filename: originalName,
@@ -74,6 +74,8 @@ export function getCloudinaryUrl(publicId: string): string {
   return cloudinary.url(publicId, {
     resource_type: 'auto',
     secure: true,
+    access_mode: 'public',
+    sign_url: false // Disable URL signing for public access
   });
 }
 
