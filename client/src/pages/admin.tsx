@@ -138,7 +138,8 @@ export default function Admin() {
     setCurrentUser(null);
   };
 
-  if (!isLoggedIn) {
+  // Show login form if not logged in at all, OR if super admin needs to select gender
+  if (!isLoggedIn && !currentUser) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 relative overflow-hidden" dir="rtl">
         {/* Animated background elements */}
@@ -200,6 +201,108 @@ export default function Admin() {
                   نظام آمن ومحمي للإدارة
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show admin selection page for super admin without gender selection
+  if (currentUser?.type === "super_admin" && !selectedGender) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 relative overflow-hidden" dir="rtl">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-20 left-20 w-64 h-64 bg-gradient-to-r from-slate-200/30 to-gray-200/30 rounded-full blur-3xl animate-float"></div>
+          <div className="absolute bottom-32 right-32 w-96 h-96 bg-gradient-to-r from-gray-200/20 to-slate-200/20 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-128 h-128 bg-gradient-to-r from-slate-100/40 to-gray-100/40 rounded-full blur-3xl animate-float" style={{animationDelay: '4s'}}></div>
+        </div>
+
+        <div className="min-h-screen py-12 px-4 relative z-10">
+          <div className="max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-12">
+              <div className="flex justify-center items-center gap-4 mb-6 group">
+                <div className="relative">
+                  <div className="relative">
+                    <School className="h-16 w-16 text-slate-700 group-hover:text-slate-600 transition-all duration-300 group-hover:scale-110" />
+                    <Star className="h-6 w-6 text-amber-500 absolute -top-1 -right-1 animate-bounce" />
+                  </div>
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold text-slate-800 arabic-text">
+                    لوحة التحكم الإدارية
+                  </h1>
+                  <p className="text-slate-600 text-lg arabic-text">مدارس أنجال النخبة الأهلية</p>
+                </div>
+              </div>
+              
+              <div className="relative inline-block mb-8 animate-float">
+                <p className="text-xl text-slate-600 px-8 py-4 bg-white/70 backdrop-blur-sm rounded-full border border-slate-200/50 shadow-lg arabic-text">
+                  اختر المجمع التعليمي المراد إدارته
+                </p>
+              </div>
+            </div>
+
+            {/* Selection Cards */}
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
+              {/* Boys Complex */}
+              <div className="bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 p-8 group hover:scale-105">
+                <div className="text-center mb-6">
+                  <div className="mx-auto bg-blue-100/80 backdrop-blur-sm p-6 rounded-full w-fit mb-4 group-hover:bg-blue-200/80 transition-all duration-300">
+                    <User className="h-12 w-12 text-blue-700" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800 mb-2 arabic-text">إدارة المجمع التعليمي - بنين</h3>
+                  <p className="text-slate-600 arabic-text">عرض وإدارة طلبات التوظيف المقدمة لقسم البنين</p>
+                </div>
+                <Button 
+                  onClick={() => setLocation('/admin?gender=male')}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl group arabic-text text-lg py-3"
+                >
+                  <Users className="h-5 w-5 ml-2 group-hover:scale-110 transition-transform duration-300" />
+                  عرض ملفات البنين
+                </Button>
+              </div>
+
+              {/* Girls Complex */}
+              <div className="bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 p-8 group hover:scale-105">
+                <div className="text-center mb-6">
+                  <div className="mx-auto bg-rose-100/80 backdrop-blur-sm p-6 rounded-full w-fit mb-4 group-hover:bg-rose-200/80 transition-all duration-300">
+                    <User className="h-12 w-12 text-rose-700" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800 mb-2 arabic-text">إدارة المجمع التعليمي - بنات</h3>
+                  <p className="text-slate-600 arabic-text">عرض وإدارة طلبات التوظيف المقدمة لقسم البنات</p>
+                </div>
+                <Button 
+                  onClick={() => setLocation('/admin?gender=female')}
+                  className="w-full bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl group arabic-text text-lg py-3"
+                >
+                  <Users className="h-5 w-5 ml-2 group-hover:scale-110 transition-transform duration-300" />
+                  عرض ملفات البنات
+                </Button>
+              </div>
+            </div>
+
+            {/* Navigation */}
+            <div className="text-center space-y-4">
+              <Button 
+                variant="outline" 
+                onClick={handleLogout}
+                className="gap-2 bg-red-50/70 backdrop-blur-sm border-red-300 hover:bg-red-100/90 hover:border-red-400 transition-all duration-300 rounded-xl px-6 py-3 group arabic-text text-red-700"
+              >
+                <LogOut className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
+                تسجيل الخروج
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={() => setLocation('/')}
+                className="gap-2 bg-white/70 backdrop-blur-sm border-slate-300 hover:bg-white/90 hover:border-slate-400 transition-all duration-300 rounded-xl px-6 py-3 group arabic-text"
+              >
+                <Home className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
+                العودة للصفحة الرئيسية
+              </Button>
             </div>
           </div>
         </div>
