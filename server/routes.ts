@@ -6,6 +6,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { uploadToCloudinary, deleteFromCloudinary } from "./cloudinary";
+import https from "https";
 
 // Configure multer for file uploads (using memory storage for Cloudinary)
 const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -153,13 +154,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const originalName = application.cvOriginalName || 'cv.pdf';
         
         if (isDownload) {
-          // For download, create a proper download URL with attachment
+          // For download, add fl_attachment parameter to Cloudinary URL
           let downloadUrl = application.cvCloudinaryUrl;
+          downloadUrl = downloadUrl + (downloadUrl.includes('?') ? '&' : '?') + 'fl_attachment=true';
           
-          // Add fl_attachment parameter for Cloudinary raw files
-          downloadUrl = downloadUrl.replace('/upload/', '/upload/fl_attachment/');
-          
-          // Set proper headers for download
+          // Set proper headers and redirect
           res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
           res.setHeader('Content-Type', 'application/pdf');
           res.setHeader('Cache-Control', 'no-cache');
@@ -240,13 +239,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const originalName = application.educationCertOriginalName || 'education-cert.pdf';
         
         if (isDownload) {
-          // For download, create a proper download URL with attachment
+          // For download, add fl_attachment parameter to Cloudinary URL
           let downloadUrl = application.educationCertCloudinaryUrl;
+          downloadUrl = downloadUrl + (downloadUrl.includes('?') ? '&' : '?') + 'fl_attachment=true';
           
-          // Add fl_attachment parameter for Cloudinary raw files
-          downloadUrl = downloadUrl.replace('/upload/', '/upload/fl_attachment/');
-          
-          // Set proper headers for download
+          // Set proper headers and redirect
           res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
           res.setHeader('Content-Type', 'application/pdf');
           res.setHeader('Cache-Control', 'no-cache');
@@ -333,8 +330,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const isDownload = req.query.download === 'true';
             
             if (isDownload) {
-              // For download, create a proper download URL with attachment
-              let downloadUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_attachment/');
+              // For download, add fl_attachment parameter to Cloudinary URL
+              let downloadUrl = cloudinaryUrl + (cloudinaryUrl.includes('?') ? '&' : '?') + 'fl_attachment=true';
               
               // Set proper headers for download
               res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
@@ -342,7 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               res.setHeader('Cache-Control', 'no-cache');
               
               return res.redirect(302, downloadUrl);
-            } else {
+            } else if (req.query.preview === 'true') {
               // For preview, return JSON with file info for mobile-friendly handling
               return res.json({
                 url: cloudinaryUrl,
