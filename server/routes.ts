@@ -148,15 +148,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if we have Cloudinary URL (priority)
       if (application.cvCloudinaryUrl) {
-        // Add appropriate Cloudinary transformations for PDF handling
+        // For raw files, Cloudinary URLs work differently
         let cloudinaryUrl = application.cvCloudinaryUrl;
         
-        if (req.query.download === 'true') {
-          // Force download
-          cloudinaryUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_attachment/');
-        } else {
-          // Preview mode - add PDF viewer friendly parameters
-          cloudinaryUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_inline/');
+        // For raw files, we need to adjust the URL structure
+        if (cloudinaryUrl.includes('/raw/upload/')) {
+          if (req.query.download === 'true') {
+            // For download, we can add attachment flag via query params
+            cloudinaryUrl = cloudinaryUrl + (cloudinaryUrl.includes('?') ? '&' : '?') + 'fl_attachment=true';
+          }
+          // For preview, just use the raw URL as-is
         }
         
         return res.redirect(cloudinaryUrl);
@@ -220,10 +221,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (application.educationCertCloudinaryUrl) {
         let cloudinaryUrl = application.educationCertCloudinaryUrl;
         
-        if (req.query.download === 'true') {
-          cloudinaryUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_attachment/');
-        } else {
-          cloudinaryUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_inline/');
+        if (cloudinaryUrl.includes('/raw/upload/')) {
+          if (req.query.download === 'true') {
+            cloudinaryUrl = cloudinaryUrl + (cloudinaryUrl.includes('?') ? '&' : '?') + 'fl_attachment=true';
+          }
         }
         
         return res.redirect(cloudinaryUrl);
@@ -289,10 +290,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (fileIndex < cloudinaryUrls.length && fileIndex >= 0) {
           let cloudinaryUrl = cloudinaryUrls[fileIndex].trim();
           if (cloudinaryUrl) {
-            if (req.query.download === 'true') {
-              cloudinaryUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_attachment/');
-            } else {
-              cloudinaryUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_inline/');
+            if (cloudinaryUrl.includes('/raw/upload/')) {
+              if (req.query.download === 'true') {
+                cloudinaryUrl = cloudinaryUrl + (cloudinaryUrl.includes('?') ? '&' : '?') + 'fl_attachment=true';
+              }
             }
             return res.redirect(cloudinaryUrl);
           }

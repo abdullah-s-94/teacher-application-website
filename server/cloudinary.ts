@@ -27,12 +27,11 @@ export async function uploadToCloudinary(
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: folder,
-        resource_type: isPdf ? 'auto' : 'auto', // Use 'auto' to let Cloudinary detect the type
+        resource_type: 'raw', // Always use 'raw' for all file uploads including PDFs
         public_id: `${Date.now()}_${Math.random().toString(36).substring(2)}`,
         use_filename: true,
         unique_filename: true,
         overwrite: false,
-        format: isPdf ? 'pdf' : undefined, // Explicitly set format for PDFs
       },
       (error, result) => {
         if (error) {
