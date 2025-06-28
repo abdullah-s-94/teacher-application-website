@@ -37,9 +37,31 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     },
   });
 
+  // Generate device fingerprint for per-device tracking
+  const getDeviceFingerprint = (): string => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.textBaseline = 'top';
+      ctx.font = '14px Arial';
+      ctx.fillText('Device fingerprint', 2, 2);
+    }
+    
+    const fingerprint = btoa(
+      navigator.userAgent + 
+      navigator.language + 
+      screen.width + 'x' + screen.height + 
+      new Date().getTimezoneOffset() +
+      (canvas.toDataURL ? canvas.toDataURL().slice(-50) : '')
+    ).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+    
+    return fingerprint;
+  };
+
   // Check if user is currently blocked
   useEffect(() => {
-    const blockEndTime = localStorage.getItem('loginBlockEndTime');
+    const deviceId = getDeviceFingerprint();
+    const blockEndTime = localStorage.getItem(`loginBlockEndTime_${deviceId}`);
     if (blockEndTime) {
       const remainingTime = parseInt(blockEndTime) - Date.now();
       if (remainingTime > 0) {
@@ -51,8 +73,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           if (newRemainingTime <= 0) {
             setIsBlocked(false);
             setBlockTimeRemaining(0);
-            localStorage.removeItem('loginBlockEndTime');
-            localStorage.removeItem('failedLoginAttempts');
+            localStorage.removeItem(`loginBlockEndTime_${deviceId}`);
+            localStorage.removeItem(`failedLoginAttempts_${deviceId}`);
             clearInterval(interval);
           } else {
             setBlockTimeRemaining(Math.ceil(newRemainingTime / 1000));
@@ -62,8 +84,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         return () => clearInterval(interval);
       } else {
         // Block time expired, clean up
-        localStorage.removeItem('loginBlockEndTime');
-        localStorage.removeItem('failedLoginAttempts');
+        localStorage.removeItem(`loginBlockEndTime_${deviceId}`);
+        localStorage.removeItem(`failedLoginAttempts_${deviceId}`);
       }
     }
   }, []);
@@ -118,10 +140,12 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     const user = users[data.username as keyof typeof users];
     const inputPasswordHash = simpleHash(data.password);
     
+    const deviceId = getDeviceFingerprint();
+    
     if (user && inputPasswordHash === user.passwordHash) {
-      // Successful login - reset failed attempts
-      localStorage.removeItem('failedLoginAttempts');
-      localStorage.removeItem('loginBlockEndTime');
+      // Successful login - reset failed attempts for this device
+      localStorage.removeItem(`failedLoginAttempts_${deviceId}`);
+      localStorage.removeItem(`loginBlockEndTime_${deviceId}`);
       
       // Store login information
       localStorage.setItem("adminLoggedIn", "true");
@@ -138,27 +162,27 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       });
       onLoginSuccess();
     } else {
-      // Failed login - increment attempts
-      const failedAttempts = parseInt(localStorage.getItem('failedLoginAttempts') || '0') + 1;
-      localStorage.setItem('failedLoginAttempts', failedAttempts.toString());
+      // Failed login - increment attempts for this device only
+      const failedAttempts = parseInt(localStorage.getItem(`failedLoginAttempts_${deviceId}`) || '0') + 1;
+      localStorage.setItem(`failedLoginAttempts_${deviceId}`, failedAttempts.toString());
       
       if (failedAttempts >= 5) {
-        // Block user for 5 minutes
+        // Block this device for 5 minutes
         const blockEndTime = Date.now() + (5 * 60 * 1000); // 5 minutes
-        localStorage.setItem('loginBlockEndTime', blockEndTime.toString());
+        localStorage.setItem(`loginBlockEndTime_${deviceId}`, blockEndTime.toString());
         setIsBlocked(true);
         setBlockTimeRemaining(300); // 5 minutes in seconds
         
         toast({
           variant: "destructive",
-          title: "تم حظر الحساب مؤقتاً",
-          description: "تم تجاوز عدد المحاولات المسموحة. المحاولة متاحة بعد 5 دقائق",
+          title: "تم حظر هذا الجهاز مؤقتاً",
+          description: "تم تجاوز عدد المحاولات المسموحة لهذا الجهاز. المحاولة متاحة بعد 5 دقائق",
         });
       } else {
         toast({
           variant: "destructive",
           title: "خطأ في تسجيل الدخول",
-          description: `اسم المستخدم أو كلمة المرور غير صحيحة (${failedAttempts}/5 محاولات)`,
+          description: `اسم المستخدم أو كلمة المرور غير صحيحة (${failedAttempts}/5 محاولات لهذا الجهاز)`,
         });
       }
     }
@@ -181,9 +205,11 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             <Alert className="mb-4 border-red-200 bg-red-50">
               <AlertTriangle className="h-4 w-4 text-red-600" />
               <AlertDescription className="text-red-700">
-                تم حظر الحساب مؤقتاً لمدة {Math.floor(blockTimeRemaining / 60)}:{String(blockTimeRemaining % 60).padStart(2, '0')} دقيقة
+                تم حظر هذا الجهاز مؤقتاً لمدة {Math.floor(blockTimeRemaining / 60)}:{String(blockTimeRemaining % 60).padStart(2, '0')} دقيقة
                 <br />
-                <span className="text-sm">تم تجاوز عدد المحاولات المسموحة (5 محاولات)</span>
+                <span className="text-sm">تم تجاوز عدد المحاولات المسموحة لهذا الجهاز (5 محاولات)</span>
+                <br />
+                <span className="text-xs text-red-600">ملاحظة: كل جهاز له عداد منفصل للمحاولات</span>
               </AlertDescription>
             </Alert>
           )}
@@ -255,8 +281,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               العودة للصفحة الرئيسية
             </Button>
             
-            {/* Hidden recovery link - only appears after failed attempts */}
-            {parseInt(localStorage.getItem('failedLoginAttempts') || '0') >= 3 && (
+            {/* Hidden recovery link - only appears after failed attempts for this device */}
+            {parseInt(localStorage.getItem(`failedLoginAttempts_${getDeviceFingerprint()}`) || '0') >= 3 && (
               <div>
                 <Button 
                   variant="link" 
