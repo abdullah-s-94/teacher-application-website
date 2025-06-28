@@ -180,15 +180,17 @@
   ring-color: rgb(225, 29, 72);
 }
 
-/* Subtle gender themes - only for selected items and highlights */
-.male-theme [data-radix-select-item][data-highlighted] {
-  background-color: rgb(147, 197, 253);
-  color: rgb(30, 64, 175);
+/* Gender-specific styling for selected and highlighted items */
+.male-theme [data-radix-select-item][data-highlighted],
+.male-theme [data-radix-select-item][data-state="checked"] {
+  background-color: rgb(37, 99, 235) !important;
+  color: white !important;
 }
 
-.female-theme [data-radix-select-item][data-highlighted] {
-  background-color: rgb(253, 164, 175);
-  color: rgb(159, 18, 57);
+.female-theme [data-radix-select-item][data-highlighted],
+.female-theme [data-radix-select-item][data-state="checked"] {
+  background-color: rgb(225, 29, 72) !important;
+  color: white !important;
 }
 
 /* Override only submit buttons and file upload buttons */
@@ -209,4 +211,28 @@
 
 .female-theme .text-rose-600 {
   color: rgb(225, 29, 72) !important;
+}
+
+/* Override default accent color for selected items */
+.male-theme {
+  --accent: hsl(217, 91%, 60%);
+  --accent-foreground: hsl(210, 40%, 98%);
+}
+
+.female-theme {
+  --accent: hsl(350, 89%, 60%);
+  --accent-foreground: hsl(210, 40%, 98%);
+}
+
+/* Additional coverage for select items */
+.male-theme [data-radix-select-item][aria-selected="true"],
+.male-theme .select-item-selected {
+  background-color: rgb(37, 99, 235) !important;
+  color: white !important;
+}
+
+.female-theme [data-radix-select-item][aria-selected="true"],
+.female-theme .select-item-selected {
+  background-color: rgb(225, 29, 72) !important;
+  color: white !important;
 }
