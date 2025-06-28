@@ -128,12 +128,35 @@ Preferred communication style: Simple, everyday language.
 
 ## Authentication
 
-### Admin Access
+### Multi-Level Admin Access System
+The system now supports three types of admin users with different permission levels:
+
+#### 1. Super Admin (مدير المجمع)
 - Username: `Admin`
 - Password: `Abu0555700769@@`
-- Simple localStorage-based authentication
-- Admin panel access protected by login form
-- Logout functionality available in admin dashboard
+- Full access to both gender complexes
+- Can switch between Boys and Girls complexes
+- Complete administrative privileges
+
+#### 2. Boys Complex Admin (مدير مجمع البنين)
+- Username: `AdminB`
+- Password: `Abu0555700769@@B`
+- Access limited to Boys complex applications only
+- Cannot switch between complexes (shows error message)
+- Full management rights within Boys complex scope
+
+#### 3. Girls Complex Admin (مدير مجمع البنات)
+- Username: `AdminG`
+- Password: `Abu0555700769@@G`
+- Access limited to Girls complex applications only
+- Cannot switch between complexes (shows error message)
+- Full management rights within Girls complex scope
+
+### Permission System
+- User information displayed in admin dashboard header
+- Role-based access control for complex switching
+- Automatic gender filtering based on user permissions
+- localStorage-based authentication with user metadata storage
 
 ## Known Issues & Solutions
 
@@ -173,3 +196,4 @@ Changelog:
 - June 28, 2025. Enhanced specialization field with custom input option: added "Other" option to specialization dropdown with conditional custom text input field, implemented proper validation to ensure custom specialization is provided when "Other" is selected, updated admin panel to display custom specializations in tables and details, modified specialization statistics to properly group custom specializations
 - June 28, 2025. Fixed gender-neutral language consistency: updated all placeholder texts and form instructions to use masculine form consistently across both male and female application forms, ensuring unified language experience regardless of selected gender track
 - June 28, 2025. Improved search functionality user experience: replaced automatic debounced search with manual search triggered by Enter key or search button, implemented immediate clearing when search field is empty, added search button alongside input field for better user control and reduced server load
+- June 28, 2025. Implemented multi-level admin access system: created three user types with different permission levels - Super Admin (Admin) with full access to both complexes, Boys Complex Admin (AdminB) with access only to boys applications, and Girls Complex Admin (AdminG) with access only to girls applications. Added role-based access control preventing gender-specific admins from switching between complexes, displaying appropriate error messages. Enhanced admin dashboard to show current user information and permissions in header.

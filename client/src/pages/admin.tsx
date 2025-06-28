@@ -21,6 +21,7 @@ import type { Application } from "@shared/schema";
 export default function Admin() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [, setLocation] = useLocation();
   const [filters, setFilters] = useState({
     search: "",
@@ -41,8 +42,26 @@ export default function Admin() {
       setIsLoggedIn(false);
       return;
     }
-    
-    // Check for gender parameter in URL
+
+    // Get user information
+    const userDataStr = localStorage.getItem("adminUser");
+    if (!userDataStr) {
+      setIsLoggedIn(false);
+      return;
+    }
+
+    const userData = JSON.parse(userDataStr);
+    setCurrentUser(userData);
+
+    // Handle gender-specific admins
+    if (userData.permissions.gender) {
+      // User is gender-specific (AdminB or AdminG)
+      setSelectedGender(userData.permissions.gender);
+      setIsLoggedIn(true);
+      return;
+    }
+
+    // For super admin, check URL parameter
     const urlParams = new URLSearchParams(window.location.search);
     const genderParam = urlParams.get('gender') as 'male' | 'female';
     
@@ -109,7 +128,9 @@ export default function Admin() {
 
   const handleLogout = () => {
     localStorage.removeItem("adminLoggedIn");
+    localStorage.removeItem("adminUser");
     setIsLoggedIn(false);
+    setCurrentUser(null);
   };
 
   if (!isLoggedIn) {
@@ -407,7 +428,20 @@ export default function Admin() {
         <Card className="mb-8">
           <CardHeader>
             <div className="flex items-center justify-between mb-6">
-              <CardTitle className="text-2xl">لوحة تحكم المتقدمين</CardTitle>
+              <div>
+                <CardTitle className="text-2xl">لوحة تحكم المتقدمين</CardTitle>
+                <p className="text-muted-foreground mt-1">
+                  المجمع التعليمي - {selectedGender === 'male' ? 'بنين' : 'بنات'}
+                </p>
+                {currentUser && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <User className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-primary">
+                      {currentUser.name} ({currentUser.username})
+                    </span>
+                  </div>
+                )}
+              </div>
               <div className="flex gap-2">
                 <Button disabled className="gap-2">
                   <FileDown className="h-5 w-5" />
@@ -466,6 +500,14 @@ export default function Admin() {
               <p className="text-muted-foreground mt-1">
                 المجمع التعليمي - {selectedGender === 'male' ? 'بنين' : 'بنات'}
               </p>
+              {currentUser && (
+                <div className="flex items-center gap-2 mt-2">
+                  <User className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-primary">
+                    {currentUser.name} ({currentUser.username})
+                  </span>
+                </div>
+              )}
             </div>
             <div className="flex gap-2">
               <Button onClick={exportData} className="gap-2">
@@ -528,10 +570,25 @@ export default function Admin() {
                 <Home className="h-5 w-5" />
                 الصفحة الرئيسية
               </Button>
-              <Button onClick={() => setLocation('/admin')} variant="outline" className="gap-2">
-                <Building className="h-5 w-5" />
-                تغيير المجمع
-              </Button>
+              {currentUser?.permissions.canSwitchGender ? (
+                <Button onClick={() => setLocation('/admin')} variant="outline" className="gap-2">
+                  <Building className="h-5 w-5" />
+                  تغيير المجمع
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => toast({
+                    variant: "destructive",
+                    title: "غير مسموح",
+                    description: "ليس لديك صلاحيات للتغيير بين المجمعات"
+                  })} 
+                  variant="outline" 
+                  className="gap-2"
+                >
+                  <Building className="h-5 w-5" />
+                  تغيير المجمع
+                </Button>
+              )}
               <Button onClick={handleLogout} variant="outline" className="gap-2">
                 <LogOut className="h-5 w-5" />
                 تسجيل الخروج

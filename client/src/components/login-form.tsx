@@ -37,12 +37,43 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const onSubmit = async (data: LoginData) => {
     setIsLoading(true);
     
-    // Simple hardcoded authentication
-    if (data.username === "Admin" && data.password === "Abu0555700769@@") {
+    // Define user types and their credentials
+    const users = {
+      "Admin": { 
+        password: "Abu0555700769@@", 
+        type: "super_admin", 
+        name: "مدير المجمع", 
+        permissions: { canSwitchGender: true, gender: null } 
+      },
+      "AdminB": { 
+        password: "Abu0555700769@@B", 
+        type: "boys_admin", 
+        name: "مدير مجمع البنين", 
+        permissions: { canSwitchGender: false, gender: "male" } 
+      },
+      "AdminG": { 
+        password: "Abu0555700769@@G", 
+        type: "girls_admin", 
+        name: "مدير مجمع البنات", 
+        permissions: { canSwitchGender: false, gender: "female" } 
+      }
+    };
+
+    const user = users[data.username as keyof typeof users];
+    
+    if (user && data.password === user.password) {
+      // Store login information
       localStorage.setItem("adminLoggedIn", "true");
+      localStorage.setItem("adminUser", JSON.stringify({
+        username: data.username,
+        type: user.type,
+        name: user.name,
+        permissions: user.permissions
+      }));
+      
       toast({
         title: "تم تسجيل الدخول بنجاح",
-        description: "مرحباً بك في لوحة التحكم",
+        description: `مرحباً بك ${user.name}`,
       });
       onLoginSuccess();
     } else {
