@@ -21,11 +21,13 @@ import type { Application } from "@shared/schema";
 export default function Admin() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(() => {
+    // Initialize from localStorage first
     const userDataStr = localStorage.getItem("adminUser");
     if (userDataStr) {
       const userData = JSON.parse(userDataStr);
-
-      return userData.permissions?.gender || null;
+      const gender = userData.permissions?.gender || null;
+      console.log("Initial gender from localStorage:", gender);
+      return gender;
     }
     return null;
   });
@@ -67,7 +69,10 @@ export default function Admin() {
     // Handle gender-specific admins (AdminB and AdminG)
     if (userData.permissions && userData.permissions.gender) {
       console.log("Setting gender for specific admin:", userData.permissions.gender);
-      setSelectedGender(userData.permissions.gender);
+      // Don't override if already set from initial state
+      if (!selectedGender) {
+        setSelectedGender(userData.permissions.gender);
+      }
       setIsLoggedIn(true);
       console.log("After setting - selectedGender should be:", userData.permissions.gender);
       return;
@@ -85,7 +90,7 @@ export default function Admin() {
     
     setSelectedGender(genderParam);
     setIsLoggedIn(true);
-  }, [setLocation]);
+  }, [setLocation, selectedGender]);
 
   // Monitor selectedGender changes
   useEffect(() => {
