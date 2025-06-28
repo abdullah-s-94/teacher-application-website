@@ -60,6 +60,7 @@ export default function Admin() {
       console.log("Setting selectedGender to:", userData.permissions.gender);
       setSelectedGender(userData.permissions.gender);
       setIsLoggedIn(true);
+      console.log("State after setting - isLoggedIn: true, selectedGender:", userData.permissions.gender);
       return;
     }
 
@@ -100,9 +101,12 @@ export default function Admin() {
     }
   };
 
+  console.log("Query state - isLoggedIn:", isLoggedIn, "selectedGender:", selectedGender);
+  
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ['/api/applications', filters, selectedGender],
     queryFn: async (): Promise<Application[]> => {
+      console.log("queryFn executing - selectedGender:", selectedGender);
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
         if (value) params.append(key, value);
@@ -912,6 +916,7 @@ export default function Admin() {
                 </TableRow>
               </TableHeader>
               <TableBody>
+                {console.log("Rendering table - applications count:", applications.length)}
                 {applications.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={11} className="text-center py-8 text-slate-500">
