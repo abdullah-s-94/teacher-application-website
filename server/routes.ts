@@ -442,8 +442,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get application stats
   app.get("/api/applications/stats", async (req, res) => {
     try {
-      const applications = await storage.getAllApplications();
-      const specializationStats = await storage.getSpecializationStats();
+      const { gender } = req.query;
+      
+      // Get all applications or filter by gender
+      let applications;
+      if (gender) {
+        applications = await storage.getApplicationsByFilter({ gender: gender as string });
+      } else {
+        applications = await storage.getAllApplications();
+      }
+      
+      const specializationStats = await storage.getSpecializationStats(gender as string);
       
       const stats = {
         total: applications.length,

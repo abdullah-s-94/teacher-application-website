@@ -124,13 +124,17 @@ export default function Admin() {
   });
 
   const { data: stats } = useQuery({
-    queryKey: ['/api/applications/stats'],
+    queryKey: ['/api/applications/stats', selectedGender],
     queryFn: async () => {
-      const response = await fetch('/api/applications/stats');
+      const params = new URLSearchParams();
+      if (selectedGender) {
+        params.append('gender', selectedGender);
+      }
+      const response = await fetch(`/api/applications/stats?${params}`);
       if (!response.ok) throw new Error('Failed to fetch stats');
       return response.json();
     },
-    enabled: isLoggedIn, // Only fetch when logged in
+    enabled: isLoggedIn && !!selectedGender, // Only fetch when logged in and gender selected
   });
 
   const handleLogout = () => {

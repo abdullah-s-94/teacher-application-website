@@ -23,7 +23,7 @@ export interface IStorage {
   updateApplicationStatus(id: number, status: string): Promise<void>;
   deleteApplication(id: number): Promise<void>;
   deleteAllApplications(): Promise<void>;
-  getSpecializationStats(): Promise<Record<string, number>>;
+  getSpecializationStats(gender?: string): Promise<Record<string, number>>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -201,15 +201,21 @@ export class DatabaseStorage implements IStorage {
     await db.delete(applications);
   }
 
-  async getSpecializationStats(): Promise<Record<string, number>> {
-    const results = await db
+  async getSpecializationStats(gender?: string): Promise<Record<string, number>> {
+    const query = db
       .select({
         specialization: applications.specialization,
         customSpecialization: applications.customSpecialization,
         count: sql<number>`count(*)`.as('count')
       })
-      .from(applications)
-      .groupBy(applications.specialization, applications.customSpecialization);
+      .from(applications);
+    
+    // Add gender filter if provided
+    if (gender) {
+      query.where(eq(applications.gender, gender));
+    }
+    
+    const results = await query.groupBy(applications.specialization, applications.customSpecialization);
 
     return results.reduce((acc, row) => {
       // إذا كان التخصص "أخرى" ويوجد تخصص مخصص، استخدم التخصص المخصص
