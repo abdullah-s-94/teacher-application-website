@@ -148,9 +148,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if we have Cloudinary URL (priority)
       if (application.cvCloudinaryUrl) {
-        // Add download query parameter if needed
-        const downloadParam = req.query.download === 'true' ? '?fl_attachment' : '';
-        return res.redirect(application.cvCloudinaryUrl + downloadParam);
+        // Add appropriate Cloudinary transformations for PDF handling
+        let cloudinaryUrl = application.cvCloudinaryUrl;
+        
+        if (req.query.download === 'true') {
+          // Force download
+          cloudinaryUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_attachment/');
+        } else {
+          // Preview mode - add PDF viewer friendly parameters
+          cloudinaryUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_inline/');
+        }
+        
+        return res.redirect(cloudinaryUrl);
       }
       
       // Fallback to local file if no Cloudinary URL (for backward compatibility)
@@ -209,8 +218,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if we have Cloudinary URL (priority)
       if (application.educationCertCloudinaryUrl) {
-        const downloadParam = req.query.download === 'true' ? '?fl_attachment' : '';
-        return res.redirect(application.educationCertCloudinaryUrl + downloadParam);
+        let cloudinaryUrl = application.educationCertCloudinaryUrl;
+        
+        if (req.query.download === 'true') {
+          cloudinaryUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_attachment/');
+        } else {
+          cloudinaryUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_inline/');
+        }
+        
+        return res.redirect(cloudinaryUrl);
       }
       
       // Fallback to local file
@@ -271,10 +287,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (application.workExperienceCloudinaryUrls) {
         const cloudinaryUrls = application.workExperienceCloudinaryUrls.split(',');
         if (fileIndex < cloudinaryUrls.length && fileIndex >= 0) {
-          const cloudinaryUrl = cloudinaryUrls[fileIndex].trim();
+          let cloudinaryUrl = cloudinaryUrls[fileIndex].trim();
           if (cloudinaryUrl) {
-            const downloadParam = req.query.download === 'true' ? '?fl_attachment' : '';
-            return res.redirect(cloudinaryUrl + downloadParam);
+            if (req.query.download === 'true') {
+              cloudinaryUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_attachment/');
+            } else {
+              cloudinaryUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_inline/');
+            }
+            return res.redirect(cloudinaryUrl);
           }
         }
       }

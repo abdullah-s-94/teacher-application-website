@@ -21,14 +21,18 @@ export async function uploadToCloudinary(
   folder: string = 'applications'
 ): Promise<CloudinaryUploadResult> {
   return new Promise((resolve, reject) => {
+    // Determine resource type based on file extension
+    const isPdf = originalName.toLowerCase().endsWith('.pdf');
+    
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: folder,
-        resource_type: 'raw', // Use 'raw' for PDF files to get proper URLs
+        resource_type: isPdf ? 'auto' : 'auto', // Use 'auto' to let Cloudinary detect the type
         public_id: `${Date.now()}_${Math.random().toString(36).substring(2)}`,
         use_filename: true,
         unique_filename: true,
         overwrite: false,
+        format: isPdf ? 'pdf' : undefined, // Explicitly set format for PDFs
       },
       (error, result) => {
         if (error) {
