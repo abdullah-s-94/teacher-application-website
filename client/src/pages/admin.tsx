@@ -394,24 +394,7 @@ export default function Admin() {
 
   const handleFilePreview = async (url: string, filename: string) => {
     try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        if (errorData.fileNotFound) {
-          toast({
-            title: "ملف غير متاح",
-            description: errorData.message || "الملف غير متاح حالياً. يرجى المحاولة لاحقاً.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "خطأ في الوصول للملف",
-            description: "لا يمكن الوصول إلى الملف. يرجى المحاولة مرة أخرى.",
-            variant: "destructive",
-          });
-        }
-        return;
-      }
+      // For preview, just open the URL directly - it will follow redirects
       window.open(url, '_blank');
     } catch (error) {
       console.error('Error accessing file:', error);
@@ -425,25 +408,9 @@ export default function Admin() {
 
   const handleFileDownload = async (url: string, filename: string) => {
     try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        if (errorData.fileNotFound) {
-          toast({
-            title: "ملف غير متاح",
-            description: errorData.message || "الملف غير متاح حالياً. يرجى المحاولة لاحقاً.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "خطأ في تحميل الملف",
-            description: "لا يمكن تحميل الملف. يرجى المحاولة مرة أخرى.",
-            variant: "destructive",
-          });
-        }
-        return;
-      }
-      window.open(url, '_blank');
+      // For download, add download parameter and open directly
+      const downloadUrl = url.includes('?') ? `${url}&download=true` : `${url}?download=true`;
+      window.open(downloadUrl, '_blank');
     } catch (error) {
       console.error('Error downloading file:', error);
       toast({
