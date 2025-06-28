@@ -160,7 +160,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const testResponse = await fetch(application.cvCloudinaryUrl, { method: 'HEAD' });
             if (testResponse.ok) {
               // If Cloudinary is accessible, redirect with proper download parameters
-              const downloadUrl = `${application.cvCloudinaryUrl}?download=true&fl_attachment=${encodeURIComponent(originalName)}`;
+              const downloadUrl = `${application.cvCloudinaryUrl}?fl_attachment:${encodeURIComponent(originalName)}`;
               return res.redirect(302, downloadUrl);
             } else {
               throw new Error('Cloudinary file not accessible');
@@ -250,7 +250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const testResponse = await fetch(application.educationCertCloudinaryUrl, { method: 'HEAD' });
             if (testResponse.ok) {
               // If Cloudinary is accessible, redirect with proper download parameters
-              const downloadUrl = `${application.educationCertCloudinaryUrl}?download=true&fl_attachment=${encodeURIComponent(originalName)}`;
+              const downloadUrl = `${application.educationCertCloudinaryUrl}?fl_attachment:${encodeURIComponent(originalName)}`;
               return res.redirect(302, downloadUrl);
             } else {
               throw new Error('Cloudinary file not accessible');
@@ -346,7 +346,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 const testResponse = await fetch(cloudinaryUrl, { method: 'HEAD' });
                 if (testResponse.ok) {
                   // If Cloudinary is accessible, redirect with proper download parameters
-                  const downloadUrl = `${cloudinaryUrl}?download=true&fl_attachment=${encodeURIComponent(originalName)}`;
+                  const downloadUrl = `${cloudinaryUrl}?fl_attachment:${encodeURIComponent(originalName)}`;
                   return res.redirect(302, downloadUrl);
                 } else {
                   throw new Error('Cloudinary file not accessible');
