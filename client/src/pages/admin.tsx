@@ -424,7 +424,13 @@ export default function Admin() {
 
   if (isLoading) {
     return (
-      <main className="container mx-auto px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-20 left-20 w-64 h-64 bg-gradient-to-r from-slate-200/30 to-gray-200/30 rounded-full blur-3xl animate-float"></div>
+          <div className="absolute bottom-32 right-32 w-96 h-96 bg-gradient-to-r from-gray-200/20 to-slate-200/20 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
+        </div>
+        
+        <main className="container mx-auto px-4 py-8 relative z-10">
         <Card className="mb-8">
           <CardHeader>
             <div className="flex items-center justify-between mb-6">
@@ -485,12 +491,21 @@ export default function Admin() {
             </div>
           </CardContent>
         </Card>
-      </main>
+        </main>
+      </div>
     );
   }
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-20 w-64 h-64 bg-gradient-to-r from-slate-200/30 to-gray-200/30 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-32 right-32 w-96 h-96 bg-gradient-to-r from-gray-200/20 to-slate-200/20 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-128 h-128 bg-gradient-to-r from-slate-100/40 to-gray-100/40 rounded-full blur-3xl animate-float" style={{animationDelay: '4s'}}></div>
+      </div>
+
+      <main className="container mx-auto px-4 py-8 relative z-10">
       {/* Dashboard Header */}
       <Card className="mb-8">
         <CardHeader>
@@ -1285,6 +1300,7 @@ export default function Admin() {
           </div>
         </CardContent>
       </Card>
-    </main>
+      </main>
+    </div>
   );
 }

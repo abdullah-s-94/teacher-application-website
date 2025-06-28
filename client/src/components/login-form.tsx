@@ -191,15 +191,24 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-4">
-            <Lock className="h-8 w-8 text-primary" />
-          </div>
-          <CardTitle className="text-2xl">تسجيل دخول الإدارة</CardTitle>
-          <p className="text-slate-600">يرجى إدخال بيانات الدخول للوصول إلى لوحة التحكم</p>
-        </CardHeader>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-20 w-64 h-64 bg-gradient-to-r from-slate-200/30 to-gray-200/30 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-32 right-32 w-96 h-96 bg-gradient-to-r from-gray-200/20 to-slate-200/20 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-128 h-128 bg-gradient-to-r from-slate-100/40 to-gray-100/40 rounded-full blur-3xl animate-float" style={{animationDelay: '4s'}}></div>
+      </div>
+
+      <div className="min-h-screen flex items-center justify-center p-4 relative z-10">
+        <Card className="w-full max-w-md bg-white/80 backdrop-blur-sm border border-slate-200/50 shadow-xl">
+          <CardHeader className="text-center">
+            <div className="mx-auto bg-slate-100/80 backdrop-blur-sm p-4 rounded-full w-fit mb-4 relative">
+              <Lock className="h-8 w-8 text-slate-700" />
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-200/20 to-gray-200/20 rounded-full blur-lg"></div>
+            </div>
+            <CardTitle className="text-2xl text-slate-800 arabic-text">تسجيل دخول الإدارة</CardTitle>
+            <p className="text-slate-600 arabic-text">يرجى إدخال بيانات الدخول للوصول إلى لوحة التحكم</p>
+          </CardHeader>
         <CardContent>
           {isBlocked && (
             <Alert className="mb-4 border-red-200 bg-red-50">
@@ -297,7 +306,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             )}
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
