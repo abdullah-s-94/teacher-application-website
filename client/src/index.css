@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&subset=arabic&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -56,12 +56,27 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Cairo', sans-serif;
+    font-family: 'Cairo', 'Tajawal', 'Amiri', 'Noto Sans Arabic', 'Arial Unicode MS', sans-serif;
     direction: rtl;
+    text-rendering: optimizeLegibility;
+    -webkit-font-feature-settings: "kern" 1;
+    font-feature-settings: "kern" 1;
   }
 
   html {
     direction: rtl;
+  }
+  
+  /* Ensure proper Arabic text rendering */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Force proper Arabic font features */
+  .arabic-text {
+    font-feature-settings: "liga" 1, "calt" 1, "ccmp" 1, "locl" 1;
+    -webkit-font-feature-settings: "liga" 1, "calt" 1, "ccmp" 1, "locl" 1;
   }
 }
 
