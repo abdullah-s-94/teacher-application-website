@@ -5,27 +5,16 @@ import { insertApplicationSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { uploadToCloudinary, deleteFromCloudinary } from "./cloudinary";
 
-// Configure multer for file uploads
+// Configure multer for file uploads (using memory storage for Cloudinary)
 const uploadsDir = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-const storage_multer = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    // Keep original extension
-    const ext = path.extname(file.originalname) || '.pdf';
-    cb(null, uniqueSuffix + ext);
-  }
-});
-
 const upload = multer({ 
-  storage: storage_multer,
+  storage: multer.memoryStorage(), // Use memory storage for Cloudinary upload
   fileFilter: (req, file, cb) => {
     if (file.mimetype === 'application/pdf') {
       cb(null, true);
@@ -49,6 +38,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       
+      // Upload files to Cloudinary
+      let cvCloudinaryId = '';
+      let cvCloudinaryUrl = '';
+      let educationCertCloudinaryId = '';
+      let educationCertCloudinaryUrl = '';
+      let workExperienceCloudinaryIds = '';
+      let workExperienceCloudinaryUrls = '';
+      
+      // Upload CV file
+      if (files.cv?.[0]) {
+        const cvResult = await uploadToCloudinary(files.cv[0].buffer, files.cv[0].originalname, 'cv');
+        cvCloudinaryId = cvResult.public_id;
+        cvCloudinaryUrl = cvResult.secure_url;
+      }
+      
+      // Upload education certificate
+      if (files.educationCert?.[0]) {
+        const certResult = await uploadToCloudinary(files.educationCert[0].buffer, files.educationCert[0].originalname, 'education_certificates');
+        educationCertCloudinaryId = certResult.public_id;
+        educationCertCloudinaryUrl = certResult.secure_url;
+      }
+      
+      // Upload work experience files
+      if (files.workExperience && files.workExperience.length > 0) {
+        const workExpResults = await Promise.all(
+          files.workExperience.map(file => 
+            uploadToCloudinary(file.buffer, file.originalname, 'work_experience')
+          )
+        );
+        workExperienceCloudinaryIds = workExpResults.map(r => r.public_id).join(',');
+        workExperienceCloudinaryUrls = workExpResults.map(r => r.secure_url).join(',');
+      }
+      
       const applicationData = {
         fullName: req.body.fullName,
         phone: req.body.phone,
@@ -62,12 +84,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         gradeType: req.body.gradeType,
         grade: req.body.grade,
         hasProfessionalLicense: req.body.hasProfessionalLicense,
-        cvFilename: files.cv?.[0]?.filename,
+        // Keep local filenames for backward compatibility (optional)
+        cvFilename: files.cv?.[0]?.originalname,
         cvOriginalName: files.cv?.[0]?.originalname,
-        educationCertFilename: files.educationCert?.[0]?.filename,
+        cvCloudinaryId,
+        cvCloudinaryUrl,
+        educationCertFilename: files.educationCert?.[0]?.originalname,
         educationCertOriginalName: files.educationCert?.[0]?.originalname,
-        workExperienceFilenames: files.workExperience?.map(f => f.filename).join(','),
+        educationCertCloudinaryId,
+        educationCertCloudinaryUrl,
+        workExperienceFilenames: files.workExperience?.map(f => f.originalname).join(','),
         workExperienceOriginalNames: files.workExperience?.map(f => f.originalname).join(','),
+        workExperienceCloudinaryIds,
+        workExperienceCloudinaryUrls,
       };
 
       // Validate the data
@@ -110,7 +139,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const application = await storage.getApplicationById(id);
       
-      if (!application || !application.cvFilename) {
+      if (!application) {
+        return res.status(404).json({ message: "الطلب غير موجود" });
+      }
+
+      // Check if we have Cloudinary URL
+      if (application.cvCloudinaryUrl) {
+        // Redirect to Cloudinary URL
+        return res.redirect(application.cvCloudinaryUrl);
+      }
+      
+      // Fallback to local file if no Cloudinary URL (for backward compatibility)
+      if (!application.cvFilename) {
         return res.status(404).json({ message: "الملف غير موجود" });
       }
 
@@ -118,7 +158,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!fs.existsSync(filePath)) {
         console.log(`CV file not found: ${filePath} for application ID: ${id}`);
-        console.log(`Available files in uploads:`, fs.readdirSync(uploadsDir));
         return res.status(404).json({ 
           message: "تم حذف الملف من النظام. يرجى من المتقدم إعادة رفع الملف.",
           fileNotFound: true
@@ -128,27 +167,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Improve file naming for Arabic files
       let downloadName = application.cvOriginalName || application.cvFilename;
       
-      // If original name is corrupted or contains strange characters, use a safe default
       if (downloadName && /[^\x20-\x7E\u0600-\u06FF\u0750-\u077F]/.test(downloadName) && !downloadName.includes('.pdf')) {
         downloadName = `سيرة_ذاتية_${application.fullName || id}.pdf`;
       } else if (!downloadName.endsWith('.pdf')) {
         downloadName = downloadName + '.pdf';
       }
 
-      // Set proper headers for Arabic filenames
       res.setHeader('Content-Type', 'application/pdf');
       
-      // Check if this is a download request or preview request
       const isDownload = req.query.download === 'true';
       
       if (isDownload) {
         res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
       } else {
-        // For preview, use inline disposition
         res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
       }
       
-      // Send the file
       res.sendFile(filePath);
     } catch (error) {
       console.error('Error downloading CV:', error);
@@ -162,7 +196,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const application = await storage.getApplicationById(id);
       
-      if (!application || !application.educationCertFilename) {
+      if (!application) {
+        return res.status(404).json({ message: "الطلب غير موجود" });
+      }
+
+      // Check if we have Cloudinary URL
+      if (application.educationCertCloudinaryUrl) {
+        return res.redirect(application.educationCertCloudinaryUrl);
+      }
+      
+      // Fallback to local file
+      if (!application.educationCertFilename) {
         return res.status(404).json({ message: "الملف غير موجود" });
       }
 
@@ -170,7 +214,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!fs.existsSync(filePath)) {
         console.log(`Education cert file not found: ${filePath} for application ID: ${id}`);
-        console.log(`Available files in uploads:`, fs.readdirSync(uploadsDir));
         return res.status(404).json({ 
           message: "تم حذف الملف من النظام. يرجى من المتقدم إعادة رفع الملف.",
           fileNotFound: true
@@ -187,13 +230,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.setHeader('Content-Type', 'application/pdf');
       
-      // Check if this is a download request or preview request
       const isDownload = req.query.download === 'true';
       
       if (isDownload) {
         res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
       } else {
-        // For preview, use inline disposition
         res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
       }
       
@@ -211,7 +252,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fileIndex = parseInt(req.params.fileIndex);
       const application = await storage.getApplicationById(id);
       
-      if (!application || !application.workExperienceFilenames) {
+      if (!application) {
+        return res.status(404).json({ message: "الطلب غير موجود" });
+      }
+
+      // Check if we have Cloudinary URLs
+      if (application.workExperienceCloudinaryUrls) {
+        const cloudinaryUrls = application.workExperienceCloudinaryUrls.split(',');
+        if (fileIndex < cloudinaryUrls.length && fileIndex >= 0) {
+          const cloudinaryUrl = cloudinaryUrls[fileIndex].trim();
+          if (cloudinaryUrl) {
+            return res.redirect(cloudinaryUrl);
+          }
+        }
+      }
+
+      // Fallback to local files
+      if (!application.workExperienceFilenames) {
         return res.status(404).json({ message: "الملف غير موجود" });
       }
 
@@ -227,7 +284,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!fs.existsSync(filePath)) {
         console.log(`Work experience file not found: ${filePath} for application ID: ${id}`);
-        console.log(`Available files in uploads:`, fs.readdirSync(uploadsDir));
         return res.status(404).json({ 
           message: "تم حذف الملف من النظام. يرجى من المتقدم إعادة رفع الملف.",
           fileNotFound: true
@@ -309,6 +365,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/applications/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      
+      // Get application first to delete files from Cloudinary
+      const application = await storage.getApplicationById(id);
+      if (application) {
+        // Delete files from Cloudinary
+        const filesToDelete: Promise<void>[] = [];
+        
+        if (application.cvCloudinaryId) {
+          filesToDelete.push(deleteFromCloudinary(application.cvCloudinaryId));
+        }
+        
+        if (application.educationCertCloudinaryId) {
+          filesToDelete.push(deleteFromCloudinary(application.educationCertCloudinaryId));
+        }
+        
+        if (application.workExperienceCloudinaryIds) {
+          const workExpIds = application.workExperienceCloudinaryIds.split(',');
+          workExpIds.forEach(id => {
+            if (id.trim()) {
+              filesToDelete.push(deleteFromCloudinary(id.trim()));
+            }
+          });
+        }
+        
+        // Delete files from Cloudinary (don't wait for completion to avoid blocking)
+        if (filesToDelete.length > 0) {
+          Promise.all(filesToDelete).catch(error => {
+            console.error('Error deleting files from Cloudinary:', error);
+          });
+        }
+      }
+      
       await storage.deleteApplication(id);
       res.json({ message: "تم حذف الطلب بنجاح" });
     } catch (error) {
@@ -320,11 +408,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Delete all applications
   app.delete("/api/applications", async (req, res) => {
     try {
+      // Get all applications first to delete files from Cloudinary
+      const applications = await storage.getAllApplications();
+      
+      const filesToDelete: Promise<void>[] = [];
+      
+      applications.forEach(app => {
+        if (app.cvCloudinaryId) {
+          filesToDelete.push(deleteFromCloudinary(app.cvCloudinaryId));
+        }
+        
+        if (app.educationCertCloudinaryId) {
+          filesToDelete.push(deleteFromCloudinary(app.educationCertCloudinaryId));
+        }
+        
+        if (app.workExperienceCloudinaryIds) {
+          const workExpIds = app.workExperienceCloudinaryIds.split(',');
+          workExpIds.forEach(id => {
+            if (id.trim()) {
+              filesToDelete.push(deleteFromCloudinary(id.trim()));
+            }
+          });
+        }
+      });
+      
+      // Delete files from Cloudinary (don't wait for completion to avoid blocking)
+      if (filesToDelete.length > 0) {
+        Promise.all(filesToDelete).catch(error => {
+          console.error('Error deleting files from Cloudinary:', error);
+        });
+      }
+      
       await storage.deleteAllApplications();
       res.json({ message: "تم حذف جميع الطلبات بنجاح" });
     } catch (error) {
       console.error('Error deleting all applications:', error);
       res.status(500).json({ message: "فشل في حذف الطلبات" });
+    }
+  });
+
+  // Delete selected applications (bulk delete)
+  app.delete("/api/applications/bulk", async (req, res) => {
+    try {
+      const { ids } = req.body;
+      
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ message: "معرفات الطلبات مطلوبة" });
+      }
+      
+      // Get applications first to delete files from Cloudinary
+      const applications = await Promise.all(
+        ids.map(id => storage.getApplicationById(parseInt(id)))
+      );
+      
+      const filesToDelete: Promise<void>[] = [];
+      
+      applications.forEach(app => {
+        if (app) {
+          if (app.cvCloudinaryId) {
+            filesToDelete.push(deleteFromCloudinary(app.cvCloudinaryId));
+          }
+          
+          if (app.educationCertCloudinaryId) {
+            filesToDelete.push(deleteFromCloudinary(app.educationCertCloudinaryId));
+          }
+          
+          if (app.workExperienceCloudinaryIds) {
+            const workExpIds = app.workExperienceCloudinaryIds.split(',');
+            workExpIds.forEach(id => {
+              if (id.trim()) {
+                filesToDelete.push(deleteFromCloudinary(id.trim()));
+              }
+            });
+          }
+        }
+      });
+      
+      // Delete files from Cloudinary (don't wait for completion to avoid blocking)
+      if (filesToDelete.length > 0) {
+        Promise.all(filesToDelete).catch(error => {
+          console.error('Error deleting files from Cloudinary:', error);
+        });
+      }
+      
+      // Delete applications from database
+      await Promise.all(
+        ids.map(id => storage.deleteApplication(parseInt(id)))
+      );
+      
+      res.json({ message: `تم حذف ${ids.length} طلب بنجاح` });
+    } catch (error) {
+      console.error('Error deleting selected applications:', error);
+      res.status(500).json({ message: "فشل في حذف الطلبات المحددة" });
     }
   });
 
