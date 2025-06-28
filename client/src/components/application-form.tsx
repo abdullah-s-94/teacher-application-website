@@ -346,7 +346,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="اختاري المدينة" />
+                          <SelectValue placeholder="اختر المدينة" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -401,7 +401,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="اختاري الوظيفة" />
+                          <SelectValue placeholder="اختر الوظيفة" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -424,7 +424,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="اختاري المؤهل" />
+                          <SelectValue placeholder="اختر المؤهل" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -500,7 +500,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="اختاري سنوات الخبرة" />
+                          <SelectValue placeholder="اختر سنوات الخبرة" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -530,7 +530,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="اختاري نوع المعدل" />
+                          <SelectValue placeholder="اختر نوع المعدل" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -556,7 +556,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                       step="0.01"
                       min="0"
                       max={gradeType === "4" ? "4" : gradeType === "5" ? "5" : undefined}
-                      placeholder={gradeType ? `أدخلي المعدل من ${gradeType}` : "أدخلي المعدل"}
+                      placeholder={gradeType ? `أدخل المعدل من ${gradeType}` : "أدخل المعدل"}
                       {...field}
                     />
                   </FormControl>
@@ -575,7 +575,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="اختاري الإجابة" />
+                        <SelectValue placeholder="اختر الإجابة" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
