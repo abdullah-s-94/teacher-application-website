@@ -20,9 +20,15 @@ import type { Application } from "@shared/schema";
 
 export default function Admin() {
   const [, setLocation] = useLocation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(null);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  
+  // Initialize state from localStorage immediately
+  const storedUser = localStorage.getItem("adminUser");
+  const userData = storedUser ? JSON.parse(storedUser) : null;
+  const initialGender = userData?.permissions?.gender || null;
+  
+  const [isLoggedIn, setIsLoggedIn] = useState(!!userData && localStorage.getItem("adminLoggedIn") === "true");
+  const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(initialGender);
+  const [currentUser, setCurrentUser] = useState<any>(userData);
   const [filters, setFilters] = useState({
     search: "",
     position: "",
@@ -37,42 +43,23 @@ export default function Admin() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem("adminLoggedIn") === "true";
-    if (!loggedIn) {
-      setIsLoggedIn(false);
-      return;
-    }
-
-    // Get user information  
-    const userDataStr = localStorage.getItem("adminUser");
-    if (!userDataStr) {
-      setIsLoggedIn(false);
-      return;
-    }
-
-    const userData = JSON.parse(userDataStr);
-    setCurrentUser(userData);
+    // Only handle super admin URL parameter checking
+    if (!isLoggedIn || !currentUser) return;
     
-    // Handle gender-specific admins (AdminB and AdminG)
-    if (userData.permissions && userData.permissions.gender) {
-      setSelectedGender(userData.permissions.gender);
-      setIsLoggedIn(true);
-      return;
-    }
-
     // For super admin, check URL parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const genderParam = urlParams.get('gender') as 'male' | 'female';
-    
-    if (!genderParam || (genderParam !== 'male' && genderParam !== 'female')) {
-      // Redirect to admin selection if no valid gender specified for super admin
-      setLocation('/admin/selection');
-      return;
+    if (currentUser.type === "super_admin") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const genderParam = urlParams.get('gender') as 'male' | 'female';
+      
+      if (!genderParam || (genderParam !== 'male' && genderParam !== 'female')) {
+        // Redirect to admin selection if no valid gender specified
+        setLocation('/admin/selection');
+        return;
+      }
+      
+      setSelectedGender(genderParam);
     }
-    
-    setSelectedGender(genderParam);
-    setIsLoggedIn(true);
-  }, [setLocation]);
+  }, [isLoggedIn, currentUser, setLocation]);
 
 
 
