@@ -34,6 +34,7 @@ const formSchema = insertApplicationSchema.extend({
     .min(1, "يرجى اختيار المؤهل الدراسي"),
   specialization: z.string()
     .min(1, "يرجى اختيار التخصص"),
+  customSpecialization: z.string().optional(),
   experience: z.string()
     .min(1, "يرجى اختيار سنوات الخبرة"),
   gradeType: z.string()
@@ -55,6 +56,15 @@ const formSchema = insertApplicationSchema.extend({
   educationCertOriginalName: true,
   workExperienceFilenames: true,
   workExperienceOriginalNames: true,
+}).refine((data) => {
+  // إذا تم اختيار "أخرى" في التخصص، يجب كتابة التخصص المخصص
+  if (data.specialization === 'أخرى' && (!data.customSpecialization || data.customSpecialization.trim() === '')) {
+    return false;
+  }
+  return true;
+}, {
+  message: "يرجى كتابة التخصص عند اختيار 'أخرى'",
+  path: ["customSpecialization"]
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -67,6 +77,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedEducationCert, setSelectedEducationCert] = useState<File | null>(null);
   const [selectedWorkExperience, setSelectedWorkExperience] = useState<File[]>([]);
+  const [showCustomSpecialization, setShowCustomSpecialization] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -81,6 +92,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
       position: "",
       qualification: "",
       specialization: "",
+      customSpecialization: "",
       experience: "",
       gradeType: "",
       grade: "",
@@ -433,10 +445,16 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>التخصص *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={(value) => {
+                    field.onChange(value);
+                    setShowCustomSpecialization(value === 'أخرى');
+                    if (value !== 'أخرى') {
+                      form.setValue('customSpecialization', '');
+                    }
+                  }} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="اختاري التخصص" />
+                        <SelectValue placeholder="اختر التخصص" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -451,6 +469,26 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                 </FormItem>
               )}
             />
+
+            {showCustomSpecialization && (
+              <FormField
+                control={form.control}
+                name="customSpecialization"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>حدد التخصص *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="اكتب تخصصك"
+                        {...field}
+                        value={field.value || ''}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <div className="grid md:grid-cols-2 gap-6">
               <FormField

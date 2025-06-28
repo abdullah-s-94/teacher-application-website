@@ -105,7 +105,12 @@ export function getPositionBadgeColor(position: string): string {
   return positionColors[position] || 'bg-gray-100 text-gray-800 border-gray-200';
 }
 
-export function getSpecializationLabel(specialization: string): string {
+export function getSpecializationLabel(specialization: string, customSpecialization?: string): string {
+  // إذا كان التخصص "أخرى" ويوجد تخصص مخصص، أظهر التخصص المخصص
+  if (specialization === 'أخرى' && customSpecialization) {
+    return customSpecialization;
+  }
+  
   const specializationLabels: Record<string, string> = {
     // التخصصات الموحدة الجديدة
     'early_childhood': 'طفولة مبكرة',
@@ -152,5 +157,6 @@ export const STANDARD_SPECIALIZATIONS = [
   { value: 'احياء', label: 'احياء' },
   { value: 'اقتصاد منزلي', label: 'اقتصاد منزلي' },
   { value: 'تربية إسلامية', label: 'تربية إسلامية' },
-  { value: 'تربية بدنية', label: 'تربية بدنية' }
+  { value: 'تربية بدنية', label: 'تربية بدنية' },
+  { value: 'أخرى', label: 'أخرى' }
 ];

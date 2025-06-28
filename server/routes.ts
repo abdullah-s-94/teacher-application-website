@@ -80,6 +80,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         position: req.body.position,
         qualification: req.body.qualification,
         specialization: req.body.specialization,
+        customSpecialization: req.body.customSpecialization,
         experience: req.body.experience,
         gradeType: req.body.gradeType,
         grade: req.body.grade,

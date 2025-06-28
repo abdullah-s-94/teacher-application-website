@@ -786,7 +786,7 @@ export default function Admin() {
                         {getQualificationLabel(application.qualification)}
                       </TableCell>
                       <TableCell className="text-sm max-w-32 truncate">
-                        {application.specialization}
+                        {getSpecializationLabel(application.specialization, application.customSpecialization ?? undefined)}
                       </TableCell>
                       <TableCell className="text-sm">
                         {getExperienceLabel(application.experience)}
@@ -890,7 +890,7 @@ export default function Admin() {
                                     <div className="flex items-center gap-2">
                                       <GraduationCap className="h-4 w-4 text-slate-600" />
                                       <span className="font-medium">التخصص:</span>
-                                      <span>{application.specialization}</span>
+                                      <span>{getSpecializationLabel(application.specialization, application.customSpecialization ?? undefined)}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                       <Calendar className="h-4 w-4 text-slate-600" />

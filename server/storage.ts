@@ -205,13 +205,19 @@ export class DatabaseStorage implements IStorage {
     const results = await db
       .select({
         specialization: applications.specialization,
+        customSpecialization: applications.customSpecialization,
         count: sql<number>`count(*)`.as('count')
       })
       .from(applications)
-      .groupBy(applications.specialization);
+      .groupBy(applications.specialization, applications.customSpecialization);
 
     return results.reduce((acc, row) => {
-      acc[row.specialization] = Number(row.count);
+      // إذا كان التخصص "أخرى" ويوجد تخصص مخصص، استخدم التخصص المخصص
+      const specializationKey = row.specialization === 'أخرى' && row.customSpecialization 
+        ? row.customSpecialization 
+        : row.specialization;
+      
+      acc[specializationKey] = (acc[specializationKey] || 0) + Number(row.count);
       return acc;
     }, {} as Record<string, number>);
   }

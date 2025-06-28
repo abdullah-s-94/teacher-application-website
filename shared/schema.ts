@@ -12,6 +12,7 @@ export const applications = pgTable("applications", {
   position: text("position").notNull(),
   qualification: text("qualification").notNull(),
   specialization: text("specialization").notNull(),
+  customSpecialization: text("custom_specialization"), // للتخصص المخصص عند اختيار "أخرى"
   experience: text("experience").notNull(),
   gradeType: text("grade_type").notNull(),
   grade: text("grade").notNull(),
