@@ -186,6 +186,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    console.log('CV file selected:', file);
     if (file) {
       if (file.type !== 'application/pdf') {
         toast({
@@ -204,12 +205,14 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
         return;
       }
       setSelectedFile(file);
+      console.log('CV file saved to state:', file);
       form.setValue('cv', file);
     }
   };
 
   const handleEducationCertChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    console.log('Education cert file selected:', file);
     if (file) {
       if (file.type !== 'application/pdf') {
         toast({
@@ -228,12 +231,14 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
         return;
       }
       setSelectedEducationCert(file);
+      console.log('Education cert file saved to state:', file);
       form.setValue('educationCert', file);
     }
   };
 
   const handleWorkExperienceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    console.log('Work experience files selected:', files);
     
     if (files.length + selectedWorkExperience.length > 3) {
       toast({
