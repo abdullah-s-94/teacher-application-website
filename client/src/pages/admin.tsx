@@ -59,10 +59,13 @@ export default function Admin() {
     }
 
     const userData = JSON.parse(userDataStr);
+    console.log("userData loaded:", userData);
+    console.log("userData.permissions:", userData.permissions);
+    console.log("userData.permissions.gender:", userData.permissions?.gender);
     setCurrentUser(userData);
 
     // Handle gender-specific admins (AdminB and AdminG)
-    if (userData.permissions.gender) {
+    if (userData.permissions && userData.permissions.gender) {
       console.log("Setting gender for specific admin:", userData.permissions.gender);
       setSelectedGender(userData.permissions.gender);
       setIsLoggedIn(true);
