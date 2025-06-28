@@ -50,12 +50,19 @@ const formSchema = insertApplicationSchema.extend({
     "يمكن رفع حد أقصى 3 ملفات للخبرات العملية"
   ),
 }).omit({
+  gender: true, // يأتي من props
   cvFilename: true,
   cvOriginalName: true,
+  cvCloudinaryId: true,
+  cvCloudinaryUrl: true,
   educationCertFilename: true,
   educationCertOriginalName: true,
+  educationCertCloudinaryId: true,
+  educationCertCloudinaryUrl: true,
   workExperienceFilenames: true,
   workExperienceOriginalNames: true,
+  workExperienceCloudinaryIds: true,
+  workExperienceCloudinaryUrls: true,
 }).refine((data) => {
   // إذا تم اختيار "أخرى" في التخصص، يجب كتابة التخصص المخصص
   if (data.specialization === 'أخرى' && (!data.customSpecialization || data.customSpecialization.trim() === '')) {
