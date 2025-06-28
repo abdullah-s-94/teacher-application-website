@@ -165,6 +165,8 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
   });
 
   const onSubmit = (data: FormData) => {
+    console.log('Form submitted with data:', data);
+    console.log('Form errors:', form.formState.errors);
     submitMutation.mutate(data);
   };
 
@@ -687,6 +689,12 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
               type="submit" 
               className={`w-full ${genderTheme.buttonBg} text-white py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl arabic-text`}
               disabled={submitMutation.isPending}
+              onClick={() => {
+                console.log('Button clicked!');
+                console.log('Form valid:', form.formState.isValid);
+                console.log('Form errors:', form.formState.errors);
+                console.log('Selected files:', { cv: selectedFile, cert: selectedEducationCert, work: selectedWorkExperience });
+              }}
             >
               {submitMutation.isPending ? (
                 <>
