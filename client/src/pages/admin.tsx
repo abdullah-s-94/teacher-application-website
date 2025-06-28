@@ -23,8 +23,11 @@ export default function Admin() {
   
   // Initialize state from localStorage immediately
   const storedUser = localStorage.getItem("adminUser");
+  console.log("Raw stored user:", storedUser);
   const userData = storedUser ? JSON.parse(storedUser) : null;
+  console.log("Parsed user data:", userData);
   const initialGender = userData?.permissions?.gender || null;
+  console.log("Initial gender extracted:", initialGender);
   
   const [isLoggedIn, setIsLoggedIn] = useState(!!userData && localStorage.getItem("adminLoggedIn") === "true");
   const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(initialGender);
