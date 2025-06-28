@@ -123,16 +123,19 @@ export default function Admin() {
     enabled: isLoggedIn && !!selectedGender, // Only fetch when logged in and gender selected
   });
 
-  const { data: stats } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['/api/applications/stats', selectedGender],
     queryFn: async () => {
+      console.log("Fetching stats for gender:", selectedGender);
       const params = new URLSearchParams();
       if (selectedGender) {
         params.append('gender', selectedGender);
       }
       const response = await fetch(`/api/applications/stats?${params}`);
       if (!response.ok) throw new Error('Failed to fetch stats');
-      return response.json();
+      const data = await response.json();
+      console.log("Stats received:", data);
+      return data;
     },
     enabled: isLoggedIn && !!selectedGender, // Only fetch when logged in and gender selected
   });
