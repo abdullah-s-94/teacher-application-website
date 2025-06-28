@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -259,6 +259,54 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
   };
 
   const gradeType = form.watch('gradeType');
+
+  // Apply gender-specific colors to select items after component mounts
+  useEffect(() => {
+    const applySelectColors = () => {
+      const selectItems = document.querySelectorAll('[data-radix-select-item]');
+      const accentColor = gender === 'male' ? 'rgb(37, 99, 235)' : 'rgb(225, 29, 72)';
+      
+      selectItems.forEach((item) => {
+        // Remove existing event listeners to avoid duplicates
+        const newItem = item.cloneNode(true);
+        item.parentNode?.replaceChild(newItem, item);
+        
+        // Add new event listeners with proper colors
+        newItem.addEventListener('mouseenter', () => {
+          (newItem as HTMLElement).style.backgroundColor = accentColor;
+          (newItem as HTMLElement).style.color = 'white';
+        });
+        
+        newItem.addEventListener('mouseleave', () => {
+          if (!(newItem as HTMLElement).hasAttribute('data-state') || 
+              (newItem as HTMLElement).getAttribute('data-state') !== 'checked') {
+            (newItem as HTMLElement).style.backgroundColor = '';
+            (newItem as HTMLElement).style.color = '';
+          }
+        });
+        
+        newItem.addEventListener('focus', () => {
+          (newItem as HTMLElement).style.backgroundColor = accentColor;
+          (newItem as HTMLElement).style.color = 'white';
+        });
+      });
+    };
+
+    // Apply colors initially and on mutations
+    applySelectColors();
+    
+    // Create mutation observer to apply colors to dynamically added elements
+    const observer = new MutationObserver(() => {
+      setTimeout(applySelectColors, 100);
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+    
+    return () => observer.disconnect();
+  }, [gender]);
 
   const genderTheme = gender === 'male' ? {
     headerBg: 'bg-gradient-to-r from-blue-600 to-blue-700',
