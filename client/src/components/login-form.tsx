@@ -161,17 +161,19 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         description: `مرحباً بك ${user.name}`,
       });
       
-      // Redirect based on user type
-      if (user.type === "boys_admin") {
-        // AdminB - redirect directly to boys admin panel
-        setLocation('/admin?gender=male');
-      } else if (user.type === "girls_admin") {
-        // AdminG - redirect directly to girls admin panel
-        setLocation('/admin?gender=female');
-      } else {
-        // Super admin - allow selection between complexes
-        onLoginSuccess();
-      }
+      // Small delay to show the toast, then redirect based on user type
+      setTimeout(() => {
+        if (user.type === "boys_admin") {
+          // AdminB - redirect directly to boys admin panel
+          setLocation('/admin?gender=male');
+        } else if (user.type === "girls_admin") {
+          // AdminG - redirect directly to girls admin panel
+          setLocation('/admin?gender=female');
+        } else {
+          // Super admin - allow selection between complexes
+          onLoginSuccess();
+        }
+      }, 1000); // 1 second delay to show the welcome message
     } else {
       // Failed login - increment attempts for this device only
       const failedAttempts = parseInt(localStorage.getItem(`failedLoginAttempts_${deviceId}`) || '0') + 1;
