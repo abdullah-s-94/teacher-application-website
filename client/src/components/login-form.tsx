@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { Lock, User, Home, Shield, AlertTriangle } from "lucide-react";
+import { Lock, User, Home, Shield, AlertTriangle, Sparkles, UserCheck, Key } from "lucide-react";
 
 const loginSchema = z.object({
   username: z.string().min(1, "اسم المستخدم مطلوب"),
@@ -199,41 +199,56 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-128 h-128 bg-gradient-to-r from-slate-100/40 to-gray-100/40 rounded-full blur-3xl animate-float" style={{animationDelay: '4s'}}></div>
       </div>
 
-      <div className="min-h-screen flex items-center justify-center p-4 relative z-10">
-        <Card className="w-full max-w-md bg-white/80 backdrop-blur-sm border border-slate-200/50 shadow-xl">
-          <CardHeader className="text-center">
-            <div className="mx-auto bg-slate-100/80 backdrop-blur-sm p-4 rounded-full w-fit mb-4 relative">
-              <Lock className="h-8 w-8 text-slate-700" />
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-200/20 to-gray-200/20 rounded-full blur-lg"></div>
+      <div className="min-h-screen flex items-center justify-center p-4 relative z-10" dir="rtl">
+        <Card className="w-full max-w-md bg-white/80 backdrop-blur-sm border border-slate-200/60 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl relative overflow-hidden group card-interactive">
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-blue-50/20 to-indigo-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          
+          <CardHeader className="text-center relative z-10">
+            <div className="mx-auto bg-slate-100/80 backdrop-blur-sm p-6 rounded-full w-fit mb-6 group-hover:bg-slate-200/80 transition-all duration-300 relative">
+              <div className="relative">
+                <UserCheck className="h-12 w-12 text-slate-700 group-hover:text-slate-600 transition-all duration-300 group-hover:scale-110" />
+                <Lock className="h-5 w-5 text-slate-500 absolute -bottom-1 -right-1" />
+                <Sparkles className="h-4 w-4 text-amber-500 absolute -top-1 -right-1 animate-bounce" />
+              </div>
             </div>
-            <CardTitle className="text-2xl text-slate-800 arabic-text">تسجيل دخول الإدارة</CardTitle>
-            <p className="text-slate-600 arabic-text">يرجى إدخال بيانات الدخول للوصول إلى لوحة التحكم</p>
+            <CardTitle className="text-3xl font-bold text-slate-800 mb-3 arabic-text">تسجيل دخول الإدارة</CardTitle>
+            <div className="relative inline-block mb-4 animate-float">
+              <p className="text-lg text-slate-600 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full border border-slate-200/50 arabic-text">
+                منطقة الدخول الآمن للمديرين
+              </p>
+            </div>
           </CardHeader>
-        <CardContent>
+        <CardContent className="relative z-10">
           {isBlocked && (
-            <Alert className="mb-4 border-red-200 bg-red-50">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-700">
-                تم حظر هذا الجهاز مؤقتاً لمدة {Math.floor(blockTimeRemaining / 60)}:{String(blockTimeRemaining % 60).padStart(2, '0')} دقيقة
-                <br />
-                <span className="text-sm">تم تجاوز عدد المحاولات المسموحة لهذا الجهاز (5 محاولات)</span>
-                <br />
-                <span className="text-xs text-red-600">ملاحظة: كل جهاز له عداد منفصل للمحاولات</span>
+            <Alert className="mb-6 border-red-300 bg-red-50/80 backdrop-blur-sm rounded-xl shadow-lg animate-slide-up">
+              <AlertTriangle className="h-5 w-5 text-red-600" />
+              <AlertDescription className="text-red-700 arabic-text">
+                <div className="font-bold text-lg mb-2">تم حظر هذا الجهاز مؤقتاً</div>
+                <div className="text-red-800 font-mono text-xl mb-2">
+                  ⏱️ {Math.floor(blockTimeRemaining / 60)}:{String(blockTimeRemaining % 60).padStart(2, '0')} دقيقة
+                </div>
+                <div className="text-sm mb-1">تم تجاوز عدد المحاولات المسموحة لهذا الجهاز (5 محاولات)</div>
+                <div className="text-xs text-red-600">ملاحظة: كل جهاز له عداد منفصل للمحاولات</div>
               </AlertDescription>
             </Alert>
           )}
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="username"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>اسم المستخدم</FormLabel>
+                  <FormItem className="animate-fade-in">
+                    <FormLabel className="text-slate-700 font-semibold arabic-text">اسم المستخدم</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <User className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                        <Input className="pr-10" placeholder="أدخل اسم المستخدم" {...field} />
+                      <div className="relative group">
+                        <User className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-slate-600 transition-colors duration-300" />
+                        <Input 
+                          className="pr-12 h-12 bg-white/60 backdrop-blur-sm border-slate-300 hover:border-slate-400 focus:border-slate-500 transition-all duration-300 rounded-xl text-right arabic-text" 
+                          placeholder="أدخل اسم المستخدم" 
+                          {...field} 
+                        />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -244,14 +259,14 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                 control={form.control}
                 name="password"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>كلمة المرور</FormLabel>
+                  <FormItem className="animate-fade-in" style={{animationDelay: '0.1s'}}>
+                    <FormLabel className="text-slate-700 font-semibold arabic-text">كلمة المرور</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <div className="relative group">
+                        <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-slate-600 transition-colors duration-300" />
                         <Input 
                           type="password" 
-                          className="pr-10" 
+                          className="pr-12 h-12 bg-white/60 backdrop-blur-sm border-slate-300 hover:border-slate-400 focus:border-slate-500 transition-all duration-300 rounded-xl text-right arabic-text" 
                           placeholder="أدخل كلمة المرور" 
                           {...field} 
                         />
@@ -263,45 +278,54 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               />
               <Button 
                 type="submit" 
-                className="w-full" 
-                disabled={isLoading}
+                className="w-full h-12 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl group btn-interactive arabic-text text-lg font-semibold animate-scale-in"
+                style={{animationDelay: '0.2s'}}
+                disabled={isLoading || isBlocked}
               >
                 {isLoading ? (
                   <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent ml-2" />
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent ml-2" />
                     جاري تسجيل الدخول...
                   </>
                 ) : (
-                  "تسجيل الدخول"
+                  <>
+                    <Key className="h-5 w-5 ml-2 group-hover:scale-110 transition-transform duration-300" />
+                    تسجيل الدخول
+                  </>
                 )}
               </Button>
             </form>
           </Form>
           
           {/* Back to Home and Recovery Link */}
-          <div className="text-center mt-6 pt-6 border-t border-slate-200 space-y-3">
+          <div className="text-center mt-8 pt-6 border-t border-slate-200/50 space-y-4 animate-slide-up" style={{animationDelay: '0.3s'}}>
             <Button 
               variant="outline" 
-              size="sm"
+              size="lg"
               onClick={() => setLocation('/')}
-              className="gap-2"
+              className="gap-2 bg-white/70 backdrop-blur-sm border-slate-300 hover:bg-white/90 hover:border-slate-400 transition-all duration-300 rounded-xl px-6 py-3 group arabic-text"
             >
-              <Home className="h-4 w-4" />
+              <Home className="h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
               العودة للصفحة الرئيسية
             </Button>
             
             {/* Hidden recovery link - only appears after failed attempts for this device */}
             {parseInt(localStorage.getItem(`failedLoginAttempts_${getDeviceFingerprint()}`) || '0') >= 3 && (
-              <div>
-                <Button 
-                  variant="link" 
-                  size="sm"
-                  onClick={() => setLocation('/admin/recovery')}
-                  className="text-xs text-slate-500 hover:text-slate-700"
-                >
-                  <Shield className="h-3 w-3 mr-1" />
-                  استعادة بيانات الدخول (طوارئ)
-                </Button>
+              <div className="animate-fade-in">
+                <div className="p-3 bg-amber-50/80 backdrop-blur-sm rounded-xl border border-amber-200/50 mb-3">
+                  <p className="text-amber-700 text-sm font-medium arabic-text mb-2">
+                    هل نسيت بيانات الدخول؟
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setLocation('/admin/recovery')}
+                    className="text-amber-700 border-amber-300 hover:bg-amber-100 hover:border-amber-400 transition-all duration-300 rounded-xl px-4 py-2 group arabic-text"
+                  >
+                    <Shield className="h-4 w-4 ml-1 group-hover:scale-110 transition-transform duration-300" />
+                    استعادة بيانات الدخول (طوارئ)
+                  </Button>
+                </div>
               </div>
             )}
           </div>
