@@ -162,18 +162,13 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       });
       
       // Handle different user types with proper routing
-      console.log("User type:", user.type);
-      
       if (user.type === "super_admin") {
-        console.log("Showing admin selection for super admin");
         // Super admin should go to selection page
         setTimeout(() => setLocation('/admin/selection'), 100);
       } else if (user.type === "boys_admin") {
-        console.log("Setting redirect to admin page for boys admin");
         // Boys admin goes directly to admin page
         setTimeout(() => setLocation('/admin'), 100);
       } else if (user.type === "girls_admin") {
-        console.log("Setting redirect to admin page for girls admin");  
         // Girls admin goes directly to admin page
         setTimeout(() => setLocation('/admin'), 100);
       }

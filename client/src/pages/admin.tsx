@@ -19,16 +19,10 @@ import { useLocation } from "wouter";
 import type { Application } from "@shared/schema";
 
 export default function Admin() {
-  // Get initial user data
-  const initialUserData = localStorage.getItem("adminUser") ? JSON.parse(localStorage.getItem("adminUser")!) : null;
-  const initialGender = initialUserData?.permissions?.gender || null;
-  
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(initialGender);
-  const [currentUser, setCurrentUser] = useState<any>(initialUserData);
   const [, setLocation] = useLocation();
-  
-  console.log("Component initialized with gender:", initialGender);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [filters, setFilters] = useState({
     search: "",
     position: "",
@@ -57,13 +51,12 @@ export default function Admin() {
     }
 
     const userData = JSON.parse(userDataStr);
-    console.log("useEffect - userData loaded:", userData);
+    setCurrentUser(userData);
     
     // Handle gender-specific admins (AdminB and AdminG)
     if (userData.permissions && userData.permissions.gender) {
-      console.log("useEffect - Gender-specific admin detected:", userData.permissions.gender);
+      setSelectedGender(userData.permissions.gender);
       setIsLoggedIn(true);
-      // Gender is already set from initial state, no need to set again
       return;
     }
 
@@ -81,11 +74,7 @@ export default function Admin() {
     setIsLoggedIn(true);
   }, [setLocation]);
 
-  // Monitor selectedGender changes
-  useEffect(() => {
-    console.log("selectedGender changed to:", selectedGender);
-    console.log("isLoggedIn:", isLoggedIn);
-  }, [selectedGender, isLoggedIn]);
+
 
   // Handle search submission
   const handleSearchSubmit = () => {
@@ -128,19 +117,16 @@ export default function Admin() {
     enabled: isLoggedIn && !!selectedGender, // Only fetch when logged in and gender selected
   });
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats } = useQuery({
     queryKey: ['/api/applications/stats', selectedGender],
     queryFn: async () => {
-      console.log("Fetching stats for gender:", selectedGender);
       const params = new URLSearchParams();
       if (selectedGender) {
         params.append('gender', selectedGender);
       }
       const response = await fetch(`/api/applications/stats?${params}`);
       if (!response.ok) throw new Error('Failed to fetch stats');
-      const data = await response.json();
-      console.log("Stats received:", data);
-      return data;
+      return response.json();
     },
     enabled: isLoggedIn && !!selectedGender, // Only fetch when logged in and gender selected
   });
