@@ -223,7 +223,7 @@ export default function Admin() {
 
   const downloadCV = async (id: number, originalName?: string) => {
     try {
-      window.open(`/api/applications/${id}/cv`, '_blank');
+      window.open(`/api/applications/${id}/cv?download=true`, '_blank');
     } catch (error) {
       console.error('Error downloading CV:', error);
       toast({
@@ -236,7 +236,7 @@ export default function Admin() {
 
   const downloadEducationCert = async (id: number, originalName?: string) => {
     try {
-      window.open(`/api/applications/${id}/education-cert`, '_blank');
+      window.open(`/api/applications/${id}/education-cert?download=true`, '_blank');
     } catch (error) {
       console.error('Error downloading education certificate:', error);
       toast({
@@ -249,7 +249,7 @@ export default function Admin() {
 
   const downloadWorkExperience = async (id: number, fileIndex: number, originalName?: string) => {
     try {
-      window.open(`/api/applications/${id}/work-experience/${fileIndex}`, '_blank');
+      window.open(`/api/applications/${id}/work-experience/${fileIndex}?download=true`, '_blank');
     } catch (error) {
       console.error('Error downloading work experience file:', error);
       toast({
@@ -394,8 +394,21 @@ export default function Admin() {
 
   const handleFilePreview = async (url: string, filename: string) => {
     try {
-      // For preview, just open the URL directly - it will follow redirects
-      window.open(url, '_blank');
+      // Get the direct Cloudinary URL first by calling our API
+      const response = await fetch(`${url}?preview=true`, { method: 'HEAD' });
+      if (response.redirected && response.url) {
+        let cloudinaryUrl = response.url;
+        
+        // Remove any attachment flags from the URL for preview
+        cloudinaryUrl = cloudinaryUrl.replace(/[?&]fl_attachment=true/g, '');
+        
+        // Use Google Docs Viewer for better PDF preview experience
+        const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(cloudinaryUrl)}&embedded=true`;
+        window.open(googleViewerUrl, '_blank');
+      } else {
+        // Fallback: open the preview URL directly
+        window.open(`${url}?preview=true`, '_blank');
+      }
     } catch (error) {
       console.error('Error accessing file:', error);
       toast({

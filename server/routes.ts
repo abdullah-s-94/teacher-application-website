@@ -157,7 +157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // For download, we can add attachment flag via query params
             cloudinaryUrl = cloudinaryUrl + (cloudinaryUrl.includes('?') ? '&' : '?') + 'fl_attachment=true';
           }
-          // For preview, just use the raw URL as-is
+          // For preview, just use the raw URL as-is (no modifications needed)
         }
         
         return res.redirect(cloudinaryUrl);
