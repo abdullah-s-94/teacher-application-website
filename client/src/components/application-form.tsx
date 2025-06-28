@@ -206,7 +206,6 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
       }
       setSelectedFile(file);
       console.log('CV file saved to state:', file);
-      form.setValue('cv', file);
     }
   };
 
@@ -232,7 +231,6 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
       }
       setSelectedEducationCert(file);
       console.log('Education cert file saved to state:', file);
-      form.setValue('educationCert', file);
     }
   };
 
@@ -270,13 +268,12 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
 
     const newFiles = [...selectedWorkExperience, ...files];
     setSelectedWorkExperience(newFiles);
-    form.setValue('workExperience', newFiles);
+    console.log('Work experience files saved to state:', newFiles);
   };
 
   const removeWorkExperienceFile = (index: number) => {
     const newFiles = selectedWorkExperience.filter((_, i) => i !== index);
     setSelectedWorkExperience(newFiles);
-    form.setValue('workExperience', newFiles.length > 0 ? newFiles : undefined);
   };
 
   const gradeType = form.watch('gradeType');
