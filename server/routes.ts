@@ -154,20 +154,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const originalName = application.cvOriginalName || 'cv.pdf';
         
         if (isDownload) {
-          // For download, try direct redirect first (simpler approach)
+          // For download, fetch the file from Cloudinary and serve it with proper headers
           try {
-            // Test if Cloudinary URL is accessible
-            const testResponse = await fetch(application.cvCloudinaryUrl, { method: 'HEAD' });
-            if (testResponse.ok) {
-              // If Cloudinary is accessible, redirect with proper download parameters
-              const downloadUrl = `${application.cvCloudinaryUrl}?fl_attachment:${encodeURIComponent(originalName)}`;
-              return res.redirect(302, downloadUrl);
-            } else {
-              throw new Error('Cloudinary file not accessible');
+            const fileResponse = await fetch(application.cvCloudinaryUrl);
+            if (!fileResponse.ok) {
+              throw new Error('Failed to fetch file from Cloudinary');
             }
+            
+            const fileBuffer = await fileResponse.arrayBuffer();
+            
+            // Set proper headers for PDF download
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+            res.setHeader('Content-Length', fileBuffer.byteLength.toString());
+            
+            // Send the file buffer
+            res.send(Buffer.from(fileBuffer));
+            return;
           } catch (error) {
-            console.error('Cloudinary not accessible, falling back to local file:', error);
-            // Fall through to local file handling below
+            console.error('Error fetching file from Cloudinary:', error);
+            return res.status(500).json({ message: "فشل في تحميل الملف من السحابة" });
           }
         } else if (isPreview) {
           // For preview, return JSON with file info for mobile-friendly handling
@@ -244,20 +250,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const originalName = application.educationCertOriginalName || 'education-cert.pdf';
         
         if (isDownload) {
-          // For download, try direct redirect first (simpler approach)
+          // For download, fetch the file from Cloudinary and serve it with proper headers
           try {
-            // Test if Cloudinary URL is accessible
-            const testResponse = await fetch(application.educationCertCloudinaryUrl, { method: 'HEAD' });
-            if (testResponse.ok) {
-              // If Cloudinary is accessible, redirect with proper download parameters
-              const downloadUrl = `${application.educationCertCloudinaryUrl}?fl_attachment:${encodeURIComponent(originalName)}`;
-              return res.redirect(302, downloadUrl);
-            } else {
-              throw new Error('Cloudinary file not accessible');
+            const fileResponse = await fetch(application.educationCertCloudinaryUrl);
+            if (!fileResponse.ok) {
+              throw new Error('Failed to fetch file from Cloudinary');
             }
+            
+            const fileBuffer = await fileResponse.arrayBuffer();
+            
+            // Set proper headers for PDF download
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+            res.setHeader('Content-Length', fileBuffer.byteLength.toString());
+            
+            // Send the file buffer
+            res.send(Buffer.from(fileBuffer));
+            return;
           } catch (error) {
-            console.error('Cloudinary not accessible, falling back to local file:', error);
-            // Fall through to local file handling below
+            console.error('Error fetching file from Cloudinary:', error);
+            return res.status(500).json({ message: "فشل في تحميل الملف من السحابة" });
           }
         } else if (isPreview) {
           // For preview, return JSON with file info for mobile-friendly handling
@@ -340,20 +352,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const isDownload = req.query.download === 'true';
             
             if (isDownload) {
-              // For download, try direct redirect first (simpler approach)
+              // For download, fetch the file from Cloudinary and serve it with proper headers
               try {
-                // Test if Cloudinary URL is accessible
-                const testResponse = await fetch(cloudinaryUrl, { method: 'HEAD' });
-                if (testResponse.ok) {
-                  // If Cloudinary is accessible, redirect with proper download parameters
-                  const downloadUrl = `${cloudinaryUrl}?fl_attachment:${encodeURIComponent(originalName)}`;
-                  return res.redirect(302, downloadUrl);
-                } else {
-                  throw new Error('Cloudinary file not accessible');
+                const fileResponse = await fetch(cloudinaryUrl);
+                if (!fileResponse.ok) {
+                  throw new Error('Failed to fetch file from Cloudinary');
                 }
+                
+                const fileBuffer = await fileResponse.arrayBuffer();
+                
+                // Set proper headers for PDF download
+                res.setHeader('Content-Type', 'application/pdf');
+                res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+                res.setHeader('Content-Length', fileBuffer.byteLength.toString());
+                
+                // Send the file buffer
+                res.send(Buffer.from(fileBuffer));
+                return;
               } catch (error) {
-                console.error('Cloudinary not accessible, falling back to local file:', error);
-                // Fall through to local file handling below
+                console.error('Error fetching file from Cloudinary:', error);
+                return res.status(500).json({ message: "فشل في تحميل الملف من السحابة" });
               }
             } else if (req.query.preview === 'true') {
               // For preview, return JSON with file info for mobile-friendly handling
