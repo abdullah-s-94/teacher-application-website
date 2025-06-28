@@ -172,8 +172,15 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
   });
 
   const onSubmit = (data: FormData) => {
-    console.log('Form submitted with data:', data);
+    console.log('Button clicked!');
+    console.log('Form valid:', form.formState.isValid);
     console.log('Form errors:', form.formState.errors);
+    console.log('Selected files:', {
+      cv: selectedFile,
+      cert: selectedEducationCert,
+      work: selectedWorkExperience
+    });
+    console.log('Form submitted with data:', data);
     submitMutation.mutate(data);
   };
 
