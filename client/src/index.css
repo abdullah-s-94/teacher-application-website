@@ -267,6 +267,46 @@
   color: white !important;
 }
 
+/* Complete override for select dropdown items */
+.male-theme [data-radix-select-item] {
+  transition: all 0.2s ease;
+}
+
+.male-theme [data-radix-select-item]:hover,
+.male-theme [data-radix-select-item][data-highlighted=""],
+.male-theme [data-radix-select-item][data-highlighted],
+.male-theme [data-radix-select-item]:focus {
+  background-color: rgb(37, 99, 235) !important;
+  color: white !important;
+}
+
+.female-theme [data-radix-select-item] {
+  transition: all 0.2s ease;
+}
+
+.female-theme [data-radix-select-item]:hover,
+.female-theme [data-radix-select-item][data-highlighted=""],
+.female-theme [data-radix-select-item][data-highlighted],
+.female-theme [data-radix-select-item]:focus {
+  background-color: rgb(225, 29, 72) !important;
+  color: white !important;
+}
+
+/* Override any golden/amber colors */
+.male-theme [style*="rgb(245, 158, 11)"],
+.male-theme [style*="rgb(217, 119, 6)"],
+.male-theme [style*="amber"] {
+  background-color: rgb(37, 99, 235) !important;
+  color: white !important;
+}
+
+.female-theme [style*="rgb(245, 158, 11)"],
+.female-theme [style*="rgb(217, 119, 6)"],
+.female-theme [style*="amber"] {
+  background-color: rgb(225, 29, 72) !important;
+  color: white !important;
+}
+
 /* Additional coverage for select items */
 .male-theme [data-radix-select-item][aria-selected="true"],
 .male-theme .select-item-selected {

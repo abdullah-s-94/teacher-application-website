@@ -260,49 +260,96 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
 
   const gradeType = form.watch('gradeType');
 
-  // Apply gender-specific colors to select items after component mounts
+  // Apply gender-specific colors to select items
   useEffect(() => {
+    const accentColor = gender === 'male' ? 'rgb(37, 99, 235)' : 'rgb(225, 29, 72)';
+    
     const applySelectColors = () => {
+      // Target all select items and content areas
       const selectItems = document.querySelectorAll('[data-radix-select-item]');
-      const accentColor = gender === 'male' ? 'rgb(37, 99, 235)' : 'rgb(225, 29, 72)';
+      const selectContents = document.querySelectorAll('[data-radix-select-content]');
       
-      selectItems.forEach((item) => {
-        // Remove existing event listeners to avoid duplicates
-        const newItem = item.cloneNode(true);
-        item.parentNode?.replaceChild(newItem, item);
+      // Find and override any golden/amber colored elements
+      const goldenElements = document.querySelectorAll('*');
+      goldenElements.forEach((el) => {
+        const element = el as HTMLElement;
+        const computedStyle = window.getComputedStyle(element);
+        const bgColor = computedStyle.backgroundColor;
         
-        // Add new event listeners with proper colors
-        newItem.addEventListener('mouseenter', () => {
-          (newItem as HTMLElement).style.backgroundColor = accentColor;
-          (newItem as HTMLElement).style.color = 'white';
+        // Check if element has golden/amber background
+        if (bgColor.includes('rgb(245, 158, 11)') || 
+            bgColor.includes('rgb(217, 119, 6)') ||
+            bgColor.includes('rgb(251, 191, 36)') ||
+            element.style.backgroundColor.includes('rgb(245, 158, 11)') ||
+            element.style.backgroundColor.includes('rgb(217, 119, 6)')) {
+          
+          // If this element is within our form, override its color
+          const isInForm = element.closest('.male-theme') || element.closest('.female-theme');
+          if (isInForm) {
+            element.style.backgroundColor = accentColor;
+            element.style.color = 'white';
+          }
+        }
+      });
+      
+      // Apply styles to select items with aggressive overrides
+      selectItems.forEach((item) => {
+        const element = item as HTMLElement;
+        
+        // Completely override all background styles
+        element.style.cssText = element.style.cssText.replace(/background-color:[^;]*;?/g, '');
+        element.style.setProperty('background-color', 'transparent', 'important');
+        
+        // Force remove any existing event listeners by cloning
+        const newElement = element.cloneNode(true) as HTMLElement;
+        element.parentNode?.replaceChild(newElement, element);
+        
+        // Add new event listeners with correct colors
+        newElement.addEventListener('mouseenter', (e) => {
+          e.stopPropagation();
+          newElement.style.setProperty('background-color', accentColor, 'important');
+          newElement.style.setProperty('color', 'white', 'important');
         });
         
-        newItem.addEventListener('mouseleave', () => {
-          if (!(newItem as HTMLElement).hasAttribute('data-state') || 
-              (newItem as HTMLElement).getAttribute('data-state') !== 'checked') {
-            (newItem as HTMLElement).style.backgroundColor = '';
-            (newItem as HTMLElement).style.color = '';
+        newElement.addEventListener('mouseleave', (e) => {
+          e.stopPropagation();
+          if (!newElement.hasAttribute('data-state') || newElement.getAttribute('data-state') !== 'checked') {
+            newElement.style.setProperty('background-color', 'transparent', 'important');
+            newElement.style.setProperty('color', '', 'important');
           }
         });
         
-        newItem.addEventListener('focus', () => {
-          (newItem as HTMLElement).style.backgroundColor = accentColor;
-          (newItem as HTMLElement).style.color = 'white';
+        newElement.addEventListener('focus', (e) => {
+          e.stopPropagation();
+          newElement.style.setProperty('background-color', accentColor, 'important');
+          newElement.style.setProperty('color', 'white', 'important');
         });
+      });
+      
+      // Apply styles to select content containers
+      selectContents.forEach((content) => {
+        const element = content as HTMLElement;
+        element.style.setProperty('--select-accent-color', accentColor);
       });
     };
 
-    // Apply colors initially and on mutations
+    // Apply immediately
     applySelectColors();
     
-    // Create mutation observer to apply colors to dynamically added elements
-    const observer = new MutationObserver(() => {
-      setTimeout(applySelectColors, 100);
+    // Set up mutation observer for dynamic content
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList') {
+          setTimeout(applySelectColors, 50);
+        }
+      });
     });
     
     observer.observe(document.body, {
       childList: true,
-      subtree: true
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['data-state', 'data-highlighted']
     });
     
     return () => observer.disconnect();
