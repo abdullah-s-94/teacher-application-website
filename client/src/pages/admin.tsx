@@ -63,8 +63,10 @@ export default function Admin() {
 
     // Handle gender-specific admins (AdminB and AdminG)
     if (userData.permissions.gender) {
+      console.log("Setting gender for specific admin:", userData.permissions.gender);
       setSelectedGender(userData.permissions.gender);
       setIsLoggedIn(true);
+      console.log("After setting - selectedGender should be:", userData.permissions.gender);
       return;
     }
 
@@ -81,6 +83,12 @@ export default function Admin() {
     setSelectedGender(genderParam);
     setIsLoggedIn(true);
   }, [setLocation]);
+
+  // Monitor selectedGender changes
+  useEffect(() => {
+    console.log("selectedGender changed to:", selectedGender);
+    console.log("isLoggedIn:", isLoggedIn);
+  }, [selectedGender, isLoggedIn]);
 
   // Handle search submission
   const handleSearchSubmit = () => {
