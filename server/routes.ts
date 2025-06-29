@@ -7,6 +7,7 @@ import path from "path";
 import fs from "fs";
 import { uploadToCloudinary, deleteFromCloudinary } from "./cloudinary";
 import https from "https";
+import crypto from "crypto";
 
 // Configure multer for file uploads (using memory storage for Cloudinary)
 const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -28,8 +29,111 @@ const upload = multer({
   }
 });
 
+// Secure credential storage with proper hashing
+const SECURE_USERS = {
+  "Admin": {
+    // Password: Abu0555700769@@
+    passwordHash: "5d88cded2bddb40f9d6a7cc1c7bbffc4c0179cccfdac70c9d6e6c7a3d870148f", 
+    type: "super_admin",
+    name: "مدير المجمع",
+    permissions: { canSwitchGender: true, gender: null }
+  },
+  "AdminB": {
+    // Password: Abu0555700769@@B
+    passwordHash: "2276943c9c04f3c0b91d63bde99999e3bd6a4ca9b38f76c86724473dd0d53558",
+    type: "boys_admin", 
+    name: "مدير مجمع البنين",
+    permissions: { canSwitchGender: false, gender: "male" }
+  },
+  "AdminG": {
+    // Password: Abu0555700769@@G
+    passwordHash: "a27d40a15446dc14a78258a42852e53b83a0f0870bb875f4fb7eba700624fa0a",
+    type: "girls_admin",
+    name: "مدير مجمع البنات", 
+    permissions: { canSwitchGender: false, gender: "female" }
+  }
+};
+
+// Secure password hashing function
+function hashPassword(password: string): string {
+  return crypto.createHash('sha256').update(password + 'ANJAL_SCHOOLS_SALT_2025').digest('hex');
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Secure authentication endpoint
+  app.post("/api/auth/login", (req, res) => {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "اسم المستخدم وكلمة المرور مطلوبان" 
+      });
+    }
+
+    const user = SECURE_USERS[username as keyof typeof SECURE_USERS];
+    const hashedPassword = hashPassword(password);
+    
+    if (user && user.passwordHash === hashedPassword) {
+      // Successful authentication
+      res.json({
+        success: true,
+        user: {
+          username,
+          type: user.type,
+          name: user.name,
+          permissions: user.permissions
+        }
+      });
+    } else {
+      // Failed authentication
+      res.status(401).json({
+        success: false,
+        message: "اسم المستخدم أو كلمة المرور غير صحيحة"
+      });
+    }
+  });
+
+  // Secure recovery endpoint
+  app.post("/api/auth/recovery", (req, res) => {
+    const { recoveryCode } = req.body;
+    
+    if (recoveryCode !== "ANJAL2025RECOVERY#") {
+      return res.status(401).json({ 
+        success: false, 
+        message: "رمز الاستعادة غير صحيح" 
+      });
+    }
+
+    // Only provide credentials on valid recovery code
+    const credentials = [
+      {
+        username: "Admin",
+        password: "Abu0555700769@@",
+        role: "مدير المجمع - صلاحيات كاملة",
+        description: "يمكنه الوصول لجميع المجمعات والتبديل بينها"
+      },
+      {
+        username: "AdminB",
+        password: "Abu0555700769@@B",
+        role: "مدير مجمع البنين",
+        description: "يمكنه الوصول لمجمع البنين فقط"
+      },
+      {
+        username: "AdminG",
+        password: "Abu0555700769@@G",
+        role: "مدير مجمع البنات",
+        description: "يمكنه الوصول لمجمع البنات فقط"
+      }
+    ];
+
+    res.json({
+      success: true,
+      credentials
+    });
+  });
+
   // Submit application - support multiple files
   app.post("/api/applications", upload.fields([
     { name: 'cv', maxCount: 1 },

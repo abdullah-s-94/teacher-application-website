@@ -14,34 +14,31 @@ export default function AdminRecovery() {
   // Recovery code - this should be known only by the system administrator
   const RECOVERY_CODE = "ANJAL2025RECOVERY#";
 
-  const handleRecovery = () => {
-    if (recoveryCode === RECOVERY_CODE) {
-      setShowCredentials(true);
-    } else {
-      alert("رمز الاستعادة غير صحيح");
+  const [credentials, setCredentials] = useState<any[]>([]);
+
+  const handleRecovery = async () => {
+    try {
+      // Fetch secure credentials from server
+      const response = await fetch('/api/auth/recovery', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ recoveryCode }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCredentials(data.credentials);
+        setShowCredentials(true);
+      } else {
+        alert("رمز الاستعادة غير صحيح");
+      }
+    } catch (error) {
+      console.error('Recovery error:', error);
+      alert("حدث خطأ أثناء استعادة البيانات");
     }
   };
-
-  const credentials = [
-    {
-      username: "Admin",
-      password: "Abu0555700769@@",
-      role: "مدير المجمع - صلاحيات كاملة",
-      description: "يمكنه الوصول لجميع المجمعات والتبديل بينها"
-    },
-    {
-      username: "AdminB",
-      password: "Abu0555700769@@B",
-      role: "مدير مجمع البنين",
-      description: "يمكنه الوصول لمجمع البنين فقط"
-    },
-    {
-      username: "AdminG",
-      password: "Abu0555700769@@G",
-      role: "مدير مجمع البنات",
-      description: "يمكنه الوصول لمجمع البنات فقط"
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 relative overflow-hidden" dir="rtl">

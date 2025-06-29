@@ -90,17 +90,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     }
   }, []);
 
-  // Hash function for basic security (simple but better than plain text)
-  const simpleHash = (str: string): string => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-    return Math.abs(hash).toString(36);
-  };
-
   const onSubmit = async (data: LoginData) => {
     if (isBlocked) {
       const minutes = Math.floor(blockTimeRemaining / 60);
@@ -115,89 +104,94 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
     setIsLoading(true);
     
-    // User credentials stored with hashed passwords for security
-    const users = {
-      "Admin": { 
-        passwordHash: simpleHash("Abu0555700769@@"), 
-        type: "super_admin", 
-        name: "مدير المجمع", 
-        permissions: { canSwitchGender: true, gender: null } 
-      },
-      "AdminB": { 
-        passwordHash: simpleHash("Abu0555700769@@B"), 
-        type: "boys_admin", 
-        name: "مدير مجمع البنين", 
-        permissions: { canSwitchGender: false, gender: "male" } 
-      },
-      "AdminG": { 
-        passwordHash: simpleHash("Abu0555700769@@G"), 
-        type: "girls_admin", 
-        name: "مدير مجمع البنات", 
-        permissions: { canSwitchGender: false, gender: "female" } 
-      }
-    };
-
-    const user = users[data.username as keyof typeof users];
-    const inputPasswordHash = simpleHash(data.password);
-    
-    const deviceId = getDeviceFingerprint();
-    
-    if (user && inputPasswordHash === user.passwordHash) {
-      // Successful login - reset failed attempts for this device
-      localStorage.removeItem(`failedLoginAttempts_${deviceId}`);
-      localStorage.removeItem(`loginBlockEndTime_${deviceId}`);
-      
-      // Store login information
-      localStorage.setItem("adminLoggedIn", "true");
-      localStorage.setItem("adminUser", JSON.stringify({
-        username: data.username,
-        type: user.type,
-        name: user.name,
-        permissions: user.permissions
-      }));
-      
-      toast({
-        title: "تم تسجيل الدخول بنجاح",
-        description: `مرحباً بك ${user.name}`,
+    try {
+      // Send login request to server for secure authentication
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: data.username,
+          password: data.password,
+        }),
       });
-      
-      // Handle different user types with proper routing
-      if (user.type === "super_admin") {
-        // Super admin should go to selection page
-        setTimeout(() => setLocation('/admin/selection'), 100);
-      } else if (user.type === "boys_admin") {
-        // Boys admin goes directly to admin page
-        setTimeout(() => setLocation('/admin'), 100);
-      } else if (user.type === "girls_admin") {
-        // Girls admin goes directly to admin page
-        setTimeout(() => setLocation('/admin'), 100);
-      }
-      
-      onLoginSuccess();
-    } else {
-      // Failed login - increment attempts for this device only
-      const failedAttempts = parseInt(localStorage.getItem(`failedLoginAttempts_${deviceId}`) || '0') + 1;
-      localStorage.setItem(`failedLoginAttempts_${deviceId}`, failedAttempts.toString());
-      
-      if (failedAttempts >= 5) {
-        // Block this device for 5 minutes
-        const blockEndTime = Date.now() + (5 * 60 * 1000); // 5 minutes
-        localStorage.setItem(`loginBlockEndTime_${deviceId}`, blockEndTime.toString());
-        setIsBlocked(true);
-        setBlockTimeRemaining(300); // 5 minutes in seconds
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // Successful login - reset failed attempts for this device
+        const deviceId = getDeviceFingerprint();
+        localStorage.removeItem(`failedLoginAttempts_${deviceId}`);
+        localStorage.removeItem(`loginBlockEndTime_${deviceId}`);
         
+        // Store login information securely (without sensitive data)
+        localStorage.setItem('adminUser', JSON.stringify({
+          username: result.user.username,
+          type: result.user.type,
+          name: result.user.name,
+          permissions: result.user.permissions,
+          loginTime: Date.now()
+        }));
+
         toast({
-          variant: "destructive",
-          title: "تم حظر هذا الجهاز مؤقتاً",
-          description: "تم تجاوز عدد المحاولات المسموحة لهذا الجهاز. المحاولة متاحة بعد 5 دقائق",
+          title: "تم تسجيل الدخول بنجاح",
+          description: `مرحباً ${result.user.name}`,
         });
+
+        onLoginSuccess();
+        
+        // Redirect based on user type
+        setTimeout(() => {
+          if (result.user.type === 'super_admin') {
+            setLocation('/admin/selection');
+          } else {
+            setLocation('/admin');
+          }
+        }, 1000);
       } else {
-        toast({
-          variant: "destructive",
-          title: "خطأ في تسجيل الدخول",
-          description: `اسم المستخدم أو كلمة المرور غير صحيحة (${failedAttempts}/5 محاولات لهذا الجهاز)`,
-        });
+        // Failed login - track attempts per device
+        const deviceId = getDeviceFingerprint();
+        const currentAttempts = parseInt(localStorage.getItem(`failedLoginAttempts_${deviceId}`) || '0');
+        const newAttempts = currentAttempts + 1;
+        localStorage.setItem(`failedLoginAttempts_${deviceId}`, newAttempts.toString());
+
+        if (newAttempts >= 5) {
+          // Block this device for 5 minutes
+          const blockEndTime = Date.now() + (5 * 60 * 1000);
+          localStorage.setItem(`loginBlockEndTime_${deviceId}`, blockEndTime.toString());
+          setIsBlocked(true);
+          setBlockTimeRemaining(300);
+          
+          toast({
+            variant: "destructive",
+            title: "تم حظر الجهاز مؤقتاً",
+            description: "تم حظر جهازك لمدة 5 دقائق بسبب المحاولات المتكررة",
+          });
+        } else {
+          const remainingAttempts = 5 - newAttempts;
+          toast({
+            variant: "destructive",
+            title: "خطأ في بيانات الدخول",
+            description: `اسم المستخدم أو كلمة المرور غير صحيحة. ${remainingAttempts} محاولات متبقية`,
+          });
+          
+          // Show recovery option after 3 failed attempts on this device
+          if (newAttempts >= 3) {
+            toast({
+              title: "هل تحتاج مساعدة؟",
+              description: "يمكنك استخدام صفحة الاستعادة في حالة نسيان البيانات",
+            });
+          }
+        }
       }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        variant: "destructive",
+        title: "خطأ في الاتصال",
+        description: "حدث خطأ أثناء محاولة تسجيل الدخول",
+      });
     }
     
     setIsLoading(false);
