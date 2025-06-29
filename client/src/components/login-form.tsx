@@ -147,6 +147,10 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           if (result.user.type === 'super_admin') {
             setLocation('/admin/selection');
           } else {
+            // For AdminB and AdminG, set their gender in localStorage
+            if (result.user.permissions.gender) {
+              localStorage.setItem('selectedGender', result.user.permissions.gender);
+            }
             setLocation('/admin');
           }
         }, 1000);

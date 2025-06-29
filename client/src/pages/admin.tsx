@@ -26,12 +26,21 @@ export default function Admin() {
   console.log("Raw stored user:", storedUser);
   const userData = storedUser ? JSON.parse(storedUser) : null;
   console.log("Parsed user data:", userData);
-  const initialGender = userData?.permissions?.gender || null;
+  const storedGender = localStorage.getItem("selectedGender") as 'male' | 'female' | null;
+  const initialGender = userData?.permissions?.gender || storedGender || null;
   console.log("Initial gender extracted:", initialGender);
   
   const [isLoggedIn, setIsLoggedIn] = useState(!!userData && localStorage.getItem("adminLoggedIn") === "true");
   const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(initialGender);
   const [currentUser, setCurrentUser] = useState<any>(userData);
+
+  // Update selectedGender when user data changes or on initial load
+  useEffect(() => {
+    if (userData && userData.permissions && userData.permissions.gender) {
+      setSelectedGender(userData.permissions.gender);
+      localStorage.setItem('selectedGender', userData.permissions.gender);
+    }
+  }, [userData]);
   const [filters, setFilters] = useState({
     search: "",
     position: "",
