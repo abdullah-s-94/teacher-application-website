@@ -64,12 +64,13 @@ export default function Admin() {
       const genderParam = urlParams.get('gender') as 'male' | 'female';
       
       if (!genderParam || (genderParam !== 'male' && genderParam !== 'female')) {
-        // Redirect to admin selection if no valid gender specified
+        // Immediately redirect to admin selection if no valid gender specified
         setLocation('/admin/selection');
         return;
       }
       
       setSelectedGender(genderParam);
+      localStorage.setItem('selectedGender', genderParam);
     }
   }, [isLoggedIn, currentUser, setLocation]);
 
@@ -113,7 +114,7 @@ export default function Admin() {
       if (!response.ok) throw new Error('Failed to fetch applications');
       return await response.json();
     },
-    enabled: isLoggedIn && !!selectedGender, // Only fetch when logged in and gender selected
+    enabled: isLoggedIn && !!selectedGender, // Only fetch when properly configured
   });
 
   const { data: stats } = useQuery({
@@ -127,7 +128,7 @@ export default function Admin() {
       if (!response.ok) throw new Error('Failed to fetch stats');
       return response.json();
     },
-    enabled: isLoggedIn && !!selectedGender, // Only fetch when logged in and gender selected
+    enabled: isLoggedIn && !!selectedGender, // Only fetch when properly configured
   });
 
   const handleLogout = () => {

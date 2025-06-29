@@ -142,18 +142,16 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
         onLoginSuccess();
         
-        // Redirect based on user type
-        setTimeout(() => {
-          if (result.user.type === 'super_admin') {
-            setLocation('/admin/selection');
-          } else {
-            // For AdminB and AdminG, set their gender in localStorage
-            if (result.user.permissions.gender) {
-              localStorage.setItem('selectedGender', result.user.permissions.gender);
-            }
-            setLocation('/admin');
+        // Redirect based on user type immediately
+        if (result.user.type === 'super_admin') {
+          setLocation('/admin/selection');
+        } else {
+          // For AdminB and AdminG, set their gender in localStorage
+          if (result.user.permissions.gender) {
+            localStorage.setItem('selectedGender', result.user.permissions.gender);
           }
-        }, 1000);
+          setLocation('/admin');
+        }
       } else {
         // Failed login - track attempts per device
         const deviceId = getDeviceFingerprint();
