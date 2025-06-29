@@ -126,6 +126,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         localStorage.removeItem(`loginBlockEndTime_${deviceId}`);
         
         // Store login information securely (without sensitive data)
+        localStorage.setItem('adminLoggedIn', 'true');
         localStorage.setItem('adminUser', JSON.stringify({
           username: result.user.username,
           type: result.user.type,

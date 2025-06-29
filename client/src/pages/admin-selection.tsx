@@ -11,8 +11,21 @@ export default function AdminSelection() {
 
   useEffect(() => {
     const loggedIn = localStorage.getItem("adminLoggedIn") === "true";
-    setIsLoggedIn(loggedIn);
-  }, []);
+    const adminUser = localStorage.getItem("adminUser");
+    
+    // Check if user is logged in and has super admin privileges
+    if (loggedIn && adminUser) {
+      const user = JSON.parse(adminUser);
+      if (user.type === 'super_admin') {
+        setIsLoggedIn(true);
+      } else {
+        // Non-super admin users shouldn't be here, redirect to admin page
+        setLocation('/admin');
+      }
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, [setLocation]);
 
   if (!isLoggedIn) {
     return <LoginForm onLoginSuccess={() => setIsLoggedIn(true)} />;
