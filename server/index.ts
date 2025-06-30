@@ -24,17 +24,83 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
       if (logLine.length > 80) {
         logLine = logLine.slice(0, 79) + "…";
       }
-
       log(logLine);
     }
   });
-
   next();
 });
+
+// Database initialization function
+async function initializeDatabase() {
+  try {
+    log("🔄 Initializing database tables...");
+    const { db } = await import("./db");
+    
+    // Create applications table
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS applications (
+        id SERIAL PRIMARY KEY,
+        full_name TEXT NOT NULL,
+        phone VARCHAR(20),
+        national_id VARCHAR(20),
+        city VARCHAR(100),
+        position VARCHAR(50),
+        qualification VARCHAR(50),
+        specialization VARCHAR(100),
+        experience VARCHAR(20),
+        grade_type VARCHAR(20),
+        grade VARCHAR(10),
+        cv_filename VARCHAR(255),
+        cv_original_name VARCHAR(255),
+        submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        birth_date DATE,
+        status VARCHAR(50) DEFAULT 'under_review',
+        has_professional_license VARCHAR(10),
+        education_cert_filename VARCHAR(255),
+        education_cert_original_name VARCHAR(255),
+        work_experience_filenames TEXT,
+        work_experience_original_names TEXT,
+        cv_cloudinary_id VARCHAR(255),
+        cv_cloudinary_url TEXT,
+        education_cert_cloudinary_id VARCHAR(255),
+        education_cert_cloudinary_url TEXT,
+        work_experience_cloudinary_ids TEXT,
+        work_experience_cloudinary_urls TEXT,
+        gender VARCHAR(10),
+        custom_specialization VARCHAR(255)
+      )
+    `);
+    
+    // Create users table
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(100) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        email VARCHAR(255),
+        role VARCHAR(50) DEFAULT 'admin',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    
+    // Create default admin user
+    await db.execute(`
+      INSERT INTO users (username, password, role, email) 
+      VALUES ('admin', 'admin123', 'super_admin', 'admin@school.com') 
+      ON CONFLICT (username) DO NOTHING
+    `);
+    
+    log("✅ Database tables created successfully!");
+    log("🔑 Default admin login: username=admin, password=admin123");
+    
+  } catch (error) {
+    log(`❌ Database initialization error: ${error}`, "error");
+    throw error;
+  }
+}
 
 (async () => {
   try {
@@ -43,9 +109,12 @@ app.use((req, res, next) => {
     const { db } = await import("./db");
     await db.execute("SELECT 1");
     log("Database connection successful");
-
+    
+    // Initialize database tables
+    await initializeDatabase();
+    
     const server = await registerRoutes(app);
-
+    
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       const status = err.status || err.statusCode || 500;
       const message = err.message || "Internal Server Error";
