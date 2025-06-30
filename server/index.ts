@@ -39,7 +39,7 @@ async function initializeDatabase() {
     log("🔄 Initializing database tables...");
     const { db } = await import("./db");
     
-    // Create applications table
+    // Create applications table with all required columns from your existing data
     await db.execute(`
       CREATE TABLE IF NOT EXISTS applications (
         id SERIAL PRIMARY KEY,
@@ -74,27 +74,27 @@ async function initializeDatabase() {
       )
     `);
     
-    // Create users table
+    // Create users table - NOTE: Your system doesn't use database users, it uses hardcoded credentials in routes.ts
+    // This table is created for compatibility but your authentication system works through SECURE_USERS object
     await db.execute(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         username VARCHAR(100) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        email VARCHAR(255),
-        role VARCHAR(50) DEFAULT 'admin',
+        password_hash VARCHAR(255) NOT NULL,
+        user_type VARCHAR(50) NOT NULL,
+        name VARCHAR(255),
+        permissions JSONB,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
     
-    // Create default admin user
-    await db.execute(`
-      INSERT INTO users (username, password, role, email) 
-      VALUES ('admin', 'admin123', 'super_admin', 'admin@school.com') 
-      ON CONFLICT (username) DO NOTHING
-    `);
-    
     log("✅ Database tables created successfully!");
-    log("🔑 Default admin login: username=admin, password=admin123");
+    log("🔑 Your admin system is working with these credentials:");
+    log("   Admin (Super Admin): username=Admin, password=Abu0555700769@@");
+    log("   AdminB (Boys Admin): username=AdminB, password=Abu0555700769@@B"); 
+    log("   AdminG (Girls Admin): username=AdminG, password=Abu0555700769@@G");
+    log("🔄 Recovery Code: ANJAL2025RECOVERY#");
+    log("ℹ️  Authentication handled by SECURE_USERS in routes.ts - no database users needed");
     
   } catch (error) {
     log(`❌ Database initialization error: ${error}`, "error");
