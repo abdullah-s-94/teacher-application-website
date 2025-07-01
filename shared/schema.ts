@@ -56,3 +56,18 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+export const applicationSettings = pgTable("application_settings", {
+  id: serial("id").primaryKey(),
+  gender: text("gender").notNull().unique(), // 'male' or 'female'
+  isOpen: text("is_open").default("yes").notNull(), // 'yes' or 'no'
+  lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+});
+
+export const insertApplicationSettingsSchema = createInsertSchema(applicationSettings).omit({
+  id: true,
+  lastUpdated: true,
+});
+
+export type InsertApplicationSettings = z.infer<typeof insertApplicationSettingsSchema>;
+export type ApplicationSettings = typeof applicationSettings.$inferSelect;

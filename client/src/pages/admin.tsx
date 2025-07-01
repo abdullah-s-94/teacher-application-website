@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star, Home, School } from "lucide-react";
+import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star, Home, School, Settings, X, Check } from "lucide-react";
 import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel, formatAgeLabel, getStatusLabel, getStatusBadgeColor, getSpecializationLabel, getPositionBadgeColor, STANDARD_SPECIALIZATIONS } from "@/lib/utils";
 import { LoginForm } from "@/components/login-form";
 import { useLocation } from "wouter";
@@ -129,6 +129,51 @@ export default function Admin() {
       return response.json();
     },
     enabled: isLoggedIn && !!selectedGender, // Only fetch when properly configured
+  });
+
+  // Query for application settings (only for super admin)
+  const { data: applicationSettings, refetch: refetchSettings } = useQuery({
+    queryKey: ['/api/application-settings', selectedGender],
+    queryFn: async () => {
+      if (!selectedGender) return null;
+      const response = await fetch(`/api/application-settings/${selectedGender}`);
+      if (!response.ok) throw new Error('Failed to fetch application settings');
+      return response.json();
+    },
+    enabled: isLoggedIn && !!selectedGender && currentUser?.type === 'super_admin',
+  });
+
+  // Mutation to update application settings
+  const updateSettingsMutation = useMutation({
+    mutationFn: async ({ gender, isOpen }: { gender: string; isOpen: string }) => {
+      const response = await fetch(`/api/application-settings/${gender}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isOpen }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update application settings');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      refetchSettings();
+      toast({
+        title: "تم التحديث بنجاح",
+        description: "تم تحديث إعدادات استقبال الطلبات",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "خطأ",
+        description: "فشل في تحديث الإعدادات",
+        variant: "destructive",
+      });
+    },
   });
 
   const handleLogout = () => {
@@ -776,6 +821,61 @@ export default function Admin() {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Application Settings Control - Only for Super Admin */}
+              {currentUser?.type === 'super_admin' && applicationSettings && (
+                <div className="mb-6">
+                  <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Settings className="h-5 w-5 text-amber-600" />
+                          <h3 className="text-lg font-semibold text-amber-800">إعدادات استقبال الطلبات</h3>
+                        </div>
+                        <div className={`px-3 py-1 rounded-full text-sm font-medium ${applicationSettings.isOpen === 'yes' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                          {applicationSettings.isOpen === 'yes' ? 'مفتوح' : 'مغلق'}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="text-amber-700 mb-2">
+                            حالة استقبال الطلبات لـ{selectedGender === 'male' ? 'مجمع البنين' : 'مجمع البنات'}:
+                          </p>
+                          <p className="text-sm text-amber-600">
+                            {applicationSettings.isOpen === 'yes' 
+                              ? 'يمكن للمتقدمين حالياً تقديم طلباتهم.' 
+                              : 'تم إغلاق استقبال الطلبات الجديدة.'}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          {applicationSettings.isOpen === 'yes' ? (
+                            <Button
+                              onClick={() => updateSettingsMutation.mutate({ gender: selectedGender!, isOpen: 'no' })}
+                              disabled={updateSettingsMutation.isPending}
+                              variant="destructive"
+                              className="gap-2"
+                            >
+                              <X className="h-4 w-4" />
+                              إغلاق التطبيق
+                            </Button>
+                          ) : (
+                            <Button
+                              onClick={() => updateSettingsMutation.mutate({ gender: selectedGender!, isOpen: 'yes' })}
+                              disabled={updateSettingsMutation.isPending}
+                              className="gap-2 bg-green-600 hover:bg-green-700"
+                            >
+                              <Check className="h-4 w-4" />
+                              فتح التطبيق
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               )}
             </>

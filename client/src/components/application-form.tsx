@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { insertApplicationSchema } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -93,6 +93,16 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Check if applications are open for this gender
+  const { data: applicationSettings } = useQuery({
+    queryKey: ['/api/application-settings', gender],
+    queryFn: async () => {
+      const response = await fetch(`/api/application-settings/${gender}`);
+      if (!response.ok) throw new Error('Failed to fetch application settings');
+      return response.json();
+    },
+  });
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -312,6 +322,43 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
     borderColor: 'border-rose-200',
     focusColor: 'focus:ring-rose-500'
   };
+
+  // If applications are closed, show closed message
+  if (applicationSettings?.isOpen === 'no') {
+    return (
+      <div className={gender === 'male' ? 'male-theme' : 'female-theme'}>
+        <Card className="w-full max-w-4xl mx-auto bg-white/80 backdrop-blur-sm border border-slate-200/50 shadow-xl">
+          <CardHeader className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-t-lg">
+            <CardTitle className="text-2xl arabic-text flex items-center gap-3">
+              <X className="h-8 w-8" />
+              تم إغلاق استقبال الطلبات
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-8 text-center">
+            <div className="max-w-2xl mx-auto">
+              <div className="mb-6">
+                <X className="h-24 w-24 text-red-500 mx-auto mb-4" />
+                <h2 className="text-3xl font-bold text-red-700 mb-4 arabic-text">
+                  نعتذر، تم إغلاق استقبال الطلبات
+                </h2>
+                <p className="text-xl text-red-600 mb-6 arabic-text">
+                  تم إغلاق استقبال الطلبات لـ{gender === 'male' ? 'مجمع البنين' : 'مجمع البنات'} حالياً
+                </p>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-red-800">
+                  <p className="text-lg mb-3 arabic-text">
+                    نشكركم على اهتمامكم بالانضمام إلى فريق مدارس أنجال النخبة الأهلية
+                  </p>
+                  <p className="text-base arabic-text">
+                    نتمنى لكم التوفيق في مسيرتكم المهنية
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className={gender === 'male' ? 'male-theme' : 'female-theme'}>

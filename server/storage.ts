@@ -1,4 +1,4 @@
-import { users, applications, type User, type InsertUser, type Application, type InsertApplication } from "@shared/schema";
+import { users, applications, applicationSettings, type User, type InsertUser, type Application, type InsertApplication, type ApplicationSettings, type InsertApplicationSettings } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, like, sql } from "drizzle-orm";
 
@@ -24,6 +24,11 @@ export interface IStorage {
   deleteApplication(id: number): Promise<void>;
   deleteAllApplications(): Promise<void>;
   getSpecializationStats(gender?: string): Promise<Record<string, number>>;
+  
+  // Application settings methods
+  getApplicationSettings(gender: string): Promise<ApplicationSettings | undefined>;
+  updateApplicationSettings(gender: string, isOpen: string): Promise<void>;
+  initializeApplicationSettings(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -226,6 +231,41 @@ export class DatabaseStorage implements IStorage {
       acc[specializationKey] = (acc[specializationKey] || 0) + Number(row.count);
       return acc;
     }, {} as Record<string, number>);
+  }
+
+  async getApplicationSettings(gender: string): Promise<ApplicationSettings | undefined> {
+    const [settings] = await db
+      .select()
+      .from(applicationSettings)
+      .where(eq(applicationSettings.gender, gender));
+    return settings || undefined;
+  }
+
+  async updateApplicationSettings(gender: string, isOpen: string): Promise<void> {
+    await db
+      .insert(applicationSettings)
+      .values({ gender, isOpen })
+      .onConflictDoUpdate({
+        target: applicationSettings.gender,
+        set: { 
+          isOpen,
+          lastUpdated: sql`NOW()`
+        }
+      });
+  }
+
+  async initializeApplicationSettings(): Promise<void> {
+    // Initialize settings for both genders if they don't exist
+    const maleSettings = await this.getApplicationSettings('male');
+    const femaleSettings = await this.getApplicationSettings('female');
+    
+    if (!maleSettings) {
+      await db.insert(applicationSettings).values({ gender: 'male', isOpen: 'yes' });
+    }
+    
+    if (!femaleSettings) {
+      await db.insert(applicationSettings).values({ gender: 'female', isOpen: 'yes' });
+    }
   }
 }
 

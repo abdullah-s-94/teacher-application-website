@@ -141,6 +141,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     { name: 'workExperience', maxCount: 3 }
   ]), async (req, res) => {
     try {
+      // Check if applications are open for this gender
+      const gender = req.body.gender;
+      if (gender) {
+        const settings = await storage.getApplicationSettings(gender);
+        const isOpen = settings?.isOpen || 'yes';
+        
+        if (isOpen === 'no') {
+          return res.status(403).json({ 
+            message: `نعتذر، تم إغلاق استقبال الطلبات لـ${gender === 'male' ? 'مجمع البنين' : 'مجمع البنات'} حالياً. نتمنى لك التوفيق.`,
+            applicationsClosed: true
+          });
+        }
+      }
+      
       const files = (req.files as { [fieldname: string]: Express.Multer.File[] }) || {};
       
       // Upload files to Cloudinary
@@ -738,6 +752,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Application settings routes
+  app.get("/api/application-settings/:gender", async (req, res) => {
+    try {
+      const { gender } = req.params;
+      
+      if (gender !== 'male' && gender !== 'female') {
+        return res.status(400).json({ message: "Gender must be 'male' or 'female'" });
+      }
+      
+      const settings = await storage.getApplicationSettings(gender);
+      
+      // If no settings exist, default to open
+      const isOpen = settings?.isOpen || 'yes';
+      
+      res.json({ 
+        gender, 
+        isOpen,
+        lastUpdated: settings?.lastUpdated || new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error fetching application settings:', error);
+      res.status(500).json({ message: "فشل في جلب إعدادات التطبيق" });
+    }
+  });
+
+  app.put("/api/application-settings/:gender", async (req, res) => {
+    try {
+      const { gender } = req.params;
+      const { isOpen } = req.body;
+      
+      if (gender !== 'male' && gender !== 'female') {
+        return res.status(400).json({ message: "Gender must be 'male' or 'female'" });
+      }
+      
+      if (isOpen !== 'yes' && isOpen !== 'no') {
+        return res.status(400).json({ message: "isOpen must be 'yes' or 'no'" });
+      }
+      
+      await storage.updateApplicationSettings(gender, isOpen);
+      
+      res.json({ 
+        message: `تم تحديث إعدادات التطبيق لـ${gender === 'male' ? 'مجمع البنين' : 'مجمع البنات'}`,
+        gender,
+        isOpen
+      });
+    } catch (error) {
+      console.error('Error updating application settings:', error);
+      res.status(500).json({ message: "فشل في تحديث إعدادات التطبيق" });
+    }
+  });
+
   const httpServer = createServer(app);
+  
+  // Initialize application settings on server start
+  storage.initializeApplicationSettings().catch(error => {
+    console.error('Error initializing application settings:', error);
+  });
+  
   return httpServer;
 }
