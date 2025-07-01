@@ -134,6 +134,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Check for duplicate national ID
+  app.get("/api/applications/check-duplicate/:nationalId/:gender", async (req, res) => {
+    try {
+      const { nationalId, gender } = req.params;
+      
+      const existingApplication = await storage.getApplicationByNationalId(nationalId, gender);
+      
+      if (existingApplication) {
+        res.json({ 
+          exists: true, 
+          message: "يوجد طلب مسجل مسبقاً بنفس رقم الهوية الوطنية" 
+        });
+      } else {
+        res.json({ 
+          exists: false 
+        });
+      }
+    } catch (error) {
+      console.error('Error checking duplicate national ID:', error);
+      res.status(500).json({ 
+        message: "خطأ في التحقق من رقم الهوية" 
+      });
+    }
+  });
+
   // Submit application - support multiple files
   app.post("/api/applications", upload.fields([
     { name: 'cv', maxCount: 1 },
@@ -151,6 +176,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(403).json({ 
             message: `نعتذر، تم إغلاق استقبال الطلبات لـ${gender === 'male' ? 'مجمع البنين' : 'مجمع البنات'} حالياً. نتمنى لك التوفيق.`,
             applicationsClosed: true
+          });
+        }
+      }
+      
+      // Check for duplicate national ID before processing
+      const nationalId = req.body.nationalId;
+      if (nationalId && gender) {
+        const existingApplication = await storage.getApplicationByNationalId(nationalId, gender);
+        if (existingApplication) {
+          return res.status(409).json({ 
+            message: "يوجد طلب مسجل مسبقاً بنفس رقم الهوية الوطنية. إذا كنت تشعر أنك قدمت بمعلومات خاطئة أو فاتك شيء في طلبك، يرجى التواصل مع إدارة المجمع",
+            duplicateApplication: true
           });
         }
       }

@@ -432,6 +432,24 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                           const target = e.target as HTMLInputElement;
                           target.value = target.value.replace(/[^0-9]/g, '');
                         }}
+                        onBlur={async () => {
+                          if (field.value && field.value.length === 10) {
+                            try {
+                              const response = await fetch(`/api/applications/check-duplicate/${field.value}/${gender}`);
+                              const data = await response.json();
+                              if (data.exists) {
+                                form.setError('nationalId', {
+                                  type: 'custom',
+                                  message: "يوجد طلب مسجل مسبقاً بنفس رقم الهوية الوطنية. إذا كنت تشعر أنك قدمت بمعلومات خاطئة أو فاتك شيء في طلبك، يرجى التواصل مع إدارة المجمع"
+                                });
+                              } else {
+                                form.clearErrors('nationalId');
+                              }
+                            } catch (error) {
+                              console.error('Error checking duplicate:', error);
+                            }
+                          }
+                        }}
                       />
                     </FormControl>
                     <FormMessage />

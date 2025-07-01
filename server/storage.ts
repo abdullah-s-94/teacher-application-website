@@ -11,6 +11,7 @@ export interface IStorage {
   createApplication(application: InsertApplication): Promise<Application>;
   getAllApplications(): Promise<Application[]>;
   getApplicationById(id: number): Promise<Application | undefined>;
+  getApplicationByNationalId(nationalId: string, gender: string): Promise<Application | undefined>;
   getApplicationsByFilter(filter: {
     position?: string;
     qualification?: string;
@@ -78,6 +79,17 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(applications)
       .where(eq(applications.id, id));
+    return application || undefined;
+  }
+
+  async getApplicationByNationalId(nationalId: string, gender: string): Promise<Application | undefined> {
+    const [application] = await db
+      .select()
+      .from(applications)
+      .where(and(
+        eq(applications.nationalId, nationalId),
+        eq(applications.gender, gender)
+      ));
     return application || undefined;
   }
 
