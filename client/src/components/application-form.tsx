@@ -440,7 +440,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                               if (data.exists) {
                                 form.setError('nationalId', {
                                   type: 'custom',
-                                  message: "يوجد طلب مسجل مسبقاً بنفس رقم الهوية الوطنية. إذا كنت تشعر أنك قدمت بمعلومات خاطئة أو فاتك شيء في طلبك، يرجى التواصل مع إدارة المجمع"
+                                  message: "يوجد طلب مسجل مسبقاً بنفس رقم الهوية الوطنية. إذا كنت تشعر أنك قدمت بمعلومات خاطئة أو لم تقم برفع الملفات المطلوبة، يرجى التواصل مع إدارة المجمع لحذف طلبك السابق"
                                 });
                               } else {
                                 form.clearErrors('nationalId');

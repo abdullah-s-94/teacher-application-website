@@ -186,7 +186,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const existingApplication = await storage.getApplicationByNationalId(nationalId, gender);
         if (existingApplication) {
           return res.status(409).json({ 
-            message: "يوجد طلب مسجل مسبقاً بنفس رقم الهوية الوطنية. إذا كنت تشعر أنك قدمت بمعلومات خاطئة أو فاتك شيء في طلبك، يرجى التواصل مع إدارة المجمع",
+            message: "يوجد طلب مسجل مسبقاً بنفس رقم الهوية الوطنية. إذا كنت تشعر أنك قدمت بمعلومات خاطئة أو لم تقم برفع الملفات المطلوبة، يرجى التواصل مع إدارة المجمع لحذف طلبك السابق",
             duplicateApplication: true
           });
         }
