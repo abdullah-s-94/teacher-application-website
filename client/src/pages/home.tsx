@@ -30,13 +30,7 @@ export default function Home() {
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 relative overflow-hidden">
-      {/* Application Mode Indicator */}
-      <div className="fixed top-4 left-4 z-50">
-        <div className={`bg-gradient-to-r ${gender === 'male' ? 'from-blue-600 to-blue-700' : 'from-rose-600 to-rose-700'} text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 backdrop-blur-sm`}>
-          <GraduationCap className="h-5 w-5" />
-          <span className="font-semibold text-sm">نظام التقديم</span>
-        </div>
-      </div>
+
       
       {/* Animated background elements */}
       <div className="absolute inset-0 pointer-events-none">

@@ -45,14 +45,8 @@ export default function AdminSelection() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 relative overflow-hidden" dir="rtl">
-      {/* Admin Status Indicator */}
-      <div className="fixed top-4 left-4 z-50">
-        <div className="bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 backdrop-blur-sm">
-          <Shield className="h-5 w-5" />
-          <span className="font-semibold text-sm">وضع الإدارة</span>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 relative overflow-hidden" dir="rtl">
+
       
       {/* Animated background elements */}
       <div className="absolute inset-0 pointer-events-none">
@@ -69,8 +63,8 @@ export default function AdminSelection() {
               <Shield className="h-14 w-14 text-slate-700" />
               <div className="absolute inset-0 bg-gradient-to-r from-slate-200/20 to-gray-200/20 rounded-full blur-lg"></div>
             </div>
-            <h1 className="text-5xl font-bold text-slate-800 arabic-text">
-              لوحة التحكم الإدارية
+            <h1 className="text-5xl font-bold text-red-800 arabic-text">
+              🔧 لوحة التحكم الإدارية
             </h1>
           </div>
           <div className="relative inline-block mb-8 animate-float">

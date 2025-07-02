@@ -600,14 +600,8 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 relative overflow-hidden">
-      {/* Admin Status Indicator */}
-      <div className="fixed top-4 left-4 z-50">
-        <div className="bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 backdrop-blur-sm">
-          <UserCheck className="h-5 w-5" />
-          <span className="font-semibold text-sm">لوحة الإدارة</span>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 relative overflow-hidden">
+
       
       {/* Animated background elements */}
       <div className="absolute inset-0 pointer-events-none">
@@ -630,7 +624,7 @@ export default function Admin() {
                   <Building className={`h-8 w-8 ${selectedGender === 'male' ? 'text-blue-600' : 'text-rose-600'} group-hover:scale-110 transition-all duration-300`} />
                   <TrendingUp className="h-4 w-4 text-amber-500 absolute -top-1 -right-1 animate-bounce" />
                 </div>
-                <CardTitle className="text-3xl font-bold text-slate-800 arabic-text">لوحة تحكم المتقدمين</CardTitle>
+                <CardTitle className="text-3xl font-bold text-red-800 arabic-text">⚙️ لوحة تحكم المتقدمين</CardTitle>
               </div>
               <div className="flex items-center gap-2 mb-2">
                 <School className={`h-5 w-5 ${selectedGender === 'male' ? 'text-blue-500' : 'text-rose-500'}`} />
