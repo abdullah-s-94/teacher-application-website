@@ -1,9 +1,9 @@
-import { Client } from 'plivo';
+import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 
-interface SMSConfig {
-  authId: string;
-  authToken: string;
-  fromNumber: string;
+interface AWSConfig {
+  region: string;
+  accessKeyId: string;
+  secretAccessKey: string;
 }
 
 interface SMSMessage {
@@ -12,8 +12,8 @@ interface SMSMessage {
 }
 
 export class SMSService {
-  private client: Client | null = null;
-  private config: SMSConfig | null = null;
+  private client: SNSClient | null = null;
+  private config: AWSConfig | null = null;
   private isEnabled: boolean = false;
 
   constructor() {
@@ -21,45 +21,60 @@ export class SMSService {
   }
 
   private initializeConfig() {
-    const authId = process.env.PLIVO_AUTH_ID;
-    const authToken = process.env.PLIVO_AUTH_TOKEN;
-    const fromNumber = process.env.PLIVO_FROM_NUMBER;
+    const region = process.env.AWS_REGION || 'us-east-1';
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 
-    if (authId && authToken && fromNumber) {
-      this.config = { authId, authToken, fromNumber };
-      this.client = new Client(authId, authToken);
+    if (accessKeyId && secretAccessKey) {
+      this.config = {
+        region,
+        accessKeyId,
+        secretAccessKey
+      };
+      
+      this.client = new SNSClient({
+        region: this.config.region,
+        credentials: {
+          accessKeyId: this.config.accessKeyId,
+          secretAccessKey: this.config.secretAccessKey
+        }
+      });
+      
       this.isEnabled = true;
-      console.log('[SMS] SMS service initialized successfully');
+      console.log('[SMS] AWS SNS service initialized successfully');
     } else {
       console.log('[SMS] SMS service disabled - missing configuration');
-      this.isEnabled = false;
+      console.log('[SMS] Required: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY');
+      console.log('[SMS] Optional: AWS_REGION (defaults to us-east-1)');
     }
   }
 
   async sendStatusUpdateSMS(phone: string, fullName: string, status: string): Promise<boolean> {
-    if (!this.isEnabled || !this.client || !this.config) {
-      console.log('[SMS] SMS service not configured, skipping notification');
+    if (!this.isEnabled || !this.client) {
+      console.log('[SMS] Service not enabled, skipping SMS notification');
       return false;
     }
 
     try {
-      // Format phone number for Saudi Arabia
+      // Format phone number to international format
       const formattedPhone = this.formatSaudiPhone(phone);
       
       // Generate Arabic message based on status
       const message = this.generateStatusMessage(fullName, status);
 
-      const response = await this.client.messages.create(
-        this.config.fromNumber,  // src
-        formattedPhone,          // dst
-        message                  // text
-      );
+      const command = new PublishCommand({
+        Message: message,
+        PhoneNumber: formattedPhone,
+      });
 
-      if (response.messageUuid) {
+      const response = await this.client.send(command);
+
+      if (response.MessageId) {
         console.log(`[SMS] Status update sent to ${formattedPhone} for ${fullName} - Status: ${status}`);
+        console.log(`[SMS] AWS SNS MessageId: ${response.MessageId}`);
         return true;
       } else {
-        console.error('[SMS] Failed to send SMS:', response);
+        console.error('[SMS] Failed to send SMS - no MessageId returned');
         return false;
       }
     } catch (error) {
@@ -70,25 +85,22 @@ export class SMSService {
 
   private formatSaudiPhone(phone: string): string {
     // Remove any non-digit characters
-    const cleanPhone = phone.replace(/\D/g, '');
+    const cleaned = phone.replace(/\D/g, '');
     
-    // If it starts with 05, replace with +9665
-    if (cleanPhone.startsWith('05')) {
-      return '+966' + cleanPhone.substring(1);
+    // Handle Saudi phone numbers
+    if (cleaned.startsWith('966')) {
+      // Already in international format
+      return '+' + cleaned;
+    } else if (cleaned.startsWith('05')) {
+      // Local Saudi format, convert to international
+      return '+966' + cleaned.substring(1);
+    } else if (cleaned.startsWith('5') && cleaned.length === 9) {
+      // Saudi mobile without country code or leading zero
+      return '+966' + cleaned;
+    } else {
+      // Default: assume Saudi number and prepend +966
+      return '+966' + cleaned;
     }
-    
-    // If it starts with 5, add +966
-    if (cleanPhone.startsWith('5') && cleanPhone.length === 9) {
-      return '+966' + cleanPhone;
-    }
-    
-    // If it already starts with 966, add +
-    if (cleanPhone.startsWith('966')) {
-      return '+' + cleanPhone;
-    }
-    
-    // Default: assume it's a Saudi number and add +966
-    return '+966' + cleanPhone;
   }
 
   private generateStatusMessage(fullName: string, status: string): string {
@@ -96,13 +108,13 @@ export class SMSService {
     
     switch (status) {
       case 'accepted':
-        return `${schoolName}\n\nمبروك ${fullName}!\nتم قبول طلب التوظيف الخاص بك. سيتم التواصل معك قريباً لإكمال الإجراءات.\n\nنرحب بانضمامك لفريقنا التعليمي المتميز.`;
+        return `${fullName} المحترم/ة\n\nنبشركم بقبولكم للعمل في ${schoolName}. سيتم التواصل معكم قريباً لتحديد موعد المقابلة الشخصية.\n\nتهانينا وأهلاً بكم في عائلة ${schoolName}`;
       
       case 'rejected':
-        return `${schoolName}\n\nعزيزنا ${fullName}\nنشكرك على اهتمامك بالانضمام لمدارسنا. نعتذر لعدم إمكانية قبول طلبك حالياً.\n\nنتمنى لك التوفيق في مسيرتك المهنية.`;
+        return `${fullName} المحترم/ة\n\nنشكركم على اهتمامكم بالعمل في ${schoolName}. للأسف لم يتم قبول طلبكم في الوقت الحالي.\n\nنتمنى لكم التوفيق في مسيرتكم المهنية`;
       
       default:
-        return `${schoolName}\n\nعزيزنا ${fullName}\nتم تحديث حالة طلب التوظيف الخاص بك.\n\nيمكنك التواصل مع إدارة المدرسة للاستفسار.`;
+        return `${fullName} المحترم/ة\n\nتم تحديث حالة طلب التوظيف الخاص بكم في ${schoolName}.\n\nشكراً لتقديمكم على وظائفنا`;
     }
   }
 
