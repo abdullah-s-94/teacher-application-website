@@ -869,7 +869,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const isEnabled = smsService.isServiceEnabled();
       res.json({ 
         enabled: isEnabled,
-        message: isEnabled ? "خدمة الرسائل النصية مفعلة" : "خدمة الرسائل النصية معطلة - يرجى إضافة بيانات Plivo" 
+        message: isEnabled ? "خدمة الرسائل النصية مفعلة" : "خدمة الرسائل النصية معطلة - يرجى إضافة بيانات AWS" 
       });
     } catch (error) {
       console.error('Error checking SMS status:', error);
