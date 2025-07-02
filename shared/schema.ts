@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, date, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -32,10 +32,6 @@ export const applications = pgTable("applications", {
   workExperienceCloudinaryUrls: text("work_experience_cloudinary_urls"),
   status: text("status").default("under_review").notNull(),
   submittedAt: timestamp("submitted_at").defaultNow().notNull(),
-  // نفاذ integration fields
-  nafathVerified: boolean("nafath_verified").default(false),
-  nafathTransactionId: text("nafath_transaction_id"),
-  nafathVerificationTime: timestamp("nafath_verification_time"),
 });
 
 export const insertApplicationSchema = createInsertSchema(applications).omit({
@@ -75,25 +71,3 @@ export const insertApplicationSettingsSchema = createInsertSchema(applicationSet
 
 export type InsertApplicationSettings = z.infer<typeof insertApplicationSettingsSchema>;
 export type ApplicationSettings = typeof applicationSettings.$inferSelect;
-
-// نفاذ Sessions table for OAuth flow management
-export const nafathSessions = pgTable("nafath_sessions", {
-  id: serial("id").primaryKey(),
-  sessionToken: text("session_token").notNull().unique(),
-  state: text("state").notNull(),
-  gender: text("gender").notNull(), // 'male' or 'female'
-  oauthCode: text("oauth_code"),
-  accessToken: text("access_token"),
-  userData: text("user_data"), // JSON string of نفاذ user data
-  verified: boolean("verified").default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-});
-
-export const insertNafathSessionSchema = createInsertSchema(nafathSessions).omit({
-  id: true,
-  createdAt: true,
-});
-
-export type InsertNafathSession = z.infer<typeof insertNafathSessionSchema>;
-export type NafathSession = typeof nafathSessions.$inferSelect;

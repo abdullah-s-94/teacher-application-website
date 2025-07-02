@@ -143,8 +143,6 @@ export default function Admin() {
     enabled: isLoggedIn && !!selectedGender && currentUser?.type === 'super_admin',
   });
 
-
-
   // Mutation to update application settings
   const updateSettingsMutation = useMutation({
     mutationFn: async ({ gender, isOpen }: { gender: string; isOpen: string }) => {
@@ -882,8 +880,6 @@ export default function Admin() {
                   </Card>
                 </div>
               )}
-
-
             </>
           )}
 
