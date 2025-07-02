@@ -601,6 +601,14 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 relative overflow-hidden">
+      {/* Admin Status Indicator */}
+      <div className="fixed top-4 left-4 z-50">
+        <div className="bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 backdrop-blur-sm">
+          <UserCheck className="h-5 w-5" />
+          <span className="font-semibold text-sm">لوحة الإدارة</span>
+        </div>
+      </div>
+      
       {/* Animated background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 left-20 w-64 h-64 bg-gradient-to-r from-slate-200/30 to-gray-200/30 rounded-full blur-3xl animate-float"></div>
