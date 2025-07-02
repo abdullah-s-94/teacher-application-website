@@ -781,36 +781,7 @@ export default function Admin() {
                 </div>
               </div>
 
-              {/* Status Statistics */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-gradient-to-br from-yellow-100 to-yellow-50 p-4 rounded-lg border border-yellow-200 hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-semibold text-yellow-600 mb-1">تحت الإجراء</h3>
-                      <p className="text-2xl font-bold text-yellow-600">{stats.status?.under_review || 0}</p>
-                    </div>
-                    <Clock className="h-8 w-8 text-yellow-400" />
-                  </div>
-                </div>
-                <div className="bg-gradient-to-br from-green-100 to-green-50 p-4 rounded-lg border border-green-200 hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-semibold text-green-600 mb-1">مقبولين</h3>
-                      <p className="text-2xl font-bold text-green-600">{stats.status?.accepted || 0}</p>
-                    </div>
-                    <CheckCircle className="h-8 w-8 text-green-400" />
-                  </div>
-                </div>
-                <div className="bg-gradient-to-br from-red-100 to-red-50 p-4 rounded-lg border border-red-200 hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-semibold text-red-600 mb-1">مرفوضين</h3>
-                      <p className="text-2xl font-bold text-red-600">{stats.status?.rejected || 0}</p>
-                    </div>
-                    <XCircle className="h-8 w-8 text-red-400" />
-                  </div>
-                </div>
-              </div>
+
 
               {/* Specialization Statistics - Chart View */}
               {stats.specializations && Object.keys(stats.specializations).length > 0 && (
