@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertApplicationSchema } from "@shared/schema";
+import { nafathService } from "./nafath";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -256,6 +257,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         workExperienceOriginalNames: files.workExperience?.map(f => f.originalname).join(','),
         workExperienceCloudinaryIds,
         workExperienceCloudinaryUrls,
+        // نفاذ verification data
+        nafathVerified: req.body.nafathVerified === 'true',
+        nafathTransactionId: req.body.nafathTransactionId || null,
+        nafathVerificationTime: req.body.nafathVerified === 'true' ? new Date() : null,
       };
 
       // Validate the data
@@ -851,7 +856,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // نفاذ (Nafath) Integration Routes
+  
+  // Check نفاذ service configuration
+  app.get("/api/nafath/status", (req, res) => {
+    const isConfigured = nafathService.isConfigured();
+    res.json({
+      configured: isConfigured,
+      message: isConfigured ? "نفاذ مكون ومتاح للاستخدام" : "نفاذ غير مكون. يرجى إضافة بيانات API."
+    });
+  });
 
+  // Initiate نفاذ OAuth flow
+  app.post("/api/nafath/initiate", async (req, res) => {
+    try {
+      const { gender } = req.body;
+      
+      if (!gender || (gender !== 'male' && gender !== 'female')) {
+        return res.status(400).json({ message: "يجب تحديد الجنس (male أو female)" });
+      }
+
+      if (!nafathService.isConfigured()) {
+        return res.status(503).json({ 
+          message: "خدمة نفاذ غير متاحة حالياً. يرجى المحاولة لاحقاً أو استخدام الإدخال اليدوي." 
+        });
+      }
+
+      const { authUrl, sessionToken } = await nafathService.initiateAuth(gender);
+      
+      res.json({
+        authUrl,
+        sessionToken,
+        message: "تم إنشاء رابط المصادقة بنجاح"
+      });
+
+    } catch (error) {
+      console.error('Error initiating نفاذ auth:', error);
+      res.status(500).json({ 
+        message: "خطأ في بدء عملية المصادقة عبر نفاذ" 
+      });
+    }
+  });
+
+  // Handle نفاذ OAuth callback
+  app.get("/api/nafath/callback", async (req, res) => {
+    try {
+      const { code, state, error } = req.query;
+
+      // Handle OAuth errors
+      if (error) {
+        console.error('نفاذ OAuth error:', error);
+        return res.redirect(`/?nafath_error=${encodeURIComponent('تم إلغاء المصادقة أو حدث خطأ')}`);
+      }
+
+      if (!code || !state) {
+        return res.redirect(`/?nafath_error=${encodeURIComponent('بيانات مصادقة غير صالحة')}`);
+      }
+
+      const { sessionToken, success } = await nafathService.handleCallback(
+        code as string, 
+        state as string
+      );
+
+      if (success) {
+        // Redirect to application form with session token
+        res.redirect(`/?nafath_session=${sessionToken}&nafath_success=true`);
+      } else {
+        res.redirect(`/?nafath_error=${encodeURIComponent('فشل في التحقق من نفاذ')}`);
+      }
+
+    } catch (error) {
+      console.error('Error handling نفاذ callback:', error);
+      res.redirect(`/?nafath_error=${encodeURIComponent('خطأ في عملية المصادقة')}`);
+    }
+  });
+
+  // Get نفاذ session data
+  app.get("/api/nafath/session/:token", async (req, res) => {
+    try {
+      const { token } = req.params;
+      
+      if (!token) {
+        return res.status(400).json({ message: "مطلوب رمز الجلسة" });
+      }
+
+      const sessionData = await nafathService.getSessionData(token);
+      
+      if (!sessionData) {
+        return res.status(404).json({ 
+          message: "جلسة غير موجودة أو منتهية الصلاحية" 
+        });
+      }
+
+      res.json({
+        data: sessionData,
+        message: "تم جلب بيانات نفاذ بنجاح"
+      });
+
+    } catch (error) {
+      console.error('Error fetching نفاذ session:', error);
+      res.status(500).json({ 
+        message: "خطأ في جلب بيانات الجلسة" 
+      });
+    }
+  });
+
+  // Clean up نفاذ session (optional)
+  app.delete("/api/nafath/session/:token", async (req, res) => {
+    try {
+      const { token } = req.params;
+      
+      if (!token) {
+        return res.status(400).json({ message: "مطلوب رمز الجلسة" });
+      }
+
+      await nafathService.cleanupSession(token);
+      
+      res.json({ message: "تم حذف الجلسة بنجاح" });
+
+    } catch (error) {
+      console.error('Error cleaning up نفاذ session:', error);
+      res.status(500).json({ 
+        message: "خطأ في حذف الجلسة" 
+      });
+    }
+  });
 
   const httpServer = createServer(app);
   

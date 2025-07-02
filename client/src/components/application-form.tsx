@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Send, Upload, FileText, CheckCircle, X } from "lucide-react";
+import { useNafath } from "@/hooks/use-nafath";
+import { Send, Upload, FileText, CheckCircle, X, Shield, UserCheck } from "lucide-react";
 import { z } from "zod";
 import { STANDARD_SPECIALIZATIONS } from "@/lib/utils";
 
@@ -86,6 +87,9 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
   const [selectedWorkExperience, setSelectedWorkExperience] = useState<{name: string, size: number}[]>([]);
   const [showCustomSpecialization, setShowCustomSpecialization] = useState(false);
   
+  // نفاذ integration
+  const nafath = useNafath();
+  
   // Use refs to store actual File objects
   const cvFileRef = useRef<File | null>(null);
   const educationCertFileRef = useRef<File | null>(null);
@@ -123,6 +127,15 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
     },
   });
 
+  // Update form values when نفاذ data is available
+  useEffect(() => {
+    if (nafath.nafathData && nafath.isVerified) {
+      form.setValue('fullName', nafath.nafathData.fullName);
+      form.setValue('nationalId', nafath.nafathData.nationalId);
+      form.setValue('birthDate', nafath.nafathData.birthDate);
+    }
+  }, [nafath.nafathData, nafath.isVerified, form]);
+
   const submitMutation = useMutation({
     mutationFn: async (data: FormData) => {
       const formData = new FormData();
@@ -138,6 +151,14 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
       
       // Add gender
       formData.append('gender', gender);
+
+      // Add نفاذ verification information if available
+      if (nafath.isVerified && nafath.nafathData) {
+        formData.append('nafathVerified', 'true');
+        formData.append('nafathTransactionId', nafath.nafathData.transactionId);
+      } else {
+        formData.append('nafathVerified', 'false');
+      }
 
       // Add CV file
       if (cvFileRef.current) {
@@ -169,7 +190,7 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
     onSuccess: () => {
       toast({
         title: "تم إرسال طلبك بنجاح!",
-        description: "سيتم التواصل معك قريباً",
+        description: nafath.isVerified ? "تم إرسال الطلب مع التحقق من نفاذ" : "سيتم التواصل معك قريباً",
       });
       form.reset();
       setSelectedFile(null);
@@ -179,6 +200,10 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
       cvFileRef.current = null;
       educationCertFileRef.current = null;
       workExperienceFilesRef.current = [];
+      // Clear نفاذ session after successful submission
+      if (nafath.hasValidSession) {
+        nafath.clearSession();
+      }
       queryClient.invalidateQueries({ queryKey: ['/api/applications'] });
       queryClient.invalidateQueries({ queryKey: ['/api/applications/stats'] });
     },
@@ -370,6 +395,79 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
         <CardContent className="p-8">
           <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            
+            {/* نفاذ Authentication Section */}
+            {nafath.isNafathConfigured && !nafath.isVerified && (
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6 mb-6">
+                <div className="flex items-start gap-4">
+                  <Shield className="h-8 w-8 text-green-600 mt-1 flex-shrink-0" />
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-green-800 mb-2 arabic-text">
+                      استخدم نفاذ لملء البيانات تلقائياً
+                    </h3>
+                    <p className="text-green-700 mb-4 arabic-text">
+                      سجل الدخول عبر نفاذ لتعبئة الاسم الكامل ورقم الهوية الوطنية وتاريخ الميلاد تلقائياً من البيانات الرسمية
+                    </p>
+                    <Button
+                      type="button"
+                      onClick={() => nafath.initiateAuth(gender)}
+                      disabled={nafath.isInitiating}
+                      className="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2 flex items-center gap-2"
+                    >
+                      {nafath.isInitiating ? (
+                        <>
+                          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                          جاري التوصيل...
+                        </>
+                      ) : (
+                        <>
+                          <Shield className="h-4 w-4" />
+                          تسجيل الدخول عبر نفاذ
+                        </>
+                      )}
+                    </Button>
+                    
+                    {nafath.initiateError && (
+                      <p className="text-red-600 text-sm mt-2 arabic-text">
+                        خطأ: {nafath.initiateError.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* نفاذ Success Indicator */}
+            {nafath.isVerified && nafath.nafathData && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mb-6">
+                <div className="flex items-start gap-4">
+                  <UserCheck className="h-8 w-8 text-blue-600 mt-1 flex-shrink-0" />
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-blue-800 mb-2 arabic-text">
+                      تم التحقق عبر نفاذ بنجاح
+                    </h3>
+                    <div className="grid md:grid-cols-3 gap-3 text-sm">
+                      <div>
+                        <span className="text-blue-600 font-medium">الاسم: </span>
+                        <span className="text-blue-800">{nafath.nafathData.fullName}</span>
+                      </div>
+                      <div>
+                        <span className="text-blue-600 font-medium">الهوية: </span>
+                        <span className="text-blue-800">{nafath.nafathData.nationalId}</span>
+                      </div>
+                      <div>
+                        <span className="text-blue-600 font-medium">العمر: </span>
+                        <span className="text-blue-800">{nafath.nafathData.age} سنة</span>
+                      </div>
+                    </div>
+                    <p className="text-blue-700 text-sm mt-3 arabic-text">
+                      تم تعبئة البيانات الشخصية تلقائياً. يرجى إكمال باقي البيانات المطلوبة.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Personal Information */}
             <div className="grid md:grid-cols-2 gap-6">
               <FormField
@@ -377,14 +475,26 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                 name="fullName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>الاسم الكامل *</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      الاسم الكامل *
+                      {nafath.isVerified && (
+                        <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                          <UserCheck className="h-3 w-3" />
+                          متحقق عبر نفاذ
+                        </span>
+                      )}
+                    </FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="أدخل اسمك الكامل" 
+                        placeholder={nafath.isVerified ? "تم التعبئة تلقائياً من نفاذ" : "أدخل اسمك الكامل"}
                         {...field} 
+                        disabled={nafath.isVerified}
+                        className={nafath.isVerified ? "bg-green-50 border-green-200 text-green-800" : ""}
                         onInput={(e) => {
-                          const target = e.target as HTMLInputElement;
-                          target.value = target.value.replace(/[^\u0600-\u06FF\s]/g, '');
+                          if (!nafath.isVerified) {
+                            const target = e.target as HTMLInputElement;
+                            target.value = target.value.replace(/[^\u0600-\u06FF\s]/g, '');
+                          }
                         }}
                       />
                     </FormControl>
@@ -421,19 +531,31 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                 name="nationalId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>الهوية الوطنية *</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      الهوية الوطنية *
+                      {nafath.isVerified && (
+                        <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                          <UserCheck className="h-3 w-3" />
+                          متحقق عبر نفاذ
+                        </span>
+                      )}
+                    </FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="1234567890" 
+                        placeholder={nafath.isVerified ? "تم التعبئة تلقائياً من نفاذ" : "1234567890"}
                         {...field} 
                         maxLength={10}
                         pattern="[0-9]{10}"
+                        disabled={nafath.isVerified}
+                        className={nafath.isVerified ? "bg-green-50 border-green-200 text-green-800" : ""}
                         onInput={(e) => {
-                          const target = e.target as HTMLInputElement;
-                          target.value = target.value.replace(/[^0-9]/g, '');
+                          if (!nafath.isVerified) {
+                            const target = e.target as HTMLInputElement;
+                            target.value = target.value.replace(/[^0-9]/g, '');
+                          }
                         }}
                         onBlur={async () => {
-                          if (field.value && field.value.length === 10) {
+                          if (!nafath.isVerified && field.value && field.value.length === 10) {
                             try {
                               const response = await fetch(`/api/applications/check-duplicate/${field.value}/${gender}`);
                               const data = await response.json();
@@ -491,7 +613,15 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                 name="birthDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>تاريخ الميلاد (ميلادي) *</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      تاريخ الميلاد (ميلادي) *
+                      {nafath.isVerified && (
+                        <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                          <UserCheck className="h-3 w-3" />
+                          متحقق عبر نفاذ
+                        </span>
+                      )}
+                    </FormLabel>
                     <FormControl>
                       <Input 
                         type="date" 
@@ -500,6 +630,8 @@ export function ApplicationForm({ gender }: ApplicationFormProps) {
                         name={field.name}
                         value={field.value || ""}
                         ref={field.ref}
+                        disabled={nafath.isVerified}
+                        className={nafath.isVerified ? "bg-green-50 border-green-200 text-green-800" : ""}
                       />
                     </FormControl>
                     <FormMessage />
