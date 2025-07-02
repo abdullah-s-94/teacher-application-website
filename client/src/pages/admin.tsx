@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star, Home, School, Settings, X, Check, MessageSquare } from "lucide-react";
+import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star, Home, School, Settings, X, Check } from "lucide-react";
 import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel, formatAgeLabel, getStatusLabel, getStatusBadgeColor, getSpecializationLabel, getPositionBadgeColor, STANDARD_SPECIALIZATIONS } from "@/lib/utils";
 import { LoginForm } from "@/components/login-form";
 import { useLocation } from "wouter";
@@ -143,16 +143,7 @@ export default function Admin() {
     enabled: isLoggedIn && !!selectedGender && currentUser?.type === 'super_admin',
   });
 
-  // Query for SMS service status (only for super admin)
-  const { data: smsStatus } = useQuery({
-    queryKey: ['/api/sms/status'],
-    queryFn: async () => {
-      const response = await fetch('/api/sms/status');
-      if (!response.ok) throw new Error('Failed to fetch SMS status');
-      return response.json();
-    },
-    enabled: isLoggedIn && currentUser?.type === 'super_admin',
-  });
+
 
   // Mutation to update application settings
   const updateSettingsMutation = useMutation({
@@ -892,36 +883,7 @@ export default function Admin() {
                 </div>
               )}
 
-              {/* SMS Status Display - Only for Super Admin */}
-              {currentUser?.type === 'super_admin' && smsStatus && (
-                <div className="mb-6">
-                  <Card className={`${smsStatus.enabled ? 'bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200' : 'bg-gradient-to-br from-gray-50 to-slate-50 border border-gray-200'}`}>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <MessageSquare className={`h-5 w-5 ${smsStatus.enabled ? 'text-green-600' : 'text-gray-500'}`} />
-                          <h3 className={`text-lg font-semibold ${smsStatus.enabled ? 'text-green-800' : 'text-gray-600'}`}>حالة الرسائل النصية</h3>
-                        </div>
-                        <div className={`px-3 py-1 rounded-full text-sm font-medium ${smsStatus.enabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
-                          {smsStatus.enabled ? 'مفعلة' : 'معطلة'}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex-1">
-                        <p className={`mb-2 ${smsStatus.enabled ? 'text-green-700' : 'text-gray-600'}`}>
-                          {smsStatus.message}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {smsStatus.enabled 
-                            ? 'سيتم إرسال رسائل نصية تلقائياً عند قبول أو رفض الطلبات.' 
-                            : 'لن يتم إرسال رسائل نصية حتى يتم تفعيل الخدمة.'}
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
+
             </>
           )}
 

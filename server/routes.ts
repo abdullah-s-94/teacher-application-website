@@ -6,7 +6,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { uploadToCloudinary, deleteFromCloudinary } from "./cloudinary";
-import { smsService } from "./sms";
+
 import https from "https";
 import crypto from "crypto";
 
@@ -649,19 +649,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update status in database
       await storage.updateApplicationStatus(id, status);
 
-      // Send SMS notification if status changed to accepted or rejected and SMS is enabled
-      if ((status === 'accepted' || status === 'rejected') && smsService.isServiceEnabled()) {
-        try {
-          await smsService.sendStatusUpdateSMS(
-            application.phone,
-            application.fullName,
-            status
-          );
-        } catch (smsError) {
-          console.error('SMS notification failed:', smsError);
-          // Don't fail the entire request if SMS fails
-        }
-      }
+
 
       res.json({ message: "تم تحديث الحالة بنجاح" });
     } catch (error) {
@@ -863,19 +851,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get SMS service status
-  app.get("/api/sms/status", async (req, res) => {
-    try {
-      const isEnabled = smsService.isServiceEnabled();
-      res.json({ 
-        enabled: isEnabled,
-        message: isEnabled ? "خدمة الرسائل النصية مفعلة" : "خدمة الرسائل النصية معطلة - يرجى إضافة بيانات AWS" 
-      });
-    } catch (error) {
-      console.error('Error checking SMS status:', error);
-      res.status(500).json({ message: "فشل في فحص حالة الرسائل النصية" });
-    }
-  });
+
 
   const httpServer = createServer(app);
   
