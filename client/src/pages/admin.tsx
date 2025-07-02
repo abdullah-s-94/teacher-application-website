@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star, Home, School, Settings, X, Check } from "lucide-react";
+import { Download, Eye, FileDown, User, LogOut, Phone, Mail, MapPin, GraduationCap, Award, Calendar, FileText, Trash2, CheckCircle, XCircle, AlertCircle, MoreHorizontal, UserCheck, UserX, TrendingUp, Building, Users, BookOpen, Clock, Star, Home, School, Settings, X, Check, ChevronUp, ChevronDown } from "lucide-react";
 import { formatDate, getPositionLabel, getQualificationLabel, getCityLabel, getExperienceLabel, formatAgeLabel, getStatusLabel, getStatusBadgeColor, getSpecializationLabel, getPositionBadgeColor, STANDARD_SPECIALIZATIONS } from "@/lib/utils";
 import { LoginForm } from "@/components/login-form";
 import { useLocation } from "wouter";
@@ -33,6 +33,7 @@ export default function Admin() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!userData && localStorage.getItem("adminLoggedIn") === "true");
   const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(initialGender);
   const [currentUser, setCurrentUser] = useState<any>(userData);
+  const [showDetailedStats, setShowDetailedStats] = useState(false);
 
   // Update selectedGender when user data changes or on initial load
   useEffect(() => {
@@ -806,23 +807,75 @@ export default function Admin() {
                 </div>
               </div>
 
-              {/* Specialization Statistics - Compact */}
+              {/* Specialization Statistics - Chart View */}
               {stats.specializations && Object.keys(stats.specializations).length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                    <BookOpen className="h-5 w-5" />
-                    إحصائيات التخصصات
-                  </h3>
-                  <div className="bg-white/70 backdrop-blur-sm border border-slate-200 rounded-lg p-4">
-                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2 text-sm">
-                      {Object.entries(stats.specializations).map(([specialization, count]) => (
-                        <div key={specialization} className="flex justify-between items-center py-1 border-b border-slate-100 last:border-b-0">
-                          <span className="text-slate-700 truncate mr-2">{getSpecializationLabel(specialization)}</span>
-                          <span className="font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full text-xs min-w-[24px] text-center">{count as number}</span>
-                        </div>
-                      ))}
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <BookOpen className="h-5 w-5" />
+                      إحصائيات التخصصات
+                    </h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowDetailedStats(!showDetailedStats)}
+                      className="gap-2"
+                    >
+                      {showDetailedStats ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      {showDetailedStats ? 'إخفاء التفاصيل' : 'عرض التفاصيل'}
+                    </Button>
+                  </div>
+                  
+                  {/* Top 5 Specializations - Always Visible */}
+                  <div className="bg-white/70 backdrop-blur-sm border border-slate-200 rounded-lg p-4 mb-4">
+                    <h4 className="text-sm font-medium text-slate-600 mb-3">أكثر 5 تخصصات</h4>
+                    <div className="space-y-2">
+                      {Object.entries(stats.specializations)
+                        .sort(([,a], [,b]) => (b as number) - (a as number))
+                        .slice(0, 5)
+                        .map(([specialization, count]) => {
+                          const percentage = ((count as number) / stats.total * 100).toFixed(1);
+                          return (
+                            <div key={specialization} className="flex items-center justify-between">
+                              <div className="flex items-center gap-3 flex-1">
+                                <span className="text-sm text-slate-700 min-w-0 truncate">
+                                  {getSpecializationLabel(specialization)}
+                                </span>
+                                <div className="flex-1 bg-slate-200 rounded-full h-2 max-w-[120px]">
+                                  <div 
+                                    className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300"
+                                    style={{ width: `${Math.min(parseFloat(percentage), 100)}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 ml-3">
+                                <span className="text-xs text-slate-500">{percentage}%</span>
+                                <span className="font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full text-xs min-w-[24px] text-center">
+                                  {count as number}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
                     </div>
                   </div>
+
+                  {/* Detailed View - Collapsible */}
+                  {showDetailedStats && (
+                    <div className="bg-white/70 backdrop-blur-sm border border-slate-200 rounded-lg p-4">
+                      <h4 className="text-sm font-medium text-slate-600 mb-3">جميع التخصصات</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-1 text-sm max-h-60 overflow-y-auto">
+                        {Object.entries(stats.specializations)
+                          .sort(([,a], [,b]) => (b as number) - (a as number))
+                          .map(([specialization, count]) => (
+                            <div key={specialization} className="flex justify-between items-center py-1 border-b border-slate-100 last:border-b-0">
+                              <span className="text-slate-700 truncate mr-2">{getSpecializationLabel(specialization)}</span>
+                              <span className="font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full text-xs min-w-[24px] text-center">{count as number}</span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
