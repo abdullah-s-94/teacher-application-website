@@ -273,7 +273,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all applications
   app.get("/api/applications", async (req, res) => {
     try {
-      const { position, qualification, experienceRange, search, specialization, hasProfessionalLicense, gender } = req.query;
+      const { position, qualification, experienceRange, search, specialization, hasProfessionalLicense, gender, status } = req.query;
       
       const applications = await storage.getApplicationsByFilter({
         position: position as string,
@@ -283,6 +283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         specialization: specialization as string,
         hasProfessionalLicense: hasProfessionalLicense as string,
         gender: gender as string,
+        status: status as string,
       });
       
       res.json(applications);
