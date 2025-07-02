@@ -863,6 +863,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get SMS service status
+  app.get("/api/sms/status", async (req, res) => {
+    try {
+      const isEnabled = smsService.isServiceEnabled();
+      res.json({ 
+        enabled: isEnabled,
+        message: isEnabled ? "خدمة الرسائل النصية مفعلة" : "خدمة الرسائل النصية معطلة - يرجى إضافة بيانات Plivo" 
+      });
+    } catch (error) {
+      console.error('Error checking SMS status:', error);
+      res.status(500).json({ message: "فشل في فحص حالة الرسائل النصية" });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // Initialize application settings on server start
