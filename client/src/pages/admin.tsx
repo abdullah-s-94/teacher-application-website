@@ -806,22 +806,22 @@ export default function Admin() {
                 </div>
               </div>
 
-              {/* Specialization Statistics */}
+              {/* Specialization Statistics - Compact */}
               {stats.specializations && Object.keys(stats.specializations).length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                     <BookOpen className="h-5 w-5" />
                     إحصائيات التخصصات
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                    {Object.entries(stats.specializations).map(([specialization, count]) => (
-                      <div key={specialization} className="bg-slate-50 p-3 rounded-lg border hover:shadow-sm transition-shadow">
-                        <div className="text-center">
-                          <p className="text-sm font-medium text-slate-600 mb-1">{getSpecializationLabel(specialization)}</p>
-                          <p className="text-xl font-bold text-primary">{count as number}</p>
+                  <div className="bg-white/70 backdrop-blur-sm border border-slate-200 rounded-lg p-4">
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2 text-sm">
+                      {Object.entries(stats.specializations).map(([specialization, count]) => (
+                        <div key={specialization} className="flex justify-between items-center py-1 border-b border-slate-100 last:border-b-0">
+                          <span className="text-slate-700 truncate mr-2">{getSpecializationLabel(specialization)}</span>
+                          <span className="font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full text-xs min-w-[24px] text-center">{count as number}</span>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
