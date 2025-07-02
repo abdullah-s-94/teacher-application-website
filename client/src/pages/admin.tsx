@@ -49,6 +49,7 @@ export default function Admin() {
     experienceRange: "",
     specialization: "",
     hasProfessionalLicense: "",
+    status: "",
   });
   const [searchInput, setSearchInput] = useState("");
   const [selectedApplications, setSelectedApplications] = useState<number[]>([]);
@@ -184,6 +185,10 @@ export default function Admin() {
     setIsLoggedIn(false);
     setCurrentUser(null);
     setSelectedGender(null);
+  };
+
+  const handleFilterChange = (filterName: string, value: string) => {
+    setFilters(prev => ({ ...prev, [filterName]: value }));
   };
 
   if (!isLoggedIn) {
@@ -935,6 +940,71 @@ export default function Admin() {
               )}
             </>
           )}
+
+          {/* Status Filter Buttons */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+              <AlertCircle className="h-5 w-5" />
+              فلترة حسب حالة الطلب
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                variant={filters.status === "" ? "default" : "outline"}
+                onClick={() => handleFilterChange("status", "")}
+                className={`gap-2 transition-all duration-300 ${
+                  filters.status === "" 
+                    ? "bg-slate-600 hover:bg-slate-700 text-white shadow-lg" 
+                    : "bg-white/70 hover:bg-white/90 border-slate-300 text-slate-700"
+                }`}
+              >
+                <Users className="h-4 w-4" />
+                جميع الطلبات
+                {stats && <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs ml-1">{stats.total}</span>}
+              </Button>
+              
+              <Button
+                variant={filters.status === "under_review" ? "default" : "outline"}
+                onClick={() => handleFilterChange("status", "under_review")}
+                className={`gap-2 transition-all duration-300 ${
+                  filters.status === "under_review" 
+                    ? "bg-yellow-500 hover:bg-yellow-600 text-white shadow-lg" 
+                    : "bg-white/70 hover:bg-yellow-50 border-yellow-300 text-yellow-700"
+                }`}
+              >
+                <Clock className="h-4 w-4" />
+                تحت الإجراء
+                {stats && <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs ml-1">{stats.status?.under_review || 0}</span>}
+              </Button>
+              
+              <Button
+                variant={filters.status === "accepted" ? "default" : "outline"}
+                onClick={() => handleFilterChange("status", "accepted")}
+                className={`gap-2 transition-all duration-300 ${
+                  filters.status === "accepted" 
+                    ? "bg-green-500 hover:bg-green-600 text-white shadow-lg" 
+                    : "bg-white/70 hover:bg-green-50 border-green-300 text-green-700"
+                }`}
+              >
+                <CheckCircle className="h-4 w-4" />
+                مقبول
+                {stats && <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs ml-1">{stats.status?.accepted || 0}</span>}
+              </Button>
+              
+              <Button
+                variant={filters.status === "rejected" ? "default" : "outline"}
+                onClick={() => handleFilterChange("status", "rejected")}
+                className={`gap-2 transition-all duration-300 ${
+                  filters.status === "rejected" 
+                    ? "bg-red-500 hover:bg-red-600 text-white shadow-lg" 
+                    : "bg-white/70 hover:bg-red-50 border-red-300 text-red-700"
+                }`}
+              >
+                <XCircle className="h-4 w-4" />
+                مرفوض
+                {stats && <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs ml-1">{stats.status?.rejected || 0}</span>}
+              </Button>
+            </div>
+          </div>
 
           {/* Filters */}
           <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
