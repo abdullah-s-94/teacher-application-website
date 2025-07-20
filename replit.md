@@ -184,6 +184,14 @@ The system now supports three types of admin users with different permission lev
 - Uploaded files may be lost during environment restarts
 - Production deployment should consider cloud storage solutions
 
+## CRITICAL INCIDENT - DATA RECOVERY
+
+### July 20, 2025 - EMERGENCY DATA LOSS
+- **INCIDENT**: Accidental deletion of all application data including 719 female applicants
+- **STATUS**: RECOVERY IN PROGRESS
+- **PRIORITY**: Immediate restoration using Replit point-in-time restore
+- **BACKUP PLAN**: Manual recovery from uploaded files if needed
+
 ## Changelog
 
 Changelog:
